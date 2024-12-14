@@ -7,24 +7,20 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.filter.MedianFilter;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import frc.robot.commands.AlignToTagCommand;
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.AlignToTargetWithDistanceCommand;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class VisionSubsystem extends SubsystemBase {
     private final NetworkTable limelightTable;
     private final NetworkTableEntry tv, tx, ty, ta, botpose, tid;
     private final CommandSwerveDrivetrain drivetrain;
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     // Constants for your Limelight mounting position relative to robot center
     private final Transform3d CAMERA_TO_ROBOT = new Transform3d(
@@ -71,12 +67,12 @@ public class VisionSubsystem extends SubsystemBase {
     public boolean hasValidTarget() {
         double tvValue = tv.getDouble(0.0);
         double taValue = getTargetArea();
-        
+
         SmartDashboard.putNumber("TV Value", tvValue);
         SmartDashboard.putNumber("TA Value", taValue);
-        
-        return tvValue == 1.0;  // Remove the area check for now
-        }
+
+        return tvValue == 1.0; // Remove the area check for now
+    }
 
     public int getCurrentTagID() {
         return (int) tid.getDouble(-1);
@@ -139,7 +135,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Basic rotation-only alignment
     public Command createAlignToTargetCommand() {
-        System.out.println("Align command created");  // or use SmartDashboard
+        System.out.println("Align command created"); // or use SmartDashboard
         SmartDashboard.putString("Vision Command", "Align Started");
         return new AlignToTargetCommand(this, drivetrain);
     }
@@ -153,26 +149,23 @@ public class VisionSubsystem extends SubsystemBase {
     public Command createAlignToTagWithDistanceCommand(int targetTagID) {
         return new AlignToTagCommand(this, drivetrain, targetTagID);
     }
+
     private boolean wasConnected = false;
 
     @Override
     public void periodic() {
 
         boolean isConnected = limelightTable.getEntry("tv").isValid();
-    if (isConnected != wasConnected) {
-        System.out.println("Limelight connection changed: " + isConnected);
-        wasConnected = isConnected;
-    }
-    
-    SmartDashboard.putBoolean("Limelight Connected", isConnected);
+        if (isConnected != wasConnected) {
+            System.out.println("Limelight connection changed: " + isConnected);
+            wasConnected = isConnected;
+        }
 
-        // In VisionSubsystem
-
-    SmartDashboard.putNumber("TV Raw", tv.getDouble(-1));
-    SmartDashboard.putBoolean("TV Valid", tv.isValid());
-    SmartDashboard.putNumber("TX Raw", tx.getDouble(-999));
-    SmartDashboard.putBoolean("TX Valid", tx.isValid());
-
+        SmartDashboard.putBoolean("Limelight Connected", isConnected);
+        SmartDashboard.putNumber("TV Raw", tv.getDouble(-1));
+        SmartDashboard.putBoolean("TV Valid", tv.isValid());
+        SmartDashboard.putNumber("TX Raw", tx.getDouble(-999));
+        SmartDashboard.putBoolean("TX Valid", tx.isValid());
         SmartDashboard.putBoolean("Has Target", hasValidTarget());
         SmartDashboard.putNumber("Target X", getTargetXAngle());
         SmartDashboard.putNumber("Target Area", getTargetArea());
