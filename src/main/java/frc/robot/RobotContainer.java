@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.NoteDetectionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
@@ -28,7 +29,8 @@ public class RobotContainer {
   private final CommandXboxController joystickOne = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   private final VisionSubsystem m_vision = new VisionSubsystem(drivetrain); // My vision subsystem
-
+  private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // My note detection
+                                                                                                 // subsystem
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -42,14 +44,16 @@ public class RobotContainer {
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive.withVelocityX(-joystickOne.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                           // negative Y (forward)
+            // negative Y (forward)
             .withVelocityY(-joystickOne.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-joystickOne.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            .withRotationalRate(-joystickOne.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X
+                                                                           // (left)
         ));
 
     joystickOne.a().whileTrue(drivetrain.applyRequest(() -> brake));
     joystickOne.b().whileTrue(drivetrain
-        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
+        .applyRequest(
+            () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
     // TODO Basic vision test
     joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand());
@@ -58,12 +62,15 @@ public class RobotContainer {
 
     // TODO Test out this more advanced vision command
     joystickOne.leftBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand());
-    // TODO 
+    // TODO
     // joystickOne.leftBumper().whileTrue(m_vision.createAlignToTagWithDistanceCommand(2));
 
-
     // reset the field-centric heading on left bumper press
-    // joystickOne.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+    // joystickOne.leftBumper().onTrue(drivetrain.runOnce(() ->
+    // drivetrain.seedFieldRelative()));
+
+    joystickOne.x().whileTrue(m_noteDetection.createCollectNoteCommand());
+    joystickOne.y().whileTrue(m_noteDetection.createSearchNoteCommand());
 
     if (Utils.isSimulation()) {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));

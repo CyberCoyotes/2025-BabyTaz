@@ -14,6 +14,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.filter.MedianFilter;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+
+import frc.robot.commands.AlignToTagCommand;
+import frc.robot.commands.AlignToTargetCommand;
+import frc.robot.commands.AlignToTargetWithDistanceCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -21,11 +25,11 @@ public class VisionSubsystem extends SubsystemBase {
     private final NetworkTableEntry tv, tx, ty, ta, botpose, tid;
     private final CommandSwerveDrivetrain drivetrain;
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-    
+
     // Constants for your Limelight mounting position relative to robot center
     private final Transform3d CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(0.5, 0, 0.5), // Modify these values based on your robot
-        new Rotation3d(0, Math.toRadians(30), 0) // Assumes 30 degree mount angle
+            new Translation3d(0.5, 0, 0.5), // Modify these values based on your robot
+            new Rotation3d(0, Math.toRadians(30), 0) // Assumes 30 degree mount angle
     );
 
     // Filters for smoothing vision data
@@ -45,7 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem(CommandSwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        
+
         limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
         tv = limelightTable.getEntry("tv");
         tx = limelightTable.getEntry("tx");
@@ -81,17 +85,16 @@ public class VisionSubsystem extends SubsystemBase {
         if (poseArray.length < 6) {
             return null;
         }
-        
+
         // Apply median filtering to smooth out pose estimates
         double filteredX = xFilter.calculate(poseArray[0]);
         double filteredY = yFilter.calculate(poseArray[1]);
         double filteredRot = rotFilter.calculate(poseArray[5]);
-        
+
         return new Pose2d(
-            filteredX,
-            filteredY,
-            Rotation2d.fromDegrees(filteredRot)
-        );
+                filteredX,
+                filteredY,
+                Rotation2d.fromDegrees(filteredRot));
     }
 
     public double getTargetZDistance() {
@@ -108,7 +111,7 @@ public class VisionSubsystem extends SubsystemBase {
             if (visionPose != null) {
                 double targetArea = getTargetArea();
                 double confidenceMultiplier = Math.min(targetArea / POSE_TRUST_THRESHOLD, 1.0);
-                
+
                 if (confidenceMultiplier > 0.7) {
                     drivetrain.seedFieldRelative(visionPose);
                 }
@@ -130,105 +133,18 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Basic rotation-only alignment
     public Command createAlignToTargetCommand() {
-        return new FunctionalCommand(
-            () -> {},
-            () -> {
-                if (hasValidTarget()) {
-                    double xError = getTargetXAngle();
-                    double rotationSpeed = -xError * ROTATION_KP;
-                    
-                    drivetrain.applyRequest(() -> drive
-                        .withVelocityX(0)
-                        .withVelocityY(0)
-                        .withRotationalRate(rotationSpeed));
-                }
-            },
-            interrupted -> drivetrain.applyRequest(() -> drive
-                .withVelocityX(0)
-                .withVelocityY(0)
-                .withRotationalRate(0)),
-            () -> Math.abs(getTargetXAngle()) < 1.0,
-            this, drivetrain
-        );
+        return new AlignToTargetCommand(this, drivetrain);
     }
 
     // Alignment with distance control for any tag
     public Command createAlignToTargetWithDistanceCommand() {
-        return new FunctionalCommand(
-            () -> {},
-            () -> {
-                if (hasValidTarget()) {
-                    double xError = getTargetXAngle();
-                    double rotationSpeed = -xError * ROTATION_KP;
-                    
-                    double currentDistance = getTargetZDistance();
-                    double distanceError = currentDistance - TARGET_DISTANCE_METERS;
-                   // Do this instead:
-                final double clampedForwardSpeed = Math.max(-0.5, 
-                Math.min(0.5, distanceError * DISTANCE_KP));
-                final double clampedRotationSpeed = Math.max(-0.5, 
-                Math.min(0.5, -xError * ROTATION_KP));
-
-                drivetrain.applyRequest(() -> drive
-                .withVelocityX(clampedForwardSpeed)
-                .withVelocityY(0)
-                .withRotationalRate(clampedRotationSpeed));
-                        
-                    SmartDashboard.putNumber("Distance to Target (m)", currentDistance);
-                    SmartDashboard.putNumber("Distance Error (m)", distanceError);
-                }
-            },
-            interrupted -> drivetrain.applyRequest(() -> drive
-                .withVelocityX(0)
-                .withVelocityY(0)
-                .withRotationalRate(0)),
-            () -> {
-                if (!hasValidTarget()) return true;
-                double distanceError = Math.abs(getTargetZDistance() - TARGET_DISTANCE_METERS);
-                double angleError = Math.abs(getTargetXAngle());
-                return distanceError < DISTANCE_TOLERANCE && angleError < 1.0;
-            },
-            this, drivetrain
-        );
+        return new AlignToTargetWithDistanceCommand(this, drivetrain);
     }
 
-// Alignment with distance control for specific tag
-public Command createAlignToTagWithDistanceCommand(int targetTagID) {
-    return new FunctionalCommand(
-        () -> {},
-        () -> {
-            if (hasSpecificTarget(targetTagID)) {
-                double xError = getTargetXAngle();
-                double currentDistance = getTargetZDistance();
-                double distanceError = currentDistance - TARGET_DISTANCE_METERS;
-
-                final double clampedForwardSpeed = Math.max(-0.5, 
-                    Math.min(0.5, distanceError * DISTANCE_KP));
-                final double clampedRotationSpeed = Math.max(-0.5, 
-                    Math.min(0.5, -xError * ROTATION_KP));
-
-                drivetrain.applyRequest(() -> drive
-                    .withVelocityX(clampedForwardSpeed)
-                    .withVelocityY(0)
-                    .withRotationalRate(clampedRotationSpeed));
-                    
-                SmartDashboard.putNumber("Distance to Target (m)", currentDistance);
-                SmartDashboard.putNumber("Distance Error (m)", distanceError);
-            }
-        },
-        interrupted -> drivetrain.applyRequest(() -> drive
-            .withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(0)),
-        () -> {
-            if (!hasSpecificTarget(targetTagID)) return true;
-            double distanceError = Math.abs(getTargetZDistance() - TARGET_DISTANCE_METERS);
-            double angleError = Math.abs(getTargetXAngle());
-            return distanceError < DISTANCE_TOLERANCE && angleError < 1.0;
-        },
-        this, drivetrain
-    );
-}
+    // Alignment with distance control for specific tag
+    public Command createAlignToTagWithDistanceCommand(int targetTagID) {
+        return new AlignToTagCommand(this, drivetrain, targetTagID);
+    }
 
     @Override
     public void periodic() {
@@ -240,9 +156,9 @@ public Command createAlignToTagWithDistanceCommand(int targetTagID) {
                 SmartDashboard.putNumber("Vision Pose Rotation", currentPose.getRotation().getDegrees());
                 SmartDashboard.putNumber("Target Area", getTargetArea());
                 SmartDashboard.putNumber("Current Tag ID", getCurrentTagID());
-                SmartDashboard.putNumber("Vision Confidence", 
-                    Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
-                
+                SmartDashboard.putNumber("Vision Confidence",
+                        Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
+
                 updateOdometryWithVision();
             }
         }
