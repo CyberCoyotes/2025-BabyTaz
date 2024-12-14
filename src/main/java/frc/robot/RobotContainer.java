@@ -12,6 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -56,7 +57,16 @@ public class RobotContainer {
             () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
     // TODO Basic vision test
-    joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand());
+joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand()
+    .beforeStarting(() -> {
+        System.out.println("Right bumper pressed");
+        SmartDashboard.putBoolean("Button Pressed", true);
+    })
+    .finallyDo(() -> {
+        System.out.println("Right bumper released");
+        SmartDashboard.putBoolean("Button Pressed", false);
+    })
+);
     // TODO Test out this more advanced vision command
     // joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand(2));
 

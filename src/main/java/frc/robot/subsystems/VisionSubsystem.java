@@ -69,8 +69,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return tv.getDouble(0.0) == 1.0 && getTargetArea() > VALID_TARGET_AREA;
-    }
+        double tvValue = tv.getDouble(0.0);
+        double taValue = getTargetArea();
+        
+        SmartDashboard.putNumber("TV Value", tvValue);
+        SmartDashboard.putNumber("TA Value", taValue);
+        
+        return tvValue == 1.0;  // Remove the area check for now
+        }
 
     public int getCurrentTagID() {
         return (int) tid.getDouble(-1);
@@ -133,6 +139,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Basic rotation-only alignment
     public Command createAlignToTargetCommand() {
+        System.out.println("Align command created");  // or use SmartDashboard
+        SmartDashboard.putString("Vision Command", "Align Started");
         return new AlignToTargetCommand(this, drivetrain);
     }
 
@@ -145,9 +153,31 @@ public class VisionSubsystem extends SubsystemBase {
     public Command createAlignToTagWithDistanceCommand(int targetTagID) {
         return new AlignToTagCommand(this, drivetrain, targetTagID);
     }
+    private boolean wasConnected = false;
 
     @Override
     public void periodic() {
+
+        boolean isConnected = limelightTable.getEntry("tv").isValid();
+    if (isConnected != wasConnected) {
+        System.out.println("Limelight connection changed: " + isConnected);
+        wasConnected = isConnected;
+    }
+    
+    SmartDashboard.putBoolean("Limelight Connected", isConnected);
+
+        // In VisionSubsystem
+
+    SmartDashboard.putNumber("TV Raw", tv.getDouble(-1));
+    SmartDashboard.putBoolean("TV Valid", tv.isValid());
+    SmartDashboard.putNumber("TX Raw", tx.getDouble(-999));
+    SmartDashboard.putBoolean("TX Valid", tx.isValid());
+
+        SmartDashboard.putBoolean("Has Target", hasValidTarget());
+        SmartDashboard.putNumber("Target X", getTargetXAngle());
+        SmartDashboard.putNumber("Target Area", getTargetArea());
+        SmartDashboard.putNumber("Current Tag ID", getCurrentTagID());
+
         if (hasValidTarget()) {
             Pose2d currentPose = getRobotPose();
             if (currentPose != null) {

@@ -17,7 +17,7 @@ public class AlignToTargetWithDistanceCommand extends Command {
     private static final double TARGET_DISTANCE_METERS = 0.10;
     private static final double DISTANCE_TOLERANCE = 0.02;
     private static final double ANGLE_TOLERANCE = 1.0;
-    private static final double MAX_SPEED = 0.5;
+    private static final double MAX_SPEED = 1;
 
     public AlignToTargetWithDistanceCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
