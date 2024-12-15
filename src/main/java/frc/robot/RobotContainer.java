@@ -57,7 +57,7 @@ public class RobotContainer {
             () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
     // TODO Basic vision test
-joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand()
+joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
     .beforeStarting(() -> {
         System.out.println("Right bumper pressed");
         SmartDashboard.putBoolean("Button Pressed", true);
@@ -71,7 +71,7 @@ joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand()
     // joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand(2));
 
     // TODO Test out this more advanced vision command
-    joystickOne.leftBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand());
+    // joystickOne.leftBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand());
     // TODO
     // joystickOne.leftBumper().whileTrue(m_vision.createAlignToTagWithDistanceCommand(2));
 
@@ -79,8 +79,8 @@ joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetCommand()
     // joystickOne.leftBumper().onTrue(drivetrain.runOnce(() ->
     // drivetrain.seedFieldRelative()));
 
-    joystickOne.x().whileTrue(m_noteDetection.createCollectNoteCommand());
-    joystickOne.y().whileTrue(m_noteDetection.createSearchNoteCommand());
+    // joystickOne.x().whileTrue(m_noteDetection.createCollectNoteCommand());
+    // joystickOne.y().whileTrue(m_noteDetection.createSearchNoteCommand());
 
     if (Utils.isSimulation()) {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));

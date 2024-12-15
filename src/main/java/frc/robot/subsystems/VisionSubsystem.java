@@ -134,7 +134,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     // Basic rotation-only alignment
-    public Command createAlignToTargetCommand() {
+    public Command alignToTarget() {
         System.out.println("Align command created"); // or use SmartDashboard
         SmartDashboard.putString("Vision Command", "Align Started");
         return new AlignToTargetCommand(this, drivetrain);
