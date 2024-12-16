@@ -155,35 +155,39 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
+    // Connection status
         boolean isConnected = limelightTable.getEntry("tv").isValid();
         if (isConnected != wasConnected) {
             System.out.println("Limelight connection changed: " + isConnected);
             wasConnected = isConnected;
         }
+        SmartDashboard.putBoolean("Limelight/Connected", isConnected);
 
-        SmartDashboard.putBoolean("Limelight Connected", isConnected);
-        SmartDashboard.putNumber("TV Raw", tv.getDouble(-1));
-        SmartDashboard.putBoolean("TV Valid", tv.isValid());
-        SmartDashboard.putNumber("TX Raw", tx.getDouble(-999));
-        SmartDashboard.putBoolean("TX Valid", tx.isValid());
-        SmartDashboard.putBoolean("Has Target", hasValidTarget());
-        SmartDashboard.putNumber("Target X", getTargetXAngle());
-        SmartDashboard.putNumber("Target Area", getTargetArea());
-        SmartDashboard.putNumber("Current Tag ID", getCurrentTagID());
-
+        // Basic target information
+        SmartDashboard.putBoolean("Limelight/Has Target", hasValidTarget());
         if (hasValidTarget()) {
+            // Target data
+            SmartDashboard.putNumber("Limelight/Target/X Angle", getTargetXAngle());
+            SmartDashboard.putNumber("Limelight/Target/Area", getTargetArea());
+            SmartDashboard.putNumber("Limelight/Target/Tag ID", getCurrentTagID());
+
+            // Pose data (only if we have a valid pose)
             Pose2d currentPose = getRobotPose();
             if (currentPose != null) {
-                SmartDashboard.putNumber("Vision Pose X", currentPose.getX());
-                SmartDashboard.putNumber("Vision Pose Y", currentPose.getY());
-                SmartDashboard.putNumber("Vision Pose Rotation", currentPose.getRotation().getDegrees());
-                SmartDashboard.putNumber("Target Area", getTargetArea());
-                SmartDashboard.putNumber("Current Tag ID", getCurrentTagID());
-                SmartDashboard.putNumber("Vision Confidence",
-                        Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
-
+                SmartDashboard.putNumberArray("Limelight/Pose", new double[] {
+                    currentPose.getX(),
+                    currentPose.getY(),
+                    currentPose.getRotation().getDegrees()
+                });
+                
+                // Vision confidence based on target area
+                SmartDashboard.putNumber("Limelight/Confidence", 
+                    Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
+                
                 updateOdometryWithVision();
             }
         }
-    }
-}
+        
+     } // end of periodic
+
+} // end of class VisionSubsystem

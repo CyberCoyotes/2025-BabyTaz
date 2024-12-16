@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.TestVisionAlignCommand;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.NoteDetectionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -30,8 +32,9 @@ public class RobotContainer {
   private final CommandXboxController joystickOne = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   private final VisionSubsystem m_vision = new VisionSubsystem(drivetrain); // My vision subsystem
-  private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // My note detection
-                                                                                                 // subsystem
+  private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // Note detection sub                                                                                                // subsystem
+  private final LEDSubsystem leds = new LEDSubsystem(27); // Replace 0 with your CANdle ID
+
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -56,6 +59,9 @@ public class RobotContainer {
         .applyRequest(
             () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
+           
+    joystickOne.x().whileTrue(new TestVisionAlignCommand(m_vision, drivetrain, leds));
+    
     // TODO Basic vision test
 joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
     .beforeStarting(() -> {
