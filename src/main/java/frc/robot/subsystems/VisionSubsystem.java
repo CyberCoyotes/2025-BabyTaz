@@ -59,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void setLimelightConfig() {
         limelightTable.getEntry("pipeline").setNumber(0);
-        limelightTable.getEntry("ledMode").setNumber(1);
+        // limelightTable.getEntry("ledMode").setNumber(1);
         limelightTable.getEntry("camMode").setNumber(0);
         limelightTable.getEntry("stream").setNumber(0);
     }

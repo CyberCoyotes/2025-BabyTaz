@@ -33,7 +33,7 @@ public class RobotContainer {
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   private final VisionSubsystem m_vision = new VisionSubsystem(drivetrain); // My vision subsystem
   private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // Note detection sub                                                                                                // subsystem
-  private final LEDSubsystem leds = new LEDSubsystem(27); // Replace 0 with your CANdle ID
+  private final LEDSubsystem leds = new LEDSubsystem(30); // Replace 0 with your CANdle ID
 
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
