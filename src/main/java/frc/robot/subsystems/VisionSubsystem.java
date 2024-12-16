@@ -141,12 +141,12 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     // Alignment with distance control for any tag
-    public Command createAlignToTargetWithDistanceCommand() {
+    public Command alignToTargetWithDistanceCommand() {
         return new AlignToTargetWithDistanceCommand(this, drivetrain);
     }
 
     // Alignment with distance control for specific tag
-    public Command createAlignToTagWithDistanceCommand(int targetTagID) {
+    public Command alignToTagWithDistanceCommand(int targetTagID) {
         return new AlignToTagCommand(this, drivetrain, targetTagID);
     }
 

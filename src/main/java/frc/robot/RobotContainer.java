@@ -5,9 +5,9 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 // import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.CheckAprilTagCommand;
 import frc.robot.commands.TestVisionAlignCommand;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
@@ -28,12 +29,16 @@ public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
+
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystickOne = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   private final VisionSubsystem m_vision = new VisionSubsystem(drivetrain); // My vision subsystem
   private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // Note detection sub                                                                                                // subsystem
   private final LEDSubsystem leds = new LEDSubsystem(30); // Replace 0 with your CANdle ID
+
+  private final CheckAprilTagCommand checkAprilTagCommand;
+
 
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -73,6 +78,20 @@ joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
         SmartDashboard.putBoolean("Button Pressed", false);
     })
 );
+
+joystickOne.leftBumper().whileTrue(m_vision.alignToTagWithDistanceCommand(2)
+    .beforeStarting(() -> {
+        System.out.println("left bumper pressed");
+        SmartDashboard.putBoolean("Button Pressed", true);
+    })
+    .finallyDo(() -> {
+        System.out.println("left bumper released");
+        SmartDashboard.putBoolean("Button Pressed", false);
+    })
+);
+
+        joystickOne.y().whileTrue(m_vision.alignToTarget());
+
     // TODO Test out this more advanced vision command
     // joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand(2));
 
@@ -95,6 +114,8 @@ joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
   }
 
   public RobotContainer() {
+    checkAprilTagCommand = new CheckAprilTagCommand(visionSubsystem, ledSubsystem);
+
     configureBindings();
   }
 

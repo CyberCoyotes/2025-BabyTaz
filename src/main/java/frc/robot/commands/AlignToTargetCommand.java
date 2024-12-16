@@ -22,7 +22,7 @@ public class AlignToTargetCommand extends Command {
     // TODO
     // Started with 10 frames, but this may need to be adjusted
     // 180 frames is 2 seconds at 90 fps
-    private static final int MAX_MISSED_FRAMES = 180; // Number of frames to keep last known position
+    private static final int MAX_MISSED_FRAMES = 1000; // Number of frames to keep last known position
 
     
     private double lastKnownError = 0;
@@ -44,7 +44,7 @@ public class AlignToTargetCommand extends Command {
             double rotationSpeed = -lastKnownError * ROTATION_KP;
             
             SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
-            System.out.println("Target found - xError: " + lastKnownError + ", speed: " + rotationSpeed);
+            System.out.println("Target found - x Off: " + lastKnownError + ", speed: " + rotationSpeed);
 
             drivetrain.applyRequest(() -> drive
                 .withVelocityX(0)
