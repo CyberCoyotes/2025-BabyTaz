@@ -16,9 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.CheckAprilTagCommand;
-import frc.robot.commands.TestVisionAlignCommand;
-// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.TestVisionCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LEDSubsystem;
@@ -36,9 +34,6 @@ public class RobotContainer {
   private final VisionSubsystem m_vision = new VisionSubsystem(drivetrain); // My vision subsystem
   private final NoteDetectionSubsystem m_noteDetection = new NoteDetectionSubsystem(drivetrain); // Note detection sub                                                                                                // subsystem
   private final LEDSubsystem leds = new LEDSubsystem(30); // Replace 0 with your CANdle ID
-
-  private final CheckAprilTagCommand checkAprilTagCommand;
-
 
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -59,13 +54,13 @@ public class RobotContainer {
                                                                            // (left)
         ));
 
-    joystickOne.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    joystickOne.b().whileTrue(drivetrain
+    joystickOne.start().whileTrue(drivetrain.applyRequest(() -> brake));
+    joystickOne.y().whileTrue(drivetrain
         .applyRequest(
             () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
            
-    joystickOne.x().whileTrue(new TestVisionAlignCommand(m_vision, drivetrain, leds));
+    joystickOne.a().whileTrue(new TestVisionCommand(m_vision, drivetrain, leds));
     
     // TODO Basic vision test
 joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
@@ -90,22 +85,7 @@ joystickOne.leftBumper().whileTrue(m_vision.alignToTagWithDistanceCommand(2)
     })
 );
 
-        joystickOne.y().whileTrue(m_vision.alignToTarget());
 
-    // TODO Test out this more advanced vision command
-    // joystickOne.rightBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand(2));
-
-    // TODO Test out this more advanced vision command
-    // joystickOne.leftBumper().whileTrue(m_vision.createAlignToTargetWithDistanceCommand());
-    // TODO
-    // joystickOne.leftBumper().whileTrue(m_vision.createAlignToTagWithDistanceCommand(2));
-
-    // reset the field-centric heading on left bumper press
-    // joystickOne.leftBumper().onTrue(drivetrain.runOnce(() ->
-    // drivetrain.seedFieldRelative()));
-
-    // joystickOne.x().whileTrue(m_noteDetection.createCollectNoteCommand());
-    // joystickOne.y().whileTrue(m_noteDetection.createSearchNoteCommand());
 
     if (Utils.isSimulation()) {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -114,7 +94,6 @@ joystickOne.leftBumper().whileTrue(m_vision.alignToTagWithDistanceCommand(2)
   }
 
   public RobotContainer() {
-    checkAprilTagCommand = new CheckAprilTagCommand(visionSubsystem, ledSubsystem);
 
     configureBindings();
   }

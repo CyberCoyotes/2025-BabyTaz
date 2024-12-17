@@ -11,8 +11,9 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem.Color;
 
-public class TestVisionAlignCommand extends Command {
+public class TestVisionCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final LEDSubsystem leds;
@@ -25,7 +26,7 @@ public class TestVisionAlignCommand extends Command {
     // Add alignment threshold
     private static final double ALIGNED_THRESHOLD = 2.0; // Degrees
 
-    public TestVisionAlignCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, LEDSubsystem leds) {
+    public TestVisionCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, LEDSubsystem leds) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.leds = leds;
@@ -35,7 +36,7 @@ public class TestVisionAlignCommand extends Command {
     @Override
     public void initialize() {
         SmartDashboard.putBoolean("Vision Test/Running", true);
-        leds.setRed(); // Start with red
+        leds.setColor(Color.GOLD);
     }
 
     @Override
@@ -44,31 +45,32 @@ public class TestVisionAlignCommand extends Command {
             double xError = vision.getTargetXAngle();
             int tagId = vision.getCurrentTagID();
 
+/* 
             // Calculate rotation speed
             double rotationSpeed = -xError * ROTATION_KP;
             rotationSpeed = Math.max(-MAX_ROTATION_SPEED, Math.min(MAX_ROTATION_SPEED, rotationSpeed));
-
+*/
             // Update LEDs based on alignment
-            if (Math.abs(xError) < ALIGNED_THRESHOLD) {
-                leds.setGreen();
+            if (tagId == 1 || tagId == 2 || tagId == 3 || tagId == 4) {
+                leds.setColor(Color.GREEN);
             } else {
-                leds.setRed();
+                leds.setColor(Color.PURPLE);
             }
-
+/*
             // Apply the rotation directly
             drive.withRotationalRate(rotationSpeed);
             drivetrain.applyRequest(() -> drive);
-
+*/
             // Output debug data
             SmartDashboard.putNumber("Vision Test/Tag ID", tagId);
             SmartDashboard.putNumber("Vision Test/X Error", xError);
-            SmartDashboard.putNumber("Vision Test/Rotation Speed", rotationSpeed);
-        } else {
-            leds.setRed();
-            drive.withRotationalRate(0);
-            drivetrain.applyRequest(() -> drive);
+            
+        // } else {
+            // leds.setRed();
+            // drive.withRotationalRate(0);
+            // drivetrain.applyRequest(() -> drive);
 
-            SmartDashboard.putNumber("Vision Test/Tag ID", -1);
+            // SmartDashboard.putNumber("Vision Test/Tag ID", -1);
         }
 
     }

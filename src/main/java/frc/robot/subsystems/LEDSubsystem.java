@@ -30,7 +30,7 @@ public class LEDSubsystem extends SubsystemBase {
         SHOOTING
     }
 
-    public enum LEDColor {
+    public enum Color {
         RED(255, 0, 0),
         GREEN(0, 255, 0),
         BLUE(0, 0, 255),
@@ -44,7 +44,7 @@ public class LEDSubsystem extends SubsystemBase {
 
         private final int r, g, b;
 
-        LEDColor(int r, int g, int b) {
+        Color(int r, int g, int b) {
             this.r = r;
             this.g = g;
             this.b = b;
@@ -74,19 +74,20 @@ public class LEDSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Update LEDs based on robot state
-        updateLEDsBasedOnState();
+        updateLEDState();
     }
 
-    private void updateLEDsBasedOnState() {
+
+    private void updateLEDState() {
         switch (currentState) {
             case AUTONOMOUS:
-                setColor(LEDColor.GOLD);
+                setColor(Color.GOLD);
                 break;
             case TELEOP:
                 if (DriverStation.isEnabled()) {
-                    setColor(LEDColor.GREEN);
+                    setColor(Color.GREEN);
                 } else {
-                    setColor(LEDColor.BLUE);
+                    setColor(Color.BLUE);
                 }
                 break;
             case ERROR:
@@ -104,11 +105,11 @@ public class LEDSubsystem extends SubsystemBase {
         if (state != currentState) {
             currentState = state;
             stopAnimation(); // Clear any running animation
-            updateLEDsBasedOnState();
+            updateLEDState();
         }
     }
 
-    public void setColor(LEDColor color) {
+    public void setColor(Color color) {
         stopAnimation();
         try {
             candle.setLEDs(color.r, color.g, color.b);
@@ -123,7 +124,7 @@ public class LEDSubsystem extends SubsystemBase {
         candle.animate(currentAnimation);
     }
 
-    public void strobeColor(LEDColor color) {
+    public void strobeColor(Color color) {
         stopAnimation();
         currentAnimation = new StrobeAnimation(color.r, color.g, color.b, 0, 0.5, LED_COUNT);
         candle.animate(currentAnimation);
@@ -138,7 +139,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     public void setOff() {
         setState(LEDState.OFF);
-        setColor(LEDColor.OFF);
+        setColor(Color.OFF);
     }
 
     public LEDState getCurrentState() {
