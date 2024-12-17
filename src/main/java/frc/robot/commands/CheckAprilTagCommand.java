@@ -4,6 +4,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.commands.RobotState;
 
@@ -18,10 +19,10 @@ public class CheckAprilTagCommand extends Command {
     private static final int[] GREEN = {0, 255, 0};     // Tag 4 - Right Score
     private static final int[] RED = {255, 0, 0};       // No target/default
 
-    public CheckAprilTagCommand(VisionSubsystem visionSubsystem, LEDSubsystem ledSubsystem) {
+    public CheckAprilTagCommand(VisionSubsystem visionSubsystem, CommandSwerveDrivetrain drivetrain) {
         this.visionSubsystem = visionSubsystem;
-        this.ledSubsystem = ledSubsystem;
-        addRequirements(ledSubsystem);
+        this.ledSubsystem = drivetrain;
+        addRequirements(drivetrain);
     }
 
     @Override
