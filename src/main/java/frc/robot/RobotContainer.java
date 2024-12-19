@@ -12,12 +12,11 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.TestVisionCommand;
 import frc.robot.commands.VisionTestLevel1Command;
+import frc.robot.commands.VisionTestLevel2Command;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LEDSubsystem;
@@ -63,30 +62,9 @@ public class RobotContainer {
            
 // Test vision Level 1 with A button
 joystickOne.a().whileTrue(new VisionTestLevel1Command(m_vision, leds, drivetrain));
-    
-    // TODO Basic vision test
-joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()
-    .beforeStarting(() -> {
-        System.out.println("Right bumper pressed");
-        SmartDashboard.putBoolean("Button Pressed", true);
-    })
-    .finallyDo(() -> {
-        System.out.println("Right bumper released");
-        SmartDashboard.putBoolean("Button Pressed", false);
-    })
-);
 
-joystickOne.leftBumper().whileTrue(m_vision.alignToTagWithDistanceCommand(2)
-    .beforeStarting(() -> {
-        System.out.println("left bumper pressed");
-        SmartDashboard.putBoolean("Button Pressed", true);
-    })
-    .finallyDo(() -> {
-        System.out.println("left bumper released");
-        SmartDashboard.putBoolean("Button Pressed", false);
-    })
-);
-
+// Test vision Level 2 with B button
+joystickOne.b().whileTrue(new VisionTestLevel2Command(m_vision, leds, drivetrain));
 
 
     if (Utils.isSimulation()) {
