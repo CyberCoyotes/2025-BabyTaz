@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.TestVisionCommand;
+import frc.robot.commands.VisionTestLevel1Command;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LEDSubsystem;
@@ -60,7 +61,8 @@ public class RobotContainer {
             () -> point.withModuleDirection(new Rotation2d(-joystickOne.getLeftY(), -joystickOne.getLeftX()))));
 
            
-    joystickOne.a().whileTrue(new TestVisionCommand(m_vision, drivetrain, leds));
+// Test vision Level 1 with A button
+joystickOne.a().whileTrue(new VisionTestLevel1Command(m_vision, leds, drivetrain));
     
     // TODO Basic vision test
 joystickOne.rightBumper().whileTrue(m_vision.alignToTarget()

@@ -16,6 +16,7 @@ import edu.wpi.first.math.filter.MedianFilter;
 import frc.robot.commands.AlignToTagCommand;
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.AlignToTargetWithDistanceCommand;
+import frc.robot.vision.VisionState;
 
 public class VisionSubsystem extends SubsystemBase {
     private final NetworkTable limelightTable;
@@ -62,6 +63,31 @@ public class VisionSubsystem extends SubsystemBase {
         // limelightTable.getEntry("ledMode").setNumber(1);
         limelightTable.getEntry("camMode").setNumber(0);
         limelightTable.getEntry("stream").setNumber(0);
+    }
+
+    private VisionState currentState = VisionState.NO_TARGET;
+
+    public VisionState getCurrentState() {
+        if (!hasValidTarget()) {
+            return VisionState.NO_TARGET;
+        }
+
+        int currentTag = getCurrentTagID();
+        double xError = getTargetXAngle();
+
+        // Check if robot is aligned with target
+        if (Math.abs(xError) < 2.0) { // 2 degrees tolerance
+            return VisionState.ALIGNED;
+        }
+
+        // Return state based on tag ID
+        for (VisionState state : VisionState.values()) {
+            if (state.getTagId() == currentTag) {
+                return state;
+            }
+        }
+
+        return VisionState.NO_TARGET;
     }
 
     public boolean hasValidTarget() {
@@ -155,7 +181,7 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-    // Connection status
+        // Connection status
         boolean isConnected = limelightTable.getEntry("tv").isValid();
         if (isConnected != wasConnected) {
             System.out.println("Limelight connection changed: " + isConnected);
@@ -175,19 +201,19 @@ public class VisionSubsystem extends SubsystemBase {
             Pose2d currentPose = getRobotPose();
             if (currentPose != null) {
                 SmartDashboard.putNumberArray("Limelight/Pose", new double[] {
-                    currentPose.getX(),
-                    currentPose.getY(),
-                    currentPose.getRotation().getDegrees()
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        currentPose.getRotation().getDegrees()
                 });
-                
+
                 // Vision confidence based on target area
-                SmartDashboard.putNumber("Limelight/Confidence", 
-                    Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
-                
+                SmartDashboard.putNumber("Limelight/Confidence",
+                        Math.min(getTargetArea() / POSE_TRUST_THRESHOLD, 1.0));
+
                 updateOdometryWithVision();
             }
         }
-        
-     } // end of periodic
+
+    } // end of periodic
 
 } // end of class VisionSubsystem
