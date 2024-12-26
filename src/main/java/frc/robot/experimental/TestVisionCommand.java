@@ -3,7 +3,7 @@
  * Description: This file contains the TestVisionAlignCommand class, which is a command that uses the VisionSubsystem to align the robot to a target. 
  * This command is used for testing purposes and is not intended for use in competition.
  */
-package frc.robot.commands;
+package frc.robot.experimental;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;

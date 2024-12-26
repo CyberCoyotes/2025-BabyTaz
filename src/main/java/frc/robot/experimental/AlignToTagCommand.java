@@ -3,7 +3,7 @@
  * The robot will rotate to face the target and move forward/backward to maintain a specific distance from the target.
 */
 
-package frc.robot.commands;
+package frc.robot.experimental;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
