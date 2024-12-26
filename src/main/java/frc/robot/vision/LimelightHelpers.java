@@ -1,4 +1,6 @@
-//LimelightHelpers v1.9 (REQUIRES 2024.9.1)
+/* From Official Limelight 
+ * LimelightHelpers v1.9 (REQUIRES 2024.9.1)
+*/
 
 package frc.robot.vision;
 
