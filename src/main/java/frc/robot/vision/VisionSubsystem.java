@@ -24,6 +24,8 @@ public class VisionSubsystem extends SubsystemBase {
         this.drivetrain = drivetrain;
         // Start with AprilTag pipeline
         LimelightHelpers.setPipelineIndex("limelight", APRIL_TAG_PIPELINE);
+        LimelightHelpers.setLEDMode_ForceOff("limelight");
+
     }
 
     @Override
