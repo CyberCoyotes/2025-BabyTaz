@@ -11,51 +11,133 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.vision.AlignToTargetCommand;
+import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.vision.VisionSubsystem;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
-  private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    // Controller Ports
+    private static final int DRIVER_CONTROLLER_PORT = 0;
+    private static final int OPERATOR_CONTROLLER_PORT = 1;
 
+    // Speed Constants
+    private final double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps;
+    private final double MaxAngularRate = 1.5 * Math.PI;
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
-  private final CommandXboxController joystickOne = new CommandXboxController(0); // My joystick
-  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-  private final VisionSubsystem vision = new VisionSubsystem(drivetrain); // My vision subsystem
+    // Controllers
+    private final CommandXboxController driverController = new CommandXboxController(DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_CONTROLLER_PORT);
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                               // driving in open loop
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // Subsystems
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
+    private final VisionSubsystem vision = new VisionSubsystem(drivetrain);
 
-  private final Telemetry logger = new Telemetry(MaxSpeed);
+    // Drive Requests
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withDeadband(MaxSpeed * 0.1)
+        .withRotationalDeadband(MaxAngularRate * 0.1)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-  private void configureBindings() {
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(-joystickOne.getLeftY() * MaxSpeed) // Drive forward with
-            // negative Y (forward)
-            .withVelocityY(-joystickOne.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-joystickOne.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X
-                                                                           // (left)
-        ));
+    private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    public RobotContainer() {
+        configureBindings();
+    }
 
-    joystickOne.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
+    private void configureBindings() {
+        // Configure default commands
+        configureDefaultCommands();
+        
+        // Configure driver buttons
+        configureDriverBindings();
+        
+        // Configure operator buttons
+        configureOperatorBindings();
+    }
 
+    private void configureDefaultCommands() {
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() -> drive
+                .withVelocityX(-driverController.getLeftY() * MaxSpeed)
+                .withVelocityY(-driverController.getLeftX() * MaxSpeed)
+                .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
+            )
+        );
+    }
 
-  }
+    private void configureDriverBindings() {
+        // Face Buttons
+        driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driverController.b().onTrue(null/* B Button Press */);
+        // driverController.b().whileTrue(null/* B Button Hold */);
+        // driverController.x().onTrue(null/* X Button Press */);
+        // driverController.x().whileTrue(null/* X Button Hold */);
+        // driverController.y().onTrue(null/* Y Button Press */);
+        // driverController.y().whileTrue(null/* Y Button Hold */);
+      
+        // Bumpers
+        // driverController.leftBumper().onTrue(/* Left Bumper Press */);
+        // driverController.leftBumper().whileTrue(/* Left Bumper Hold */);
+        // driverController.rightBumper().onTrue(/* Right Bumper Press */);
+        driverController.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
 
-  public RobotContainer() {
+        // Triggers
+        // driverController.leftTrigger().onTrue(/* Left Trigger Press */);
+        // driverController.leftTrigger().whileTrue(/* Left Trigger Hold */);
+        // driverController.rightTrigger().onTrue(/* Right Trigger Press */);
+        // driverController.rightTrigger().whileTrue(/* Right Trigger Hold */);
 
-    configureBindings();
-  }
+        // D-Pad
+        // driverController.povUp().onTrue(/* D-Pad Up Press */);
+        // driverController.povRight().onTrue(/* D-Pad Right Press */);
+        // driverController.povDown().onTrue(/* D-Pad Down Press */);
+        // driverController.povLeft().onTrue(/* D-Pad Left Press */);
+        
+        // Start/Back
+        // driverController.start().onTrue(/* Start Button Press */);
+        // driverController.back().onTrue(/* Back Button Press */);
+    }
 
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    private void configureOperatorBindings() {
+        // Face Buttons
+        // operatorController.a().onTrue(/* A Button Press */);
+        // operatorController.a().whileTrue(/* A Button Hold */);
+        // operatorController.b().onTrue(/* B Button Press */);
+        // operatorController.b().whileTrue(/* B Button Hold */);
+        // operatorController.x().onTrue(/* X Button Press */);
+        // operatorController.x().whileTrue(/* X Button Hold */);
+        // operatorController.y().onTrue(/* Y Button Press */);
+        // operatorController.y().whileTrue(/* Y Button Hold */);
+
+        // Bumpers
+        // operatorController.leftBumper().onTrue(/* Left Bumper Press */);
+        // operatorController.leftBumper().whileTrue(/* Left Bumper Hold */);
+        // operatorController.rightBumper().onTrue(/* Right Bumper Press */);
+        // operatorController.rightBumper().whileTrue(/* Right Bumper Hold */);
+
+        // Triggers
+        // operatorController.leftTrigger().onTrue(/* Left Trigger Press */);
+        // operatorController.leftTrigger().whileTrue(/* Left Trigger Hold */);
+        // operatorController.rightTrigger().onTrue(/* Right Trigger Press */);
+        // operatorController.rightTrigger().whileTrue(/* Right Trigger Hold */);
+
+        // D-Pad
+        // operatorController.povUp().onTrue(/* D-Pad Up Press */);
+        // operatorController.povRight().onTrue(/* D-Pad Right Press */);
+        // operatorController.povDown().onTrue(/* D-Pad Down Press */);
+        // operatorController.povLeft().onTrue(/* D-Pad Left Press */);
+        
+        // Start/Back
+        // operatorController.start().onTrue(/* Start Button Press */);
+        // operatorController.back().onTrue(/* Back Button Press */);
+    }
+
+    public Command getAutonomousCommand() {
+        return Commands.print("No autonomous command configured");
+    }
 }

@@ -1,4 +1,4 @@
-package frc.robot.vision;
+package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,8 +14,7 @@ public class AlignToTargetCommand extends Command {
     
     private final SwerveRequest.RobotCentric drive;
 
-    // TODO
-    // PID constants - tune these for your robot
+    // TODO Tune these PID values for your robot
     private static final double ROTATION_P = 0.035;
     private static final double ROTATION_I = 0.0;
     private static final double ROTATION_D = 0.001;
@@ -24,8 +23,7 @@ public class AlignToTargetCommand extends Command {
     private static final double FORWARD_I = 0.0;
     private static final double FORWARD_D = 0.0;
 
-    // TODO
-    // Target area setpoint - tune this for your desired distance
+    // TODO Tune this for your desired distance
     private static final double TARGET_AREA = 4;
 
     public AlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
