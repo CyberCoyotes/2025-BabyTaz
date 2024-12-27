@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.vision.VisionSubsystem;
+import frc.robot.io.VisionSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 public class AlignToTargetCommand extends Command {
@@ -68,6 +70,12 @@ public class AlignToTargetCommand extends Command {
                 .withVelocityY(0.0)
                 .withRotationalRate(0.0));
         }
+
+        // Update dashboard with alignment progress
+            SmartDashboard.putNumber("Alignment/RotationError", rotationController.getPositionError());
+            SmartDashboard.putNumber("Alignment/DistanceError", forwardController.getPositionError());
+            SmartDashboard.putNumber("Alignment/RotationOutput", rotationSpeed);
+            SmartDashboard.putNumber("Alignment/ForwardOutput", forwardSpeed);
     }
 
     @Override
