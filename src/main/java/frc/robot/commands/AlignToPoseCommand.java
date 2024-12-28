@@ -4,8 +4,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.io.VisionSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionSubsystem;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 public class AlignToPoseCommand extends Command {
@@ -32,7 +33,7 @@ public class AlignToPoseCommand extends Command {
     private static final double TRANSLATION_TOLERANCE = 0.02; // meters
     private static final double ROTATION_TOLERANCE = 2.0; // degrees
 
-    public AlignToPoseCommand(frc.robot.io.VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
+    public AlignToPoseCommand(frc.robot.subsystems.vision.VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.targetPose = targetPose;

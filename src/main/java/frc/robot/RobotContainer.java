@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.AutoAlignSequence;
 import frc.robot.generated.TunerConstants;
-import frc.robot.io.VisionSubsystem;
-import frc.robot.io.led.LEDIO;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.led.LEDIO;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
