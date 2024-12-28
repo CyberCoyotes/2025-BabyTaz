@@ -80,4 +80,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
     }
+    // FIXME Added by AI
+    public boolean isPathFollowing() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isPathFollowing'");
+    }
 }

@@ -52,7 +52,7 @@ public class AlignToPoseCommand extends Command {
         
         drive = new SwerveRequest.RobotCentric();
 
-        addRequirements(vision2, drivetrain);
+        addRequirements(vision, drivetrain);
     }
 
     @Override

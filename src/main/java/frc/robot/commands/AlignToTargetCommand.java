@@ -13,14 +13,14 @@ public class AlignToTargetCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController rotationController;
     private final PIDController forwardController;
-    
+
     private final SwerveRequest.RobotCentric drive;
 
     // TODO Tune these PID values for your robot
     private static final double ROTATION_P = 0.035;
     private static final double ROTATION_I = 0.0;
     private static final double ROTATION_D = 0.001;
-    
+
     private static final double FORWARD_P = 0.1;
     private static final double FORWARD_I = 0.0;
     private static final double FORWARD_D = 0.0;
@@ -31,13 +31,13 @@ public class AlignToTargetCommand extends Command {
     public AlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
-        
+
         rotationController = new PIDController(ROTATION_P, ROTATION_I, ROTATION_D);
         rotationController.setTolerance(1.0); // Degrees
-        
+
         forwardController = new PIDController(FORWARD_P, FORWARD_I, FORWARD_D);
         forwardController.setTolerance(0.1); // Area units
-        
+
         drive = new SwerveRequest.RobotCentric();
 
         addRequirements(vision, drivetrain);
@@ -51,31 +51,34 @@ public class AlignToTargetCommand extends Command {
 
     @Override
     public void execute() {
+        double rotationSpeed = 0.0;
+        double forwardSpeed = 0.0;
+
         if (vision.hasValidTarget()) {
             // Calculate rotation speed to center target
-            double rotationSpeed = rotationController.calculate(vision.getTargetXOffset(), 0);
-            
+            rotationSpeed = rotationController.calculate(vision.getTargetXOffset(), 0);
+
             // Calculate forward speed to maintain distance
-            double forwardSpeed = -forwardController.calculate(vision.getTargetArea(), TARGET_AREA);
-            
+            forwardSpeed = -forwardController.calculate(vision.getTargetArea(), TARGET_AREA);
+
             // Apply speeds to swerve drive
             drivetrain.setControl(drive
-                .withVelocityX(forwardSpeed)
-                .withVelocityY(0.0)
-                .withRotationalRate(rotationSpeed));
+                    .withVelocityX(forwardSpeed)
+                    .withVelocityY(0.0)
+                    .withRotationalRate(rotationSpeed));
         } else {
             // No target - stop moving
             drivetrain.setControl(drive
-                .withVelocityX(0.0)
-                .withVelocityY(0.0)
-                .withRotationalRate(0.0));
+                    .withVelocityX(0.0)
+                    .withVelocityY(0.0)
+                    .withRotationalRate(0.0));
         }
 
         // Update dashboard with alignment progress
-            SmartDashboard.putNumber("Alignment/RotationError", rotationController.getPositionError());
-            SmartDashboard.putNumber("Alignment/DistanceError", forwardController.getPositionError());
-            SmartDashboard.putNumber("Alignment/RotationOutput", rotationSpeed);
-            SmartDashboard.putNumber("Alignment/ForwardOutput", forwardSpeed);
+        SmartDashboard.putNumber("Alignment/RotationError", rotationController.getPositionError());
+        SmartDashboard.putNumber("Alignment/DistanceError", forwardController.getPositionError());
+        SmartDashboard.putNumber("Alignment/RotationOutput", rotationSpeed);
+        SmartDashboard.putNumber("Alignment/ForwardOutput", forwardSpeed);
     }
 
     @Override
@@ -91,8 +94,8 @@ public class AlignToTargetCommand extends Command {
     public void end(boolean interrupted) {
         // Stop moving when command ends
         drivetrain.setControl(drive
-            .withVelocityX(0.0)
-            .withVelocityY(0.0)
-            .withRotationalRate(0.0));
+                .withVelocityX(0.0)
+                .withVelocityY(0.0)
+                .withRotationalRate(0.0));
     }
 }

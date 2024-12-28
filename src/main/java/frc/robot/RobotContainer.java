@@ -16,7 +16,7 @@ import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.AutoAlignSequence;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.led.LEDIO;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -35,11 +35,8 @@ public class RobotContainer {
 
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
-    
-    // IO
-    private final LEDIO leds = new LED(27); // CANdle ID
-    private final VisionSubsystem vision = new VisionSubsystem(drivetrain, leds);
-
+    private final LEDSubsystem leds = new LEDSubsystem();
+    private final VisionSubsystem vision = new VisionSubsystem(null, null, drivetrain, leds, null);
 
     // Drive Requests
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()

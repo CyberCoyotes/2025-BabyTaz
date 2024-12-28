@@ -1,84 +1,349 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.vision.LimelightHelpers.*;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 
 public class VisionSubsystem extends SubsystemBase {
+    private final String limelightName;
     private final VisionIO io;
     private final VisionIOInputs inputs = new VisionIOInputs();
     private final CommandSwerveDrivetrain drivetrain;
-    private final LEDs leds;
+    private final LEDSubsystem leds;
+    private final AprilTagFieldLayout fieldLayout;
+    private final MedianFilter distanceFilter = new MedianFilter(3);
+    private final MedianFilter angleFilter = new MedianFilter(3);
+    private final double[] timestampArray = new double[5];
+    private int timestampIndex = 0;
 
-    // Configuration constants
-    private static final LimelightConfiguration config = new LimelightConfiguration();
-    
-    private Pose2d cameraToTagPose = new Pose2d();
+    private Pose2d lastRobotPose = new Pose2d();
     private double distanceToTargetMeters = Double.NaN;
+    private boolean isTargetValid = false;
+    private double lastValidTimestamp = 0.0;
+    private int consecutiveValidMeasurements = 0;
+    private int consecutiveInvalidMeasurements = 0;
+    private int currentPipelineIndex = 0;
 
-    public VisionSubsystem(VisionIO io, CommandSwerveDrivetrain drivetrain, LEDs leds) {
+    private static final double MAX_POSE_CHANGE_METERS = 1.0;
+    private static final double MAX_VALID_DISTANCE = 5.0;
+    private static final double MIN_VALID_DISTANCE = 0.5;
+    private static final double MAX_TAG_AGE_SECONDS = 0.25;
+    private static final double MIN_TAG_AREA = 0.001;
+    private static final double MAX_AMBIGUITY_SCORE = 0.2;
+    private static final int REQUIRED_VALID_FRAMES = 3;
+    private static final int MAX_INVALID_FRAMES = 5;
+    private static final double MIN_CONFIDENCE_THRESHOLD = 0.6;
+    private static final double MAX_TIMESTAMP_DEVIATION = 0.1;
+
+    private static class LimelightConstants {
+        static final double MOUNT_HEIGHT_METERS = 0.5;
+        static final double TARGET_HEIGHT_METERS = 1.45;
+        static final double MOUNT_ANGLE_RADIANS = Math.toRadians(30.0);
+        static final double FORWARD_OFFSET = 0.2;
+        static final double SIDE_OFFSET = 0.0;
+        static final double HEIGHT_OFFSET = 0.5;
+        static final double ROLL_DEGREES = 0.0;
+        static final double PITCH_DEGREES = 30.0;
+        static final double YAW_DEGREES = 0.0;
+    }
+
+    public VisionSubsystem(String limelightName, VisionIO io, CommandSwerveDrivetrain drivetrain,
+            LEDSubsystem leds, AprilTagFieldLayout fieldLayout) {
+        this.limelightName = limelightName;
         this.io = io;
         this.drivetrain = drivetrain;
         this.leds = leds;
+        this.fieldLayout = fieldLayout;
+
+        initializeLimelight();
+    }
+
+    private void initializeLimelight() {
+        try {
+            LimelightHelpers.setPipelineIndex(limelightName, currentPipelineIndex);
+            setLEDMode(false);
+            configureLimelightPose();
+            selectAprilTagPipeline();
+        } catch (Exception e) {
+            DriverStation.reportError("Failed to initialize Limelight: " + e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    private void configureLimelightPose() {
+        LimelightHelpers.setCameraPose_RobotSpace(
+                limelightName,
+                LimelightConstants.FORWARD_OFFSET,
+                LimelightConstants.SIDE_OFFSET,
+                LimelightConstants.HEIGHT_OFFSET,
+                LimelightConstants.ROLL_DEGREES,
+                LimelightConstants.PITCH_DEGREES,
+                LimelightConstants.YAW_DEGREES);
+    }
+
+    private void selectAprilTagPipeline() {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            currentPipelineIndex = (alliance.get() == DriverStation.Alliance.Red) ? 1 : 0;
+            LimelightHelpers.setPipelineIndex(limelightName, currentPipelineIndex);
+        }
     }
 
     @Override
     public void periodic() {
-        io.updateInputs(inputs);
+        try {
+            io.updateInputs(inputs);
+            handleTimestamps();
 
-        updatePoseEstimation();
-        updateLEDs();
-        logTelemetry();
-    }
+            if (validateTarget()) {
+                handleValidTarget();
+            } else {
+                handleInvalidTarget();
+            }
 
-    private void updatePoseEstimation() {
-        if (inputs.hasTargets) {
-            // Calculate camera to target geometry...
-            double theta = inputs.verticalAngleRadians + config.mountAngleRadians;
-            double heightDelta = getTargetHeight() - config.mountHeightMeters;
-            distanceToTargetMeters = heightDelta / Math.tan(theta);
-            
-            cameraToTagPose = new Pose2d(
-                distanceToTargetMeters * Math.cos(inputs.horizontalAngleRadians),
-                distanceToTargetMeters * Math.sin(inputs.horizontalAngleRadians),
-                Rotation2d.fromRadians(inputs.horizontalAngleRadians));
+            updateLEDs();
+            logTelemetry();
+        } catch (Exception e) {
+            handleSubsystemError(e);
         }
     }
 
-    private void logTelemetry() {
-        SmartDashboard.putBoolean("Vision/HasTarget", inputs.hasTargets);
-        SmartDashboard.putNumber("Vision/Distance", distanceToTargetMeters);
-        SmartDashboard.putString("Vision/CameraToTag", cameraToTagPose.toString());
-        // ... additional logging
+    private void handleTimestamps() {
+        timestampArray[timestampIndex] = inputs.lastTimeStamp;
+        timestampIndex = (timestampIndex + 1) % timestampArray.length;
+        validateTimestamps();
     }
+
+    private void validateTimestamps() {
+        double meanTimestamp = 0;
+        for (double timestamp : timestampArray) {
+            meanTimestamp += timestamp;
+        }
+        meanTimestamp /= timestampArray.length;
+
+        for (double timestamp : timestampArray) {
+            if (Math.abs(timestamp - meanTimestamp) > MAX_TIMESTAMP_DEVIATION) {
+                handleSubsystemError(new Exception("Timestamp deviation exceeds threshold"));
+                break;
+            }
+        }
+    }
+
+    private void handleValidTarget() {
+        consecutiveValidMeasurements++;
+        consecutiveInvalidMeasurements = 0;
+
+        if (consecutiveValidMeasurements >= REQUIRED_VALID_FRAMES) {
+            isTargetValid = true;
+            var poseEstimate = getPoseEstimate();
+            if (poseEstimate != null) {
+                updateDrivetrainPose(poseEstimate);
+            }
+            lastValidTimestamp = inputs.lastTimeStamp;
+        }
+    }
+
+    private void handleInvalidTarget() {
+        consecutiveValidMeasurements = 0;
+        consecutiveInvalidMeasurements++;
+        if (consecutiveInvalidMeasurements >= MAX_INVALID_FRAMES) {
+            isTargetValid = false;
+        }
+    }
+
+    private void handleSubsystemError(Exception e) {
+        DriverStation.reportError("Vision subsystem error: " + e.getMessage(), e.getStackTrace());
+        isTargetValid = false;
+        consecutiveValidMeasurements = 0;
+        consecutiveInvalidMeasurements = MAX_INVALID_FRAMES;
+        setLEDMode(false);
+    }
+
+    private boolean validateTarget() {
+        if (!inputs.hasTargets || inputs.tagId < 0)
+            return false;
+        if (Timer.getFPGATimestamp() - lastValidTimestamp > MAX_TAG_AGE_SECONDS)
+            return false;
+        if (fieldLayout == null || !fieldLayout.getTags().stream().anyMatch(tag -> tag.ID == inputs.tagId))
+            return false;
+
+        try {
+            if (!validateAngleAndDistance())
+                return false;
+            if (!validateFiducial())
+                return false;
+            if (!validatePoseChange())
+                return false;
+
+            return true;
+        } catch (Exception e) {
+            DriverStation.reportError("Target validation error: " + e.getMessage(), e.getStackTrace());
+            return false;
+        }
+    }
+
+    private boolean validateAngleAndDistance() {
+        double theta = angleFilter.calculate(
+                inputs.verticalAngleRadians + LimelightConstants.MOUNT_ANGLE_RADIANS);
+        if (Math.abs(theta) < 0.001)
+            return false;
+
+        double heightDelta = LimelightConstants.TARGET_HEIGHT_METERS - LimelightConstants.MOUNT_HEIGHT_METERS;
+        distanceToTargetMeters = distanceFilter.calculate(heightDelta / Math.tan(theta));
+
+        return distanceToTargetMeters >= MIN_VALID_DISTANCE &&
+                distanceToTargetMeters <= MAX_VALID_DISTANCE;
+    }
+
+    private boolean validateFiducial() {
+        try {
+            // Use public API methods instead of getRawFiducials
+            if (!LimelightHelpers.getTV(limelightName))
+                return false;
+
+            double area = LimelightHelpers.getTA(limelightName);
+            var results = LimelightHelpers.getLatestResults(limelightName);
+
+            return area >= MIN_TAG_AREA &&
+                    results.valid &&
+                    results.botpose_tagcount >= 1;
+        } catch (Exception e) {
+            DriverStation.reportError("Failed to validate fiducial: " + e.getMessage(), e.getStackTrace());
+            return false;
+        }
+    }
+
+    private boolean validatePoseChange() {
+        if (inputs.botpose.length < 6)
+            return false;
+
+        Pose2d currentPose = new Pose2d(
+                inputs.botpose[0],
+                inputs.botpose[1],
+                new Rotation2d(inputs.botpose[5]));
+
+        if (!lastRobotPose.equals(new Pose2d())) {
+            Transform2d poseChange = new Transform2d(lastRobotPose, currentPose);
+            if (poseChange.getTranslation().getNorm() > MAX_POSE_CHANGE_METERS) {
+                return false;
+            }
+        }
+        lastRobotPose = currentPose;
+        return true;
+    }
+
+    private PoseEstimate getPoseEstimate() {
+        try {
+            var alliance = DriverStation.getAlliance();
+            if (!alliance.isPresent())
+                return null;
+
+            PoseEstimate estimate = (alliance.get() == DriverStation.Alliance.Red)
+                    ? LimelightHelpers.getBotPoseEstimate_wpiRed(limelightName)
+                    : LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+
+            return (estimate != null && !estimate.pose.equals(new Pose2d())) ? estimate : null;
+        } catch (Exception e) {
+            DriverStation.reportError("Pose estimation error: " + e.getMessage(), e.getStackTrace());
+            return null;
+        }
+    }
+
+    // Modify the updateDrivetrainPose method
+    private void updateDrivetrainPose(PoseEstimate estimate) {
+        try {
+            if (!isTargetValid || estimate == null)
+                return;
+
+            double confidence = calculateConfidence(estimate);
+            if (confidence >= MIN_CONFIDENCE_THRESHOLD) {
+                // Create standard deviations matrix from confidence
+                Matrix<N3, N1> stdDevs = new Matrix<>(N3.instance, N1.instance);
+                // Lower confidence = higher standard deviation
+                double standardDeviation = (1.0 - confidence) * 10; // Scale factor of 10
+                stdDevs.set(0, 0, standardDeviation);
+                stdDevs.set(1, 0, standardDeviation);
+                stdDevs.set(2, 0, standardDeviation * 2); // Higher uncertainty for rotation
+
+                drivetrain.addVisionMeasurement(
+                        estimate.pose,
+                        estimate.timestampSeconds,
+                        stdDevs);
+            }
+        } catch (Exception e) {
+            DriverStation.reportError("Drivetrain update error: " + e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    private double calculateConfidence(PoseEstimate estimate) {
+        double distanceConfidence = 1.0 - (distanceToTargetMeters / MAX_VALID_DISTANCE);
+        double latencyConfidence = 1.0 - (estimate.latency / 100.0);
+        double areaConfidence = estimate.avgTagArea / 0.1;
+        double stabilityConfidence = consecutiveValidMeasurements / (double) REQUIRED_VALID_FRAMES;
+        double tagCountConfidence = Math.min(1.0, estimate.tagCount / 3.0);
+
+        return Math.min(1.0,
+                Math.min(distanceConfidence,
+                        Math.min(latencyConfidence,
+                                Math.min(areaConfidence,
+                                        Math.min(stabilityConfidence, tagCountConfidence)))));
+    }
+
+    private void updateLEDs() {
+        boolean shouldLEDsBeOn = !isTargetValid && !drivetrain.isPathFollowing();
+        setLEDMode(shouldLEDsBeOn);
+    }
+
+    public void setLEDMode(boolean on) {
+        io.setLeds(on);
+        if (leds != null) {
+            leds.setVisionLEDState(on);
+        }
+    }
+
+    // Add these methods to VisionSubsystem.java
+    public boolean hasValidTarget() {
+        return isTargetValid;
+    }
+
+    public double getTargetXOffset() {
+        return inputs.horizontalAngleRadians;
+    }
+
+    public double getTargetArea() {
+        return LimelightHelpers.getTA(limelightName);
+    }
+
+    private void logTelemetry() {
+        SmartDashboard.putBoolean("Vision/HasTarget", isTargetValid);
+        SmartDashboard.putNumber("Vision/Distance", distanceToTargetMeters);
+        SmartDashboard.putNumber("Vision/ConsecutiveValid", consecutiveValidMeasurements);
+        SmartDashboard.putNumber("Vision/LastValidTime", lastValidTimestamp);
+        SmartDashboard.putNumber("Vision/TagID", inputs.tagId);
+        SmartDashboard.putNumber("Vision/Pipeline", currentPipelineIndex);
+
+        try {
+            PoseEstimate estimate = getPoseEstimate();
+            if (estimate != null) {
+                SmartDashboard.putNumber("Vision/TagCount", estimate.tagCount);
+                SmartDashboard.putNumber("Vision/Confidence", calculateConfidence(estimate));
+                SmartDashboard.putNumber("Vision/TimestampDeviation",
+                        Math.abs(estimate.timestampSeconds - inputs.lastTimeStamp));
+            }
+        } catch (Exception e) {
+            DriverStation.reportError("Telemetry error: " + e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    
 }
-/*
- 
-# Key improvements from 2910's approach:
-
-## Hardware Abstraction:
-* Clear separation between hardware interface (VisionIO) and implementation
-* Makes testing and simulation easier
-* Allows swapping different vision systems
-
-## Better State Management:
-* All vision data stored in VisionIOInputs class
-* Thread-safe updates using synchronized methods
-* Clear data flow from hardware to subsystem
-
-
-## More Sophisticated Pose Estimation:
-* Proper handling of camera mounting geometry
-* Better integration with field layout and AprilTag positions
-* More accurate distance calculations
-
-## Better Logging and Debugging:
-* More comprehensive telemetry
-* Clear separation of data collection and processing
-* Better error handling
-
-
-
-
- */
