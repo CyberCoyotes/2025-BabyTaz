@@ -12,15 +12,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.AutoAlignSequence;
 import frc.robot.controls.DriverBindings;
 import frc.robot.controls.OperatorBindings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
 
@@ -44,7 +43,7 @@ public class RobotContainer {
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
     private final LEDSubsystem leds = new LEDSubsystem();
-    private final VisionSubsystem vision = new VisionSubsystem(null, null, drivetrain, leds, null);
+    private final VisionSubsystem vision = new VisionSubsystem("limelight", new VisionIOLimelight("limelight"), drivetrain, leds,null);
 
     // Drive Requests
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()

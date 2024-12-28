@@ -6,6 +6,7 @@ import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,8 +25,6 @@ public class VisionSubsystem extends SubsystemBase {
     private final AprilTagFieldLayout fieldLayout;
     private final MedianFilter distanceFilter = new MedianFilter(3);
     private final MedianFilter angleFilter = new MedianFilter(3);
-    private final double[] timestampArray = new double[5];
-    private int timestampIndex = 0;
 
     private Pose2d lastRobotPose = new Pose2d();
     private double distanceToTargetMeters = Double.NaN;
@@ -34,6 +33,12 @@ public class VisionSubsystem extends SubsystemBase {
     private int consecutiveValidMeasurements = 0;
     private int consecutiveInvalidMeasurements = 0;
     private int currentPipelineIndex = 0;
+
+    // FIXME
+    private boolean lastLEDState = false;
+    private int stableCount = 0;
+    private static final int REQUIRED_STABLE_CYCLES = 10;
+
 
     private static final double MAX_POSE_CHANGE_METERS = 1.0;
     private static final double MAX_VALID_DISTANCE = 5.0;
@@ -44,7 +49,8 @@ public class VisionSubsystem extends SubsystemBase {
     private static final int REQUIRED_VALID_FRAMES = 3;
     private static final int MAX_INVALID_FRAMES = 5;
     private static final double MIN_CONFIDENCE_THRESHOLD = 0.6;
-    private static final double MAX_TIMESTAMP_DEVIATION = 0.1;
+    private static final double MAX_DATA_AGE_SECONDS = 0.25; // 250ms maximum age for vision data
+
 
     private static class LimelightConstants {
         static final double MOUNT_HEIGHT_METERS = 0.5;
@@ -99,52 +105,91 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    @Override
     public void periodic() {
         try {
             io.updateInputs(inputs);
-            handleTimestamps();
-
+            validateData();  // New name to better reflect what we're doing
+    
             if (validateTarget()) {
                 handleValidTarget();
             } else {
                 handleInvalidTarget();
             }
-
+    
             updateLEDs();
             logTelemetry();
         } catch (Exception e) {
             handleSubsystemError(e);
         }
     }
-
-    private void handleTimestamps() {
-        timestampArray[timestampIndex] = inputs.lastTimeStamp;
-        timestampIndex = (timestampIndex + 1) % timestampArray.length;
-        validateTimestamps();
+    
+    private void validateData() {
+        double currentTime = Timer.getFPGATimestamp();
+        double dataAge = currentTime - inputs.lastTimeStamp;
+        
+        if (dataAge > MAX_DATA_AGE_SECONDS) {
+            isTargetValid = false;
+            return;
+        }
     }
 
-    private void validateTimestamps() {
-        double meanTimestamp = 0;
-        for (double timestamp : timestampArray) {
-            meanTimestamp += timestamp;
+    private boolean validateTarget() {
+        if (!inputs.hasTargets || inputs.tagId < 0) {
+            DataLogManager.log("Target invalid: No targets or invalid tag ID");
+            return false;
         }
-        meanTimestamp /= timestampArray.length;
-
-        for (double timestamp : timestampArray) {
-            if (Math.abs(timestamp - meanTimestamp) > MAX_TIMESTAMP_DEVIATION) {
-                handleSubsystemError(new Exception("Timestamp deviation exceeds threshold"));
-                break;
+        if (Timer.getFPGATimestamp() - lastValidTimestamp > MAX_TAG_AGE_SECONDS) {
+            DataLogManager.log("Target invalid: Data too old");
+            return false;
+        }
+        if (fieldLayout == null || !fieldLayout.getTags().stream().anyMatch(tag -> tag.ID == inputs.tagId)) {
+            DataLogManager.log("Target invalid: Tag not in field layout");
+            return false;
+        }
+    
+        try {
+            if (!validateAngleAndDistance()) {
+                DataLogManager.log("Target invalid: Failed angle/distance validation");
+                return false;
+            }
+            if (!validateFiducial()) {
+                DataLogManager.log("Target invalid: Failed fiducial validation");
+                return false;
+            }
+            if (!validatePoseChange()) {
+                DataLogManager.log("Target invalid: Failed pose change validation");
+                return false;
+            }
+    
+            return true;
+        } catch (Exception e) {
+            DataLogManager.log("Target validation error: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private void handleInvalidTarget() {
+        consecutiveValidMeasurements = 0;
+        consecutiveInvalidMeasurements++;
+        if (consecutiveInvalidMeasurements >= MAX_INVALID_FRAMES) {
+            if (isTargetValid) {  // Only log when state actually changes
+                isTargetValid = false;
+                DataLogManager.log("Target state changed to INVALID after " + 
+                    consecutiveInvalidMeasurements + " invalid frames");
             }
         }
     }
-
+    
     private void handleValidTarget() {
         consecutiveValidMeasurements++;
         consecutiveInvalidMeasurements = 0;
-
+    
         if (consecutiveValidMeasurements >= REQUIRED_VALID_FRAMES) {
-            isTargetValid = true;
+            if (!isTargetValid) {  // Only log when state actually changes
+                isTargetValid = true;
+                DataLogManager.log("Target state changed to VALID after " + 
+                    consecutiveValidMeasurements + " valid frames");
+            }
             var poseEstimate = getPoseEstimate();
             if (poseEstimate != null) {
                 updateDrivetrainPose(poseEstimate);
@@ -152,15 +197,7 @@ public class VisionSubsystem extends SubsystemBase {
             lastValidTimestamp = inputs.lastTimeStamp;
         }
     }
-
-    private void handleInvalidTarget() {
-        consecutiveValidMeasurements = 0;
-        consecutiveInvalidMeasurements++;
-        if (consecutiveInvalidMeasurements >= MAX_INVALID_FRAMES) {
-            isTargetValid = false;
-        }
-    }
-
+    
     private void handleSubsystemError(Exception e) {
         DriverStation.reportError("Vision subsystem error: " + e.getMessage(), e.getStackTrace());
         isTargetValid = false;
@@ -169,28 +206,6 @@ public class VisionSubsystem extends SubsystemBase {
         setLEDMode(false);
     }
 
-    private boolean validateTarget() {
-        if (!inputs.hasTargets || inputs.tagId < 0)
-            return false;
-        if (Timer.getFPGATimestamp() - lastValidTimestamp > MAX_TAG_AGE_SECONDS)
-            return false;
-        if (fieldLayout == null || !fieldLayout.getTags().stream().anyMatch(tag -> tag.ID == inputs.tagId))
-            return false;
-
-        try {
-            if (!validateAngleAndDistance())
-                return false;
-            if (!validateFiducial())
-                return false;
-            if (!validatePoseChange())
-                return false;
-
-            return true;
-        } catch (Exception e) {
-            DriverStation.reportError("Target validation error: " + e.getMessage(), e.getStackTrace());
-            return false;
-        }
-    }
 
     private boolean validateAngleAndDistance() {
         double theta = angleFilter.calculate(
@@ -299,10 +314,14 @@ public class VisionSubsystem extends SubsystemBase {
                                         Math.min(stabilityConfidence, tagCountConfidence)))));
     }
 
+    // FIXME
     private void updateLEDs() {
-        boolean shouldLEDsBeOn = !isTargetValid && !drivetrain.isPathFollowing();
-        setLEDMode(shouldLEDsBeOn);
-    }
+    boolean shouldLEDsBeOn = !isTargetValid;
+    DataLogManager.log("VisionSubsystem: Target valid: " + isTargetValid + 
+                      ", LED state requested: " + shouldLEDsBeOn);
+    setLEDMode(shouldLEDsBeOn);
+}
+    
 
     public void setLEDMode(boolean on) {
         io.setLeds(on);
@@ -311,7 +330,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    // Add these methods to VisionSubsystem.java
     public boolean hasValidTarget() {
         return isTargetValid;
     }
