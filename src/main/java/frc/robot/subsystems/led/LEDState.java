@@ -8,7 +8,8 @@ public enum LEDState {
     TARGET_VISIBLE(255, 255, 0),    // Bright Yellow
     TARGET_LOCKED(0, 255, 0),       // Pure Green
     INTAKING(0, 255, 255),         // Cyan/Aqua
-    SCORING(255, 105, 180),        // Hot Pink
+    SCORING(255, 105, 180),         // Pink
+    NO_TARGET(120, 120, 120),     // Dark Gray
     ERROR(255, 0, 0);              // Pure Red
 
     public final int r, g, b;
