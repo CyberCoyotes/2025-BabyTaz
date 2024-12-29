@@ -8,7 +8,7 @@ import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 
 public class LEDConfig {
     public static final class Constants {
-        public static final int CANDLE_ID = 1;
+        public static final int CANDLE_ID = 30; // CAN ID of the LED controller
         public static final int LED_COUNT = 300;
         public static final double DEFAULT_BRIGHTNESS = 0.9;
     }
@@ -23,11 +23,11 @@ public class LEDConfig {
     
     public static LEDConfig defaultConfig() {
         LEDConfig config = new LEDConfig();
-        config.ledCount = Constants.LED_COUNT;
-        config.brightness = Constants.DEFAULT_BRIGHTNESS;
-        config.stripType = LEDStripType.GRB;
+        config.ledCount = Constants.LED_COUNT; // TODO: Determine actual LED count
+        config.brightness = Constants.DEFAULT_BRIGHTNESS; // 0.0 to 1.0
+        config.stripType = LEDStripType.GRB; // TODO Determine actual strip type
         config.statusLedOffWhenActive = true;
-        config.vBatOutputMode = VBatOutputMode.Modulated;
+        config.vBatOutputMode = VBatOutputMode.Modulated; // TODO Determine actual mode
         config.disableWhenLOS = false;
         return config;
     }

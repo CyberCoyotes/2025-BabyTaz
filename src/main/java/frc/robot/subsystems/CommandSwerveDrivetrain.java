@@ -64,6 +64,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    /* 
+    public boolean isPathFollowing() {
+        // Return true if currently executing a path, false otherwise
+        // You can customize this based on your needs
+        return false;  // Default to false if not implementing path following yet
+    }
+    */
+
     @Override
     public void periodic() {
         /* Periodically try to apply the operator perspective */
@@ -80,9 +88,5 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
     }
-    // FIXME Added by AI
-    public boolean isPathFollowing() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isPathFollowing'");
-    }
+
 }

@@ -1,0 +1,110 @@
+{
+  "tabPane": [
+    {
+      "title": "Vision",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 32.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "widgets": [
+          {
+            "type": "Grid Layout",
+            "title": "Target Status",
+            "gwidth": 3,
+            "gheight": 4,
+            "layout": "List Layout",
+            "x": 0,
+            "y": 0,
+            "properties": {
+              "Number of columns": 1,
+              "Number of rows": 4
+            },
+            "content": {
+              "0,0": {
+                "type": "Boolean Box",
+                "title": "Has Target",
+                "field": "Vision/HasTarget",
+                "colorWhenTrue": "#00FF00",
+                "colorWhenFalse": "#FF0000"
+              },
+              "0,1": {
+                "type": "Text View",
+                "title": "Tag ID",
+                "field": "Vision/TagID"
+              },
+              "0,2": {
+                "type": "Text View",
+                "title": "Pipeline",
+                "field": "Vision/Pipeline"
+              },
+              "0,3": {
+                "type": "Text View",
+                "title": "Consecutive Valid",
+                "field": "Vision/ConsecutiveValid"
+              }
+            }
+          },
+          {
+            "type": "Grid Layout",
+            "title": "Target Metrics",
+            "gwidth": 3,
+            "gheight": 4,
+            "layout": "List Layout",
+            "x": 3,
+            "y": 0,
+            "properties": {
+              "Number of columns": 1,
+              "Number of rows": 4
+            },
+            "content": {
+              "0,0": {
+                "type": "Linear Progress",
+                "title": "Confidence",
+                "field": "Vision/Confidence",
+                "min": 0.0,
+                "max": 1.0
+              },
+              "0,1": {
+                "type": "Number Bar",
+                "title": "Distance (m)",
+                "field": "Vision/Distance",
+                "min": 0.0,
+                "max": 5.0,
+                "center": 2.5
+              },
+              "0,2": {
+                "type": "Text View",
+                "title": "Tag Count",
+                "field": "Vision/TagCount"
+              },
+              "0,3": {
+                "type": "Number Bar",
+                "title": "Timestamp Dev",
+                "field": "Vision/TimestampDeviation",
+                "min": 0.0,
+                "max": 0.1,
+                "center": 0.05
+              }
+            }
+          },
+          {
+            "type": "Graph",
+            "title": "Vision Performance",
+            "field": ["Vision/Distance", "Vision/Confidence"],
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 4,
+            "properties": {
+              "Visible time": 30.0,
+              "Unit": "seconds"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

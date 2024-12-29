@@ -11,20 +11,24 @@ public class LEDSubsystem extends SubsystemBase {
     private LEDState currentState = LEDState.OFF;
     private boolean animationEnabled = true;
     private double lastStateChangeTime = 0;
+    private static final double MIN_STATE_CHANGE_INTERVAL = 0.1; // seconds
+
 
     // Animation configuration
     private double animationSpeed = 0.7; // Default animation speed
     private double brightness = 1.0; // Default brightness
     private final int ledCount;
 
-    public LEDSubsystem() {
-        this.hardware = new LEDHardware();
-        this.ledCount = LEDConfig.Constants.LED_COUNT;
-
-        DataLogManager.log("LEDSubsystem: Initializing...");
-        hardware.configure(LEDConfig.defaultConfig());
-        DataLogManager.log("LEDSubsystem: Initialization complete");
-    }
+public LEDSubsystem() {
+    this.hardware = new LEDHardware();
+    this.ledCount = LEDConfig.Constants.LED_COUNT;
+    
+    DataLogManager.log("LEDSubsystem: Initializing...");
+    hardware.configure(LEDConfig.defaultConfig());
+    Timer.delay(0.1); // Add small delay for hardware to initialize
+    setState(LEDState.OFF); // Explicitly set initial state
+    DataLogManager.log("LEDSubsystem: Initialization complete");
+}
 
     /**
      * Creates an appropriate animation based on the current state.
@@ -40,16 +44,16 @@ public class LEDSubsystem extends SubsystemBase {
                     brightnessByte,
                     animationSpeed,
                     ledCount);
-
+        
             // States that use strobing animations
-            case TARGET_VISIBLE, ERROR -> new StrobeAnimation(
+            case ERROR -> new StrobeAnimation(
                     brightnessByte,
                     currentState.r,
                     currentState.g,
                     currentState.b,
                     animationSpeed,
                     ledCount);
-
+        
             // States that use "scanning" animations
             case INTAKING -> new LarsonAnimation(
                     brightnessByte,
@@ -60,7 +64,7 @@ public class LEDSubsystem extends SubsystemBase {
                     ledCount,
                     LarsonAnimation.BounceMode.Front,
                     7);
-
+        
             // States that use color flow animations
             case SCORING -> new ColorFlowAnimation(
                     brightnessByte,
@@ -70,10 +74,11 @@ public class LEDSubsystem extends SubsystemBase {
                     animationSpeed,
                     ledCount,
                     ColorFlowAnimation.Direction.Forward);
-
-            // All other states don't use animations
+        
+            // All other states (including TARGET_VISIBLE) use solid colors
             default -> null;
         };
+        
     }
 
     @Override
@@ -107,12 +112,16 @@ public class LEDSubsystem extends SubsystemBase {
 
     // Public control methods
     public void setState(LEDState state) {
-        if (currentState != state) {
+        double currentTime = Timer.getFPGATimestamp();
+        if (state != currentState && (currentTime - lastStateChangeTime) > MIN_STATE_CHANGE_INTERVAL) {
             currentState = state;
-            lastStateChangeTime = Timer.getFPGATimestamp();
+            lastStateChangeTime = currentTime;
+            hardware.setRGB(state.r, state.g, state.b);
             DataLogManager.log("LEDSubsystem: State changed to " + state.toString());
         }
     }
+    
+    
 
     public LEDState getState() {
         return currentState;
@@ -150,9 +159,17 @@ public class LEDSubsystem extends SubsystemBase {
         }
     }
 
+    private LEDState lastState = LEDState.OFF;
+
     public void setVisionLEDState(boolean on) {
-        setState(on ? LEDState.TARGET_VISIBLE : LEDState.OFF);
+        LEDState newState = on ? LEDState.TARGET_VISIBLE : LEDState.OFF;
+        if (newState != lastState) {  // Only update if state actually changed
+            setState(newState);
+            lastState = newState;
+        }
     }
+    
+    
 
     private void updateTelemetry(LEDHardware.Status status) {
         SmartDashboard.putString("LED/State", currentState.toString());
