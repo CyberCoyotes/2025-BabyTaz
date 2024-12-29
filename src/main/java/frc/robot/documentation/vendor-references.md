@@ -1,20 +1,26 @@
-#Vendor Dep References
-Remember you MUST check for updates after kickoff!
+## Vendor Dep References
 
-##CTRE
-* https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2024-latest.json
-* https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix5-frc2024-latest.json 
+Remember you MUST check for updates after kickoff\!
 
-##REV
-* https://software-metadata.revrobotics.com/REVLib-2024.json
+### CTRE
 
-##PathPlanner
-* https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json
+* [https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2024-latest.json](https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2024-latest.json)  
+* [https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix5-frc2024-latest.json](https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix5-frc2024-latest.json)
 
-##Choreo
-* https://sleipnirgroup.github.io/ChoreoLib/dep/ChoreoLib.json
+### REV
 
-##Time of Flight Sensor
-* https://www.playingwithfusion.com/frc/playingwithfusion2024.json
+* [https://software-metadata.revrobotics.com/REVLib-2024.json](https://software-metadata.revrobotics.com/REVLib-2024.json)
 
-**This is meant as a quick reference. For full instructions, please see https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html**
+### PathPlanner
+
+* [https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json](https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json)
+
+### Choreo
+
+* [https://sleipnirgroup.github.io/ChoreoLib/dep/ChoreoLib.json](https://sleipnirgroup.github.io/ChoreoLib/dep/ChoreoLib.json)
+
+### Time of Flight Sensor
+
+* [https://www.playingwithfusion.com/frc/playingwithfusion2024.json](https://www.playingwithfusion.com/frc/playingwithfusion2024.json)
+
+**This is meant as a quick reference. For full instructions, please see [Installing 3rd party libraries](https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html)**.
