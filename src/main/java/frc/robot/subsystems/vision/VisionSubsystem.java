@@ -51,7 +51,7 @@ public class VisionSubsystem extends SubsystemBase {
     private void configureLimelight() {
         // Set to AprilTag pipeline
         limelightTable.getEntry("pipeline").setNumber(0);
-        setLeds(true);
+        setLeds(false); // Turn off LEDs if false
     }
 
     @Override
