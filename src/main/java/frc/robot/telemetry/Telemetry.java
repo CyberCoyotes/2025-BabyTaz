@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.telemetry;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;

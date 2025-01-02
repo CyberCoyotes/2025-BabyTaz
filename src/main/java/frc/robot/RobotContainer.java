@@ -12,15 +12,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoAlignSequence;
+import frc.robot.controls.ControlsTelemetry;
 import frc.robot.controls.DriverBindings;
 import frc.robot.controls.OperatorBindings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.telemetry.Telemetry;
+import frc.robot.telemetry.VirtualControlPanel;
 
 public class RobotContainer {
 
+    // TODO Virtual Controls
+    private final VirtualControlPanel virtualControls;
 
     // New fields were recommended to be added here to prevent garbage collection
     private final DriverBindings driverBindings;
@@ -30,13 +35,16 @@ public class RobotContainer {
     private static final int DRIVER_CONTROLLER_PORT = 0;
     private static final int OPERATOR_CONTROLLER_PORT = 1;
 
+    private final ControlsTelemetry telemetry;
+
+
     // Speed Constants
     private final double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps;
     private final double MaxAngularRate = 1.5 * Math.PI;
 
     // Controllers
-    private final CommandXboxController driverController = new CommandXboxController(DRIVER_CONTROLLER_PORT);
-    private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_CONTROLLER_PORT);
+    private final CommandXboxController driver = new CommandXboxController(DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController operator = new CommandXboxController(OPERATOR_CONTROLLER_PORT);
 
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
@@ -55,9 +63,13 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public RobotContainer() {
+        telemetry = new ControlsTelemetry(driver, operator);
+        virtualControls = new VirtualControlPanel();
+
+
         // Actual configuration of the button bindings for each controller is handled in the DriverBindings and OperatorBindings classes
-        driverBindings = new DriverBindings(driverController, drivetrain, vision);
-        operatorBindings = new OperatorBindings(operatorController);
+        driverBindings = new DriverBindings(driver, drivetrain, vision);
+        operatorBindings = new OperatorBindings(operator);
 
         // Configure the default commands
         configureDefaultCommands();
@@ -68,13 +80,14 @@ public class RobotContainer {
     private void configureDefaultCommands() {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> drive
-                .withVelocityX(-driverController.getLeftY() * MaxSpeed)
-                .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-                .withRotationalRate(-driverController.getRightX() * MaxAngularRate)
+                .withVelocityX(-driver.getLeftY() * MaxSpeed)
+                .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
     }
 
+    
 
     public Command getAutonomousCommand() {
         // return Commands.print("No autonomous command configured");
