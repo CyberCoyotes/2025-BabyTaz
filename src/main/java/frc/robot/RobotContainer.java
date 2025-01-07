@@ -4,117 +4,72 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AutoAlignSequence;
-import frc.robot.controls.ControlsTelemetry;
-import frc.robot.controls.DriverBindings;
-import frc.robot.controls.OperatorBindings;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.telemetry.Telemetry;
-import frc.robot.telemetry.VirtualControlPanel;
 
 public class RobotContainer {
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
-    // TODO Virtual Controls
-    private final VirtualControlPanel virtualControls;
-
-    // New fields were recommended to be added here to prevent garbage collection
-    private final DriverBindings driverBindings;
-    private final OperatorBindings operatorBindings;
-
-    // Controller Ports
-    private static final int DRIVER_CONTROLLER_PORT = 0;
-    private static final int OPERATOR_CONTROLLER_PORT = 1;
-
-    private final ControlsTelemetry telemetry;
-
-
-    // Speed Constants
-    private final double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps;
-    private final double MaxAngularRate = 1.5 * Math.PI;
-
-    // Controllers
-    private final CommandXboxController driver = new CommandXboxController(DRIVER_CONTROLLER_PORT);
-    private final CommandXboxController operator = new CommandXboxController(OPERATOR_CONTROLLER_PORT);
-
-    // Subsystems
-    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
-    private final LEDSubsystem leds = new LEDSubsystem();
-    private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
-
-    // Drive Requests
+    /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    private final CommandXboxController joystick = new CommandXboxController(0);
+
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
     public RobotContainer() {
-        telemetry = new ControlsTelemetry(driver, operator);
-        virtualControls = new VirtualControlPanel();
-
-
-        // Actual configuration of the button bindings for each controller is handled in the DriverBindings and OperatorBindings classes
-        driverBindings = new DriverBindings(driver, drivetrain, vision);
-        operatorBindings = new OperatorBindings(operator);
-
-        // Configure the default commands
-        configureDefaultCommands();
-
+        configureBindings();
     }
 
-
-    private void configureDefaultCommands() {
+    private void configureBindings() {
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
-            drivetrain.applyRequest(() -> drive
-                .withVelocityX(-driver.getLeftY() * MaxSpeed)
-                .withVelocityY(-driver.getLeftX() * MaxSpeed)
-                .withRotationalRate(-driver.getRightX() * MaxAngularRate)
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-    }
 
-    
+        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        joystick.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        ));
+
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+        // reset the field-centric heading on left bumper press
+        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
 
     public Command getAutonomousCommand() {
-        // return Commands.print("No autonomous command configured");
-    
-        // Example autonomous that aligns to a scoring position
-            Pose2d scoringPose = new Pose2d(14.0, 5.5, Rotation2d.fromDegrees(180));
-            
-            return new AutoAlignSequence(vision, drivetrain, scoringPose);
+        return Commands.print("No autonomous command configured");
     }
-    
 }
-/*
-The key components of the current structure are:
-
-1.Field Organization
-* Controllers and bindings together at top
-* Subsystems grouped together
-* Drive requests grouped together
-
-2.Dependency Flow
-* Subsystems created first
-* Bindings receive required dependencies
-* Default commands configured last
-
-3.Main Functions
-* Constructor handles initialization order
-* Default commands handle base driving
-* Autonomous command separate for competition
-
- */
