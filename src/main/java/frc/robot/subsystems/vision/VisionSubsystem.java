@@ -46,17 +46,17 @@ public class VisionSubsystem extends SubsystemBase {
         
         // Configure Limelight
         configureLimelight();
-        setLeds(false);
-        ledsEnabled = false;
+        // setLeds(false);
+        // ledsEnabled = false;
     }
 
     private void configureLimelight() {
         // Set to AprilTag pipeline
         limelightTable.getEntry("pipeline").setNumber(0);
-        setLeds(false); // Turn off LEDs if false
-        ledsEnabled = false;
+        setLeds(true); // Turn off LEDs if false
+        ledsEnabled = true;
 
-        NetworkTableInstance.getDefault().flush();
+        // NetworkTableInstance.getDefault().flush();
 
     }
 
