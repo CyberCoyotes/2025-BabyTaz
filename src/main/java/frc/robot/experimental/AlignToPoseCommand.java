@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.experimental;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -7,6 +7,9 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+/*
+ * More complex command that aligns the robot's full pose (position and rotation) to a specified target pose
+ */
 
 public class AlignToPoseCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
