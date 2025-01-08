@@ -2,14 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-
-import 
 
 public class AlignToPoseCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
