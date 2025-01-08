@@ -74,6 +74,34 @@ public LEDSubsystem() {
                     animationSpeed,
                     ledCount,
                     ColorFlowAnimation.Direction.Forward);
+            /* 
+            case RAINBOW -> new RainbowAnimation(
+                brightnessByte,
+                animationSpeed,
+                ledCount);
+                
+            case SCANNER_RED -> new StrobeAnimation(
+                brightnessByte,
+                255, 255, 255,  // White
+                animationSpeed * 2, // Faster strobe
+                ledCount);
+                
+            case SCANNER_BLUE -> new LarsonAnimation(
+                brightnessByte,
+                0, 0, 255,  // Blue
+                animationSpeed,
+                ledCount,
+                LarsonAnimation.BounceMode.Front,
+                5);
+                
+            case COLOR_FLOW -> new ColorFlowAnimation(
+                brightnessByte,
+                255, 165, 0,  // Orange
+                animationSpeed,
+                ledCount,
+                ColorFlowAnimation.Direction.Forward);
+            */ 
+            
         
             // All other states (including TARGET_VISIBLE) use solid colors
             default -> null;

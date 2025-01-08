@@ -1,12 +1,16 @@
-package frc.robot.commands;
+package frc.robot.experimental;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class AlignToTargetCommand extends Command {
+/*
+ * Simpler command that only aligns the robot's rotation to face a target using vision data
+ */
+
+ public class AlignToTargetCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController alignmentPID;
@@ -14,7 +18,7 @@ public class AlignToTargetCommand extends Command {
 
     // PID constants for rotational alignment
     private static final double kP = 0.1;
-    private static final double kI = 0.0;
+    private static final double kI = 0.0; 
     private static final double kD = 0.01;
 
     public AlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
@@ -29,35 +33,19 @@ public class AlignToTargetCommand extends Command {
     }
 
     @Override
-    public void initialize() {
-        alignmentPID.reset();
-    }
-
-    @Override
     public void execute() {
+        System.out.println("Vision has target: " + vision.hasTarget());
+        System.out.println("Horizontal offset: " + vision.getHorizontalOffset());
+    
         if (vision.hasTarget()) {
             // Calculate rotation speed based on horizontal offset
             double rotationSpeed = alignmentPID.calculate(vision.getHorizontalOffset(), 0);
             
-            // Apply rotation while maintaining current translation
+            // Apply rotation while maintaining current translation 
             drivetrain.setControl(drive
                 .withVelocityX(0)  // No forward/backward movement
                 .withVelocityY(0)  // No left/right movement
-                .withRotationalRate(rotationSpeed)); // Apply the rotation correction
+                .withRotationalRate(rotationSpeed)); // Apply rotation correction
         }
-    }
-
-    @Override
-    public boolean isFinished() {
-        return !vision.hasTarget() || alignmentPID.atSetpoint();
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        // Stop all movement
-        drivetrain.setControl(drive
-            .withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(0));
     }
 }

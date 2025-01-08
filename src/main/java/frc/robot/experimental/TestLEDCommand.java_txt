@@ -1,0 +1,43 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.led.LEDState;
+import frc.robot.subsystems.led.LEDSubsystem;
+
+public class TestLEDCommand extends Command {
+    private final LEDSubsystem ledSubsystem;
+    private final CommandXboxController controller;
+
+    public TestLEDCommand(LEDSubsystem ledSubsystem, CommandXboxController controller) {
+        this.ledSubsystem = ledSubsystem;
+        this.controller = controller;
+        addRequirements(ledSubsystem);
+    }
+
+    @Override
+    public void execute() {
+        if (controller.getHID().getPOV() == 0) { // Up
+            ledSubsystem.setState(LEDState.RAINBOW);
+            ledSubsystem.setAnimationEnabled(true);
+        } 
+        else if (controller.getHID().getPOV() == 90) { // Right
+            ledSubsystem.setState(LEDState.SCANNER_RED);
+            ledSubsystem.setAnimationEnabled(true);
+        }
+        else if (controller.getHID().getPOV() == 180) { // Down
+            ledSubsystem.setState(LEDState.SCANNER_BLUE);
+            ledSubsystem.setAnimationEnabled(true);
+        }
+        else if (controller.getHID().getPOV() == 270) { // Left
+            ledSubsystem.setState(LEDState.COLOR_FLOW);
+            ledSubsystem.setAnimationEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false; // Run continuously
+    }
+
+}

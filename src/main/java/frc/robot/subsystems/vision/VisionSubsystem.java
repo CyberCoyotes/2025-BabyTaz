@@ -29,7 +29,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double VALID_TARGET_AREA = 0.1; // % of image
     
     private VisionState currentState = VisionState.NO_TARGET;
-    private boolean ledsEnabled = true;
+    private boolean ledsEnabled = false;
 
     public VisionSubsystem(String tableName, CommandSwerveDrivetrain drivetrain, LEDSubsystem leds) {
         this.tableName = tableName;
@@ -46,12 +46,18 @@ public class VisionSubsystem extends SubsystemBase {
         
         // Configure Limelight
         configureLimelight();
+        // setLeds(false);
+        // ledsEnabled = false;
     }
 
     private void configureLimelight() {
         // Set to AprilTag pipeline
         limelightTable.getEntry("pipeline").setNumber(0);
-        setLeds(false); // Turn off LEDs if false
+        setLeds(true); // Turn off LEDs if false
+        ledsEnabled = true;
+
+        // NetworkTableInstance.getDefault().flush();
+
     }
 
     @Override
