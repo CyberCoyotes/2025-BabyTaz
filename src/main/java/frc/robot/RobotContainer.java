@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
-import frc.robot.experimental.AlignToTargetCommand;
+import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -30,93 +30,118 @@ import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
+    // Drive constants
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
+    private final double DEADBAND = 0.1; // 10% deadband
 
-    /* TODO Choreo Path follower */
-    private final AutoFactory autoFactory;
-    private final AutoRoutines autoRoutines;
-    private final AutoChooser autoChooser = new AutoChooser();
-    
+    // Controller setup
+    private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController operator = new CommandXboxController(1);
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
+    // Subsystems
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final LEDSubsystem leds = new LEDSubsystem();
+    private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
+
+    // Drive requests
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * DEADBAND)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-
 
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+        
+    /* Auto Related */
+    private final AutoFactory autoFactory;
+    private final AutoRoutines autoRoutines;
+    private final AutoChooser autoChooser = new AutoChooser();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
-
-    private final CommandXboxController driver = new CommandXboxController(0);
-
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final LEDSubsystem leds = new LEDSubsystem();
-
-    private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
-
 
     public RobotContainer() {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
 
-        //simplePath
-        autoChooser.addRoutine("Two Meters", autoRoutines::twoMeters);
-
-        SmartDashboard.putData("Auto Chooser", autoChooser);
-
+        configureAutoRoutines();
         configureBindings();
-
+        configureTelemetry();
 
     }
-
+    
+    private void configureAutoRoutines() {
+        autoChooser.addRoutine("Two Meters", autoRoutines::twoMeters);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        // leds.setDefaultCommand(new TestLEDCommand(leds, driver));
+        configureDrivetrainDefault();
+        configureDriverBindings(); // Driver specific bindings
+        configureOperatorBindings(); // Operator specific bindings
+    }
 
+    private void configureDrivetrainDefault() {
         drivetrain.setDefaultCommand(
-            
-
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
-        
-        
-        
         );
+    
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
 
+    private void configureDriverBindings() {
+        // Basic driving
         driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driver.b().whileTrue(drivetrain.applyRequest(() ->
+        driver.b().whileTrue(drivetrain.applyRequest(() -> 
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
+        // Vision alignment
         driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
 
+        // Field-centric reset
+        driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
 
+        // SysId testing 
+        configureSysIdBindings();
 
+    }
+
+    private void configureOperatorBindings() {
+        // Add operator controls here
+        operator.y().onTrue(runOnce(() -> vision.setLeds(true)))
+                  .onFalse(runOnce(() -> vision.setLeds(false)));
+
+    }
+    
+    private void configureSysIdBindings() {
         driver.back().and(driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         driver.back().and(driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driver.start().and(driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        drivetrain.registerTelemetry(logger::telemeterize);
     }
 
+    private void configureTelemetry() {
+    // Existing telemetry
+    drivetrain.registerTelemetry(logger::telemeterize);
+    SmartDashboard.putData("Vision Subsystem", vision);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     
+    // Add vision telemetry
+    SmartDashboard.putBoolean("Has Target", vision.hasTarget());
+    SmartDashboard.putNumber("Target ID", vision.getTagId());
+    // SmartDashboard.putNumber("Vision Latency", vision.getLatency());
+    }
+
+
     public Command getAutonomousCommand() {
-        // return Commands.print("No autonomous command configured");
+        // Return the command to run in autonomous
         return autoChooser.selectedCommand();
     }
+
 }

@@ -131,4 +131,19 @@ public class VisionSubsystem extends SubsystemBase {
     public int getTagId() {
         return (int) tid.getDouble(0);
     }
+
+    public void resetPoseEstimate() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'resetPoseEstimate'");
+    }
+
+    public void disable() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'disable'");
+    }
+
+    public void enable() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'enable'");
+    }
 }

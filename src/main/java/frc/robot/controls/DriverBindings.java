@@ -3,7 +3,7 @@ package frc.robot.controls;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.experimental.AlignToTargetCommand;
+import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -22,7 +22,7 @@ public class DriverBindings {
     private void configureBindings() {
 
         // Face Buttons
-        driver.a().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake()));
+        // driver.a().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake()));
         // driverController.b().onTrue(null/* B Button Press */);
         // driverController.b().whileTrue(null/* B Button Hold */);
         // driverController.x().onTrue(null/* X Button Press */);
