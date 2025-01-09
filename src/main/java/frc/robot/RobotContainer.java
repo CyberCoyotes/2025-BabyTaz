@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoChooser; // TODO added Choreo import
 import choreo.auto.AutoFactory; // TODO added Choreo import
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.commands.AlignToTargetCommand;
+import frc.robot.experimental.AlignToPoseCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -30,6 +32,9 @@ import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
+    private final Pose2d targetPose;
+
+
     // Drive constants
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
@@ -61,6 +66,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public RobotContainer() {
+        targetPose = new Pose2d(); // Initialize targetPose
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
 
@@ -103,9 +109,11 @@ public class RobotContainer {
 
         // Vision alignment
         driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
+        driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
+
 
         // Field-centric reset
-        driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
+        // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
 
         // SysId testing 
         configureSysIdBindings();
