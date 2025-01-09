@@ -95,10 +95,7 @@ public class RobotContainer {
                     .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
-<<<<<<< Updated upstream
-=======
     
->>>>>>> Stashed changes
         );
     
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -138,7 +135,6 @@ public class RobotContainer {
         driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
     }
 
-<<<<<<< Updated upstream
     private void configureTelemetry() {
     // Existing telemetry
     drivetrain.registerTelemetry(logger::telemeterize);
@@ -152,8 +148,6 @@ public class RobotContainer {
     }
 
 
-=======
->>>>>>> Stashed changes
     public Command getAutonomousCommand() {
         // Return the command to run in autonomous
         return autoChooser.selectedCommand();

@@ -6,12 +6,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-<<<<<<< Updated upstream
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-=======
->>>>>>> Stashed changes
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -27,12 +24,15 @@ public class AlignToPoseCommand extends Command {
     private final Pose2d targetPose;
     private final ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
 
-    
+    // Add these near your other constants/Default class
+    private static final boolean LIMELIGHT_MOUNTED_ON_BACK = true;
+    private static final double DIRECTION_MULTIPLIER = LIMELIGHT_MOUNTED_ON_BACK ? -1.0 : 1.0;
+
     // PID Controllers for each axis of movement
-    private final PIDController xController;  // Forward/backward
-    private final PIDController yController;  // Left/right
-    private final PIDController rotationController;  // Rotation alignment
-    
+    private final PIDController xController; // Forward/backward
+    private final PIDController yController; // Left/right
+    private final PIDController rotationController; // Rotation alignment
+
     // Swerve drive request
     private final SwerveRequest.RobotCentric drive;
 
@@ -46,44 +46,40 @@ public class AlignToPoseCommand extends Command {
         static final double ROTATION_D = 0.0;
         static final double TRANSLATION_TOLERANCE = 0.02; // meters
         static final double ROTATION_TOLERANCE = 2.0; // degrees
-        static final double TARGET_DISTANCE = 0.2; // 
+        static final double TARGET_DISTANCE = 0.2; // TODO: Set to actual distance
         static final double MAX_TRANSLATION_SPEED = 2.0; // meters per second
         static final double MAX_ROTATION_SPEED = 2.0; // radians per second
+
     }
 
-<<<<<<< Updated upstream
     public AlignToPoseCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.targetPose = targetPose;
-        
+
         // Initialize SmartDashboard values with defaults
         initializeSmartDashboard();
         configureShuffleboard();
 
-        
         // Initialize PID controllers
         xController = new PIDController(
-            SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
-            SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
-            SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D)
-        );
-        
+                SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
+                SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
+                SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D));
+
         yController = new PIDController(
-            SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
-            SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
-            SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D)
-        );
-        
+                SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
+                SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
+                SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D));
+
         rotationController = new PIDController(
-            SmartDashboard.getNumber("Align/Rotation/kP", Defaults.ROTATION_P),
-            SmartDashboard.getNumber("Align/Rotation/kI", Defaults.ROTATION_I),
-            SmartDashboard.getNumber("Align/Rotation/kD", Defaults.ROTATION_D)
-        );
-        
+                SmartDashboard.getNumber("Align/Rotation/kP", Defaults.ROTATION_P),
+                SmartDashboard.getNumber("Align/Rotation/kI", Defaults.ROTATION_I),
+                SmartDashboard.getNumber("Align/Rotation/kD", Defaults.ROTATION_D));
+
         // Configure PID controllers
         configurePIDControllers();
-        
+
         drive = new SwerveRequest.RobotCentric();
 
         addRequirements(vision, drivetrain);
@@ -94,12 +90,12 @@ public class AlignToPoseCommand extends Command {
         SmartDashboard.putNumber("Align/Translation/kP", Defaults.TRANSLATION_P);
         SmartDashboard.putNumber("Align/Translation/kI", Defaults.TRANSLATION_I);
         SmartDashboard.putNumber("Align/Translation/kD", Defaults.TRANSLATION_D);
-        
+
         // Rotation PID
         SmartDashboard.putNumber("Align/Rotation/kP", Defaults.ROTATION_P);
         SmartDashboard.putNumber("Align/Rotation/kI", Defaults.ROTATION_I);
         SmartDashboard.putNumber("Align/Rotation/kD", Defaults.ROTATION_D);
-        
+
         // Tolerances and Limits
         SmartDashboard.putNumber("Align/Translation/Tolerance", Defaults.TRANSLATION_TOLERANCE);
         SmartDashboard.putNumber("Align/Rotation/Tolerance", Defaults.ROTATION_TOLERANCE);
@@ -110,15 +106,15 @@ public class AlignToPoseCommand extends Command {
 
     private void configurePIDControllers() {
         // Set tolerances
-        double translationTolerance = SmartDashboard.getNumber("Align/Translation/Tolerance", 
-            Defaults.TRANSLATION_TOLERANCE);
-        double rotationTolerance = SmartDashboard.getNumber("Align/Rotation/Tolerance", 
-            Defaults.ROTATION_TOLERANCE);
-            
+        double translationTolerance = SmartDashboard.getNumber("Align/Translation/Tolerance",
+                Defaults.TRANSLATION_TOLERANCE);
+        double rotationTolerance = SmartDashboard.getNumber("Align/Rotation/Tolerance",
+                Defaults.ROTATION_TOLERANCE);
+
         xController.setTolerance(translationTolerance);
         yController.setTolerance(translationTolerance);
         rotationController.setTolerance(rotationTolerance);
-        
+
         // Make rotation continuous
         rotationController.enableContinuousInput(-180, 180);
     }
@@ -126,22 +122,19 @@ public class AlignToPoseCommand extends Command {
     private void updatePIDValues() {
         // Update PID values from SmartDashboard
         xController.setPID(
-            SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
-            SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
-            SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D)
-        );
-        
+                SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
+                SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
+                SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D));
+
         yController.setPID(
-            SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
-            SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
-            SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D)
-        );
-        
+                SmartDashboard.getNumber("Align/Translation/kP", Defaults.TRANSLATION_P),
+                SmartDashboard.getNumber("Align/Translation/kI", Defaults.TRANSLATION_I),
+                SmartDashboard.getNumber("Align/Translation/kD", Defaults.TRANSLATION_D));
+
         rotationController.setPID(
-            SmartDashboard.getNumber("Align/Rotation/kP", Defaults.ROTATION_P),
-            SmartDashboard.getNumber("Align/Rotation/kI", Defaults.ROTATION_I),
-            SmartDashboard.getNumber("Align/Rotation/kD", Defaults.ROTATION_D)
-        );
+                SmartDashboard.getNumber("Align/Rotation/kP", Defaults.ROTATION_P),
+                SmartDashboard.getNumber("Align/Rotation/kI", Defaults.ROTATION_I),
+                SmartDashboard.getNumber("Align/Rotation/kD", Defaults.ROTATION_D));
     }
 
     private void updateTelemetry() {
@@ -149,12 +142,12 @@ public class AlignToPoseCommand extends Command {
         SmartDashboard.putBoolean("Align/HasTarget", vision.hasTarget());
         SmartDashboard.putNumber("Align/CurrentDistance", vision.getVerticalOffset());
         SmartDashboard.putNumber("Align/HorizontalOffset", vision.getHorizontalOffset());
-        
+
         // Update PID states
         SmartDashboard.putNumber("Align/X/Error", xController.getPositionError());
         SmartDashboard.putNumber("Align/Y/Error", yController.getPositionError());
         SmartDashboard.putNumber("Align/Rotation/Error", rotationController.getPositionError());
-        
+
         SmartDashboard.putBoolean("Align/X/AtSetpoint", xController.atSetpoint());
         SmartDashboard.putBoolean("Align/Y/AtSetpoint", yController.atSetpoint());
         SmartDashboard.putBoolean("Align/Rotation/AtSetpoint", rotationController.atSetpoint());
@@ -162,39 +155,45 @@ public class AlignToPoseCommand extends Command {
 
     public void configureShuffleboard() {
         ShuffleboardTab alignmentTab = Shuffleboard.getTab("Alignment");
-        
+
         // PID tuning
         alignmentTab.add("Translation P", Defaults.TRANSLATION_P)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", 5));
-            
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0, "max", 5));
+
         // Add similar entries for other PID values
-        
+
         // Status indicators
         alignmentTab.addBoolean("Has Target", () -> vision.hasTarget())
-            .withWidget(BuiltInWidgets.kBooleanBox);
-            
+                .withWidget(BuiltInWidgets.kBooleanBox);
+
         // Errors and current values
-        alignmentTab.addNumber("Distance Error", () -> 
-            SmartDashboard.getNumber("Align/X/Error", 0))
-            .withWidget(BuiltInWidgets.kGraph);
+        alignmentTab.addNumber("Distance Error", () -> SmartDashboard.getNumber("Align/X/Error", 0))
+                .withWidget(BuiltInWidgets.kGraph);
+
+        // Add new debugging values
+        alignmentTab.addNumber("Raw Vertical Offset", () -> vision.getVerticalOffset())
+                .withWidget(BuiltInWidgets.kGraph);
+        alignmentTab.addNumber("X Speed Command", () -> SmartDashboard.getNumber("Align/XSpeedCommand", 0))
+                .withWidget(BuiltInWidgets.kGraph);
+        alignmentTab.addBoolean("Limelight Rear Mounted", () -> LIMELIGHT_MOUNTED_ON_BACK)
+                .withWidget(BuiltInWidgets.kBooleanBox);
     }
-    
+
     @Override
     public void initialize() {
         // Reset controllers when command starts
         xController.reset();
         yController.reset();
         rotationController.reset();
-        
+
         // Update PID values from dashboard
         updatePIDValues();
         configurePIDControllers();
-        
+
         SmartDashboard.putBoolean("Align/Active", true);
     }
 
-    
     @Override
     public void execute() {
         if (!vision.hasTarget()) {
@@ -205,137 +204,62 @@ public class AlignToPoseCommand extends Command {
 
         // Get current robot pose
         Pose2d currentPose = drivetrain.getState().Pose;
-        
+
         // Get max speeds from dashboard
-        double maxTranslationSpeed = SmartDashboard.getNumber("Align/MaxTranslationSpeed", 
-            Defaults.MAX_TRANSLATION_SPEED);
-        double maxRotationSpeed = SmartDashboard.getNumber("Align/MaxRotationSpeed", 
-            Defaults.MAX_ROTATION_SPEED);
-        
+        double maxTranslationSpeed = SmartDashboard.getNumber("Align/MaxTranslationSpeed",
+                Defaults.MAX_TRANSLATION_SPEED);
+        double maxRotationSpeed = SmartDashboard.getNumber("Align/MaxRotationSpeed",
+                Defaults.MAX_ROTATION_SPEED);
+
         // Calculate target distance
-        double targetDistance = SmartDashboard.getNumber("Align/TargetDistance", 
-            Defaults.TARGET_DISTANCE);
-        
-        // Calculate speeds with limits
-        double xSpeed = Math.min(Math.abs(xController.calculate(
-            vision.getVerticalOffset(), targetDistance)), maxTranslationSpeed);
-            
+        double targetDistance = SmartDashboard.getNumber("Align/TargetDistance",
+                Defaults.TARGET_DISTANCE);
+
+        // Calculate speeds with limits and apply direction multiplier for rear-mounted
+        // Limelight
+        double xSpeed = DIRECTION_MULTIPLIER * Math.min(Math.abs(xController.calculate(
+                vision.getVerticalOffset(), targetDistance)), maxTranslationSpeed);
+
         double ySpeed = Math.min(Math.abs(yController.calculate(
-            vision.getHorizontalOffset(), 0.0)), maxTranslationSpeed);
-            
+                vision.getHorizontalOffset(), 0.0)), maxTranslationSpeed);
+
         double rotationSpeed = Math.min(Math.abs(rotationController.calculate(
-            currentPose.getRotation().getDegrees(),
-            targetPose.getRotation().getDegrees())), maxRotationSpeed);
-        
+                currentPose.getRotation().getDegrees(),
+                targetPose.getRotation().getDegrees())), maxRotationSpeed);
+
+        // Add debug values to SmartDashboard
+        SmartDashboard.putNumber("Align/RawVerticalOffset", vision.getVerticalOffset());
+        SmartDashboard.putNumber("Align/TargetDistance", targetDistance);
+        SmartDashboard.putNumber("Align/XSpeedCommand", xSpeed);
+        SmartDashboard.putNumber("Align/YSpeedCommand", ySpeed);
+        SmartDashboard.putNumber("Align/RotationCommand", rotationSpeed);
+
         // Apply speeds to swerve drive
         drivetrain.setControl(drive
-            .withVelocityX(xSpeed)
-            .withVelocityY(ySpeed)
-            .withRotationalRate(rotationSpeed));
-            
+                .withVelocityX(xSpeed)
+                .withVelocityY(ySpeed)
+                .withRotationalRate(rotationSpeed));
+
         // Update dashboard
         updateTelemetry();
     }
-=======
-    // Tolerance constants
-    private static final double TRANSLATION_TOLERANCE = 0.02; // meters
-    private static final double ROTATION_TOLERANCE = 2.0; // degrees
-        private static final double TARGET_DISTANCE = 0.2;
-
-    // Add this with your other constants
-    private static final boolean LIMELIGHT_MOUNTED_ON_BACK = true; // Configuration for Limelight mounting
-    private static final double DIRECTION_MULTIPLIER = LIMELIGHT_MOUNTED_ON_BACK ? -1.0 : 1.0;
-
-    
-        public AlignToPoseCommand(frc.robot.subsystems.vision.VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
-            this.vision = vision;
-            this.drivetrain = drivetrain;
-            this.targetPose = targetPose;
-            
-            xController = new PIDController(TRANSLATION_P, TRANSLATION_I, TRANSLATION_D);
-            yController = new PIDController(TRANSLATION_P, TRANSLATION_I, TRANSLATION_D);
-            rotationController = new PIDController(ROTATION_P, ROTATION_I, ROTATION_D);
-            
-            // Set tolerances
-            xController.setTolerance(TRANSLATION_TOLERANCE);
-            yController.setTolerance(TRANSLATION_TOLERANCE);
-            rotationController.setTolerance(ROTATION_TOLERANCE);
-            
-            // Make rotation controller continuous
-            rotationController.enableContinuousInput(-180, 180);
-            
-            drive = new SwerveRequest.RobotCentric();
-    
-            addRequirements(vision, drivetrain);
-        }
-    
-        @Override
-        public void initialize() {
-            xController.reset();
-            yController.reset();
-            rotationController.reset();
-        }
-    
-      @Override
-    public void execute() {
-        if (!vision.hasTarget()) {
-            // No target visible, stop moving
-            drivetrain.setControl(drive
-                .withVelocityX(0.0)
-                .withVelocityY(0.0)
-                .withRotationalRate(0.0));
-            return;
-        }
-    
-        Pose2d currentPose = drivetrain.getState().Pose;
-        
-        // Calculate distance error with inverted x-axis due to rear-mounted Limelight
-        double xSpeed = DIRECTION_MULTIPLIER * xController.calculate(
-            vision.getVerticalOffset(), 
-            TARGET_DISTANCE
-    );
-    
-    // Y movement (left/right) doesn't need to be inverted
-    double ySpeed = yController.calculate(
-        vision.getHorizontalOffset(),
-        0.0  // Target is centered at 0 degrees
-    );
-    
-    // Rotation calculation remains the same
-    double rotationSpeed = rotationController.calculate(
-        currentPose.getRotation().getDegrees(),
-        targetPose.getRotation().getDegrees()
-    );
-    
-    // Add telemetry for debugging
-    SmartDashboard.putNumber("Align/XSpeed", xSpeed);
-    SmartDashboard.putNumber("Align/YSpeed", ySpeed);
-    SmartDashboard.putNumber("Align/RotSpeed", rotationSpeed);
-    
-    // Apply speeds to swerve drive
-    drivetrain.setControl(drive
-        .withVelocityX(xSpeed)
-        .withVelocityY(ySpeed)
-        .withRotationalRate(rotationSpeed));
-}
->>>>>>> Stashed changes
 
     @Override
     public boolean isFinished() {
-        return vision.hasTarget() && 
-               xController.atSetpoint() &&
-               yController.atSetpoint() &&
-               rotationController.atSetpoint();
+        return vision.hasTarget() &&
+                xController.atSetpoint() &&
+                yController.atSetpoint() &&
+                rotationController.atSetpoint();
     }
 
     @Override
     public void end(boolean interrupted) {
         // Stop all movement
         drivetrain.setControl(drive
-            .withVelocityX(0.0)
-            .withVelocityY(0.0)
-            .withRotationalRate(0.0));
-            
+                .withVelocityX(0.0)
+                .withVelocityY(0.0)
+                .withRotationalRate(0.0));
+
         SmartDashboard.putBoolean("Align/Active", false);
     }
 }
