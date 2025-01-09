@@ -6,9 +6,12 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+<<<<<<< Updated upstream
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+=======
+>>>>>>> Stashed changes
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -48,6 +51,7 @@ public class AlignToPoseCommand extends Command {
         static final double MAX_ROTATION_SPEED = 2.0; // radians per second
     }
 
+<<<<<<< Updated upstream
     public AlignToPoseCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
         this.vision = vision;
         this.drivetrain = drivetrain;
@@ -232,6 +236,89 @@ public class AlignToPoseCommand extends Command {
         // Update dashboard
         updateTelemetry();
     }
+=======
+    // Tolerance constants
+    private static final double TRANSLATION_TOLERANCE = 0.02; // meters
+    private static final double ROTATION_TOLERANCE = 2.0; // degrees
+        private static final double TARGET_DISTANCE = 0.2;
+
+    // Add this with your other constants
+    private static final boolean LIMELIGHT_MOUNTED_ON_BACK = true; // Configuration for Limelight mounting
+    private static final double DIRECTION_MULTIPLIER = LIMELIGHT_MOUNTED_ON_BACK ? -1.0 : 1.0;
+
+    
+        public AlignToPoseCommand(frc.robot.subsystems.vision.VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
+            this.vision = vision;
+            this.drivetrain = drivetrain;
+            this.targetPose = targetPose;
+            
+            xController = new PIDController(TRANSLATION_P, TRANSLATION_I, TRANSLATION_D);
+            yController = new PIDController(TRANSLATION_P, TRANSLATION_I, TRANSLATION_D);
+            rotationController = new PIDController(ROTATION_P, ROTATION_I, ROTATION_D);
+            
+            // Set tolerances
+            xController.setTolerance(TRANSLATION_TOLERANCE);
+            yController.setTolerance(TRANSLATION_TOLERANCE);
+            rotationController.setTolerance(ROTATION_TOLERANCE);
+            
+            // Make rotation controller continuous
+            rotationController.enableContinuousInput(-180, 180);
+            
+            drive = new SwerveRequest.RobotCentric();
+    
+            addRequirements(vision, drivetrain);
+        }
+    
+        @Override
+        public void initialize() {
+            xController.reset();
+            yController.reset();
+            rotationController.reset();
+        }
+    
+      @Override
+    public void execute() {
+        if (!vision.hasTarget()) {
+            // No target visible, stop moving
+            drivetrain.setControl(drive
+                .withVelocityX(0.0)
+                .withVelocityY(0.0)
+                .withRotationalRate(0.0));
+            return;
+        }
+    
+        Pose2d currentPose = drivetrain.getState().Pose;
+        
+        // Calculate distance error with inverted x-axis due to rear-mounted Limelight
+        double xSpeed = DIRECTION_MULTIPLIER * xController.calculate(
+            vision.getVerticalOffset(), 
+            TARGET_DISTANCE
+    );
+    
+    // Y movement (left/right) doesn't need to be inverted
+    double ySpeed = yController.calculate(
+        vision.getHorizontalOffset(),
+        0.0  // Target is centered at 0 degrees
+    );
+    
+    // Rotation calculation remains the same
+    double rotationSpeed = rotationController.calculate(
+        currentPose.getRotation().getDegrees(),
+        targetPose.getRotation().getDegrees()
+    );
+    
+    // Add telemetry for debugging
+    SmartDashboard.putNumber("Align/XSpeed", xSpeed);
+    SmartDashboard.putNumber("Align/YSpeed", ySpeed);
+    SmartDashboard.putNumber("Align/RotSpeed", rotationSpeed);
+    
+    // Apply speeds to swerve drive
+    drivetrain.setControl(drive
+        .withVelocityX(xSpeed)
+        .withVelocityY(ySpeed)
+        .withRotationalRate(rotationSpeed));
+}
+>>>>>>> Stashed changes
 
     @Override
     public boolean isFinished() {
