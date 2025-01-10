@@ -28,7 +28,7 @@ public class AlignToTargetCommand extends Command {
      
      // TODO: These might need adjustment based on field distances
      private static final double MIN_TARGET_AREA = 0.1;  // Minimum target area to be valid
-     private static final double MAX_TARGET_DISTANCE = 5.0; // Maximum valid distance in meters
+     private static final double MAX_TARGET_DISTANCE = 2.0; // Maximum valid distance in meters
 
      
     // TODO: Tune these PID constants for your specific robot
