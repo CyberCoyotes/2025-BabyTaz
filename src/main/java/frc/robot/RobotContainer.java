@@ -25,6 +25,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.experimental.AlignToPoseCommand;
+import frc.robot.experimental.CenterOnTagCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -117,6 +118,7 @@ public class RobotContainer {
         // Vision alignment
         driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
         driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
+        driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
 
 
         // Field-centric reset
