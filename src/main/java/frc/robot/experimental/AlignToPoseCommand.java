@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 /**
@@ -23,10 +24,6 @@ public class AlignToPoseCommand extends Command {
     private final VisionSubsystem vision;
     private final Pose2d targetPose;
     private final ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
-
-    // Add these near your other constants/Default class
-    private static final boolean LIMELIGHT_MOUNTED_ON_BACK = true;
-    private static final double DIRECTION_MULTIPLIER = LIMELIGHT_MOUNTED_ON_BACK ? -1.0 : 1.0;
 
     // PID Controllers for each axis of movement
     private final PIDController xController; // Forward/backward
@@ -176,7 +173,7 @@ public class AlignToPoseCommand extends Command {
                 .withWidget(BuiltInWidgets.kGraph);
         alignmentTab.addNumber("X Speed Command", () -> SmartDashboard.getNumber("Align/XSpeedCommand", 0))
                 .withWidget(BuiltInWidgets.kGraph);
-        alignmentTab.addBoolean("Limelight Rear Mounted", () -> LIMELIGHT_MOUNTED_ON_BACK)
+        alignmentTab.addBoolean("Limelight Front Mounted", () -> VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT)
                 .withWidget(BuiltInWidgets.kBooleanBox);
     }
 
@@ -217,7 +214,7 @@ public class AlignToPoseCommand extends Command {
 
         // Calculate speeds with limits and apply direction multiplier for rear-mounted
         // Limelight
-        double xSpeed = DIRECTION_MULTIPLIER * Math.min(Math.abs(xController.calculate(
+        double xSpeed = VisionConstants.LIMELIGHT_DIRECTION * Math.min(Math.abs(xController.calculate(
                 vision.getVerticalOffset(), targetDistance)), maxTranslationSpeed);
 
         double ySpeed = Math.min(Math.abs(yController.calculate(

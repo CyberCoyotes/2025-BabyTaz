@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -21,15 +22,6 @@ public class AlignToTargetCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController alignmentPID;
     private final SwerveRequest.FieldCentric drive;
-
-     // Update these ranges for your specific field element tags
-     private static final int MIN_VALID_TAG = 1;  // Minimum valid AprilTag ID
-     private static final int MAX_VALID_TAG = 22;  // Maximum valid AprilTag ID
-     
-     // TODO: These might need adjustment based on field distances
-     private static final double MIN_TARGET_AREA = 0.1;  // Minimum target area to be valid
-     private static final double MAX_TARGET_DISTANCE = 2.0; // Maximum valid distance in meters
-
      
     // TODO: Tune these PID constants for your specific robot
     // Consider starting with just P gain and add D if needed
@@ -81,7 +73,7 @@ public class AlignToTargetCommand extends Command {
             
             // Calculate rotation correction
             // Negative offset means target is to the left, positive means to the right
-            double rotationSpeed = alignmentPID.calculate(vision.getHorizontalOffset(), 0);
+            double rotationSpeed = VisionConstants.LIMELIGHT_DIRECTION * alignmentPID.calculate(vision.getHorizontalOffset(), 0);
             
             // Prevent excessive rotation speeds
             rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);

@@ -106,10 +106,13 @@ public class VisionSubsystem extends SubsystemBase {
     private void logData() {
         SmartDashboard.putString("Vision/State", currentState.toString());
         SmartDashboard.putNumber("Vision/TagID", tid.getDouble(0));
-        SmartDashboard.putNumber("Vision/TX", tx.getDouble(0));
+        SmartDashboard.putNumber("Vision/TX", tx.getDouble(0) * VisionConstants.LIMELIGHT_DIRECTION); // Apply direction multiplier
         SmartDashboard.putNumber("Vision/TY", ty.getDouble(0));
         SmartDashboard.putNumber("Vision/TA", ta.getDouble(0));
+        SmartDashboard.putBoolean("Vision/LimelightFrontMounted", VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT);
     }
+    
+    
 
     // Getter methods for use in commands
     public VisionState getState() {
@@ -121,7 +124,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double getHorizontalOffset() {
-        return tx.getDouble(0.0);
+        return tx.getDouble(0.0) * VisionConstants.LIMELIGHT_DIRECTION;
     }
 
     public double getVerticalOffset() {
@@ -146,4 +149,10 @@ public class VisionSubsystem extends SubsystemBase {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'enable'");
     }
+
+    public boolean isTagValid(int tagId) {
+        return tagId >= VisionConstants.MIN_VALID_TAG && 
+               tagId <= VisionConstants.MAX_VALID_TAG;
+    }
+
 }
