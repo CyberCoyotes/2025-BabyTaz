@@ -40,6 +40,12 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
     private final double DEADBAND = 0.1; // 10% deadband
 
+    // Add these speed factor variables
+    private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
+    private double rotationSpeedFactor = 0.25; // 25% rotation speed
+
+
+
     // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
     private final CommandXboxController operator = new CommandXboxController(1);
@@ -91,9 +97,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed * driveSpeedFactor) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed * driveSpeedFactor) // Drive left with negative X (left)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate * rotationSpeedFactor) // Drive counterclockwise with negative X (left)
             )
     
         );
@@ -145,6 +151,10 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Has Target", vision.hasTarget());
     SmartDashboard.putNumber("Target ID", vision.getTagId());
     // SmartDashboard.putNumber("Vision Latency", vision.getLatency());
+
+    // Add speed factor telemetry
+    SmartDashboard.putNumber("Drive Speed Factor %", driveSpeedFactor * 100);
+    SmartDashboard.putNumber("Rotation Speed Factor %", rotationSpeedFactor * 100);
     }
 
 
