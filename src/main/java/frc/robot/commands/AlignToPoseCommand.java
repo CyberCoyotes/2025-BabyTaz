@@ -138,7 +138,8 @@ public class AlignToPoseCommand extends Command {
                 // Calculate motion-profiled speeds
                 double xSpeed = xController.calculate(
                                 currentDistance,
-                                VisionConstants.TARGET_DISTANCE_METERS);
+                                // FIXME VisionConstants.TARGET_DISTANCE_METERS
+                                3.0 );
 
                 double ySpeed = yController.calculate(
                                 currentHorizontalOffset,
