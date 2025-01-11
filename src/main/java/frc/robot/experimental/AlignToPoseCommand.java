@@ -46,9 +46,9 @@ public class AlignToPoseCommand extends Command {
         static final double ROTATION_D = 0.0;
         static final double TRANSLATION_TOLERANCE = 0.02; // meters
         static final double ROTATION_TOLERANCE = 2.0; // degrees
-        static final double TARGET_DISTANCE = 0.2; // TODO: Set to actual distance
-        static final double MAX_TRANSLATION_SPEED = 2.0; // meters per second
-        static final double MAX_ROTATION_SPEED = 2.0; // radians per second
+        static final double TARGET_DISTANCE = 0.5; // TODO: Set to actual distance
+        static final double MAX_TRANSLATION_SPEED = 1.0; // meters per second
+        static final double MAX_ROTATION_SPEED = 1.0; // radians per second
 
     }
 
