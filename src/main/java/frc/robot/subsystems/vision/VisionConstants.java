@@ -45,7 +45,7 @@ public final class VisionConstants {
     public static final double ROTATION_TOLERANCE_RADIANS = Math.toRadians(2.0);
     
     // Target parameters
-    public static final double TARGET_DISTANCE_METERS = 0.5;
+    public static final double TARGET_DISTANCE_METERS = 6.0;
     
     public static boolean isValidTagId(int tagId) {
         return tagId >= MIN_VALID_TAG && tagId <= MAX_VALID_TAG;
