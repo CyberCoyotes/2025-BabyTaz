@@ -127,9 +127,12 @@ public class AlignToPoseCommand extends Command {
                         return;
                 }
 
+                // https://claude.ai/chat/87d24d0c-551f-48b4-ae86-8ddc011ab7db
                 // Get current measurements
-                double currentDistance = vision.getVerticalOffset();
-                double currentHorizontalOffset = vision.getHorizontalOffset();
+                // FIXME Added LIMELIGHT_DIRECTION to correct for mounting direction
+                double currentDistance = vision.getVerticalOffset() * VisionConstants.LIMELIGHT_DIRECTION;
+                // FIXME Added LIMELIGHT_DIRECTION to correct for mounting direction
+                double currentHorizontalOffset = vision.getHorizontalOffset() * VisionConstants.LIMELIGHT_DIRECTION;
                 var robotPose = drivetrain.getState().Pose;
 
                 // Calculate motion-profiled speeds
@@ -147,9 +150,10 @@ public class AlignToPoseCommand extends Command {
                                 targetPose.getRotation().getRadians());
 
                 // Apply movement with direction compensation for Limelight mounting
+                // FIXME: This is a temporary fix for the mounting direction of the Limelight
                 drivetrain.setControl(drive
                                 .withVelocityX(xSpeed * VisionConstants.LIMELIGHT_DIRECTION)
-                                .withVelocityY(ySpeed)
+                                .withVelocityY(ySpeed * VisionConstants.LIMELIGHT_DIRECTION)
                                 .withRotationalRate(rotationSpeed));
 
                 // Update state tracking
