@@ -3,6 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -15,6 +18,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
  * Uses ProfiledPIDController for smoother motion control.
  */
 public class AlignToPoseCommand extends Command {
+        private final ShuffleboardTab tab = Shuffleboard.getTab("Vision Alignment");
+        private final GenericEntry pGain = tab.add("Distance P Gain", VisionConstants.TRANSLATION_kP).getEntry();
+        private final GenericEntry iGain = tab.add("Distance I Gain", VisionConstants.TRANSLATION_kI).getEntry();
+        private final GenericEntry dGain = tab.add("Distance D Gain", VisionConstants.TRANSLATION_kD).getEntry();
+
         // Subsystem dependencies
         private final CommandSwerveDrivetrain drivetrain;
         private final VisionSubsystem vision;
@@ -93,6 +101,16 @@ public class AlignToPoseCommand extends Command {
 
         @Override
         public void initialize() {
+
+                xController.setPID(
+                        pGain.getDouble(VisionConstants.TRANSLATION_kP),
+                        iGain.getDouble(VisionConstants.TRANSLATION_kI),
+                        dGain.getDouble(VisionConstants.TRANSLATION_kD));
+
+                // xController.reset();
+                // yController.reset();
+                // rotationController.reset();
+
                 // Get current state
                 double currentDistance = vision.getVerticalOffset();
                 double currentHorizontalOffset = vision.getHorizontalOffset();
@@ -139,7 +157,7 @@ public class AlignToPoseCommand extends Command {
                 double xSpeed = xController.calculate(
                                 currentDistance,
                                 // FIXME VisionConstants.TARGET_DISTANCE_METERS
-                                3.0 );
+                                3.0);
 
                 double ySpeed = yController.calculate(
                                 currentHorizontalOffset,
@@ -186,19 +204,29 @@ public class AlignToPoseCommand extends Command {
         }
 
         private void updateTelemetry() {
+                // Add these new values
+                SmartDashboard.putNumber("Pose VerticalOffset", vision.getVerticalOffset());
+                SmartDashboard.putNumber("Pose HorizontalOffset", vision.getHorizontalOffset());
+                SmartDashboard.putNumber("Pose Compensated/VerticalOffset",
+                                vision.getVerticalOffset() * VisionConstants.LIMELIGHT_DIRECTION);
+                SmartDashboard.putNumber("Pose Compensated/HorizontalOffset",
+                                vision.getHorizontalOffset() * VisionConstants.LIMELIGHT_DIRECTION);
+                SmartDashboard.putNumber("Pose LimelightDirection", VisionConstants.LIMELIGHT_DIRECTION);
+                SmartDashboard.putBoolean("Pose LimelightFrontMounted", VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT);
+
                 // Controller states
-                SmartDashboard.putNumber("Vision/Distance/Error", xController.getPositionError());
-                SmartDashboard.putNumber("Vision/Horizontal/Error", yController.getPositionError());
-                SmartDashboard.putNumber("Vision/Rotation/Error", rotationController.getPositionError());
+                SmartDashboard.putNumber("Pose Distance/Error", xController.getPositionError());
+                SmartDashboard.putNumber("Pose Horizontal/Error", yController.getPositionError());
+                SmartDashboard.putNumber("Pose Rotation/Error", rotationController.getPositionError());
 
                 // Target tracking
-                SmartDashboard.putBoolean("Vision/HasTarget", vision.hasTarget());
-                SmartDashboard.putNumber("Vision/CurrentDistance", vision.getVerticalOffset());
-                SmartDashboard.putNumber("Vision/HorizontalOffset", vision.getHorizontalOffset());
+                SmartDashboard.putBoolean("Pose HasTarget", vision.hasTarget());
+                SmartDashboard.putNumber("Pose CurrentDistance", vision.getVerticalOffset());
+                SmartDashboard.putNumber("Pose HorizontalOffset", vision.getHorizontalOffset());
 
                 // Controller goals
-                SmartDashboard.putBoolean("Vision/AtXGoal", xController.atGoal());
-                SmartDashboard.putBoolean("Vision/AtYGoal", yController.atGoal());
-                SmartDashboard.putBoolean("Vision/AtRotationGoal", rotationController.atGoal());
+                SmartDashboard.putBoolean("Pose AtXGoal", xController.atGoal());
+                SmartDashboard.putBoolean("Pose AtYGoal", yController.atGoal());
+                SmartDashboard.putBoolean("Pose AtRotationGoal", rotationController.atGoal());
         }
 }

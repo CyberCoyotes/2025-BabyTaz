@@ -104,12 +104,17 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void logData() {
-        SmartDashboard.putString("Vision/State", currentState.toString());
-        SmartDashboard.putNumber("Vision/TagID", tid.getDouble(0));
-        SmartDashboard.putNumber("Vision/TX", tx.getDouble(0) * VisionConstants.LIMELIGHT_DIRECTION); // Apply direction multiplier
-        SmartDashboard.putNumber("Vision/TY", ty.getDouble(0));
-        SmartDashboard.putNumber("Vision/TA", ta.getDouble(0));
-        SmartDashboard.putBoolean("Vision/LimelightFrontMounted", VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT);
+        SmartDashboard.putString("Sub State", currentState.toString());
+        SmartDashboard.putNumber("Sub TagID", tid.getDouble(0));
+        SmartDashboard.putNumber("Sub TX", tx.getDouble(0) * VisionConstants.LIMELIGHT_DIRECTION); // Apply direction multiplier
+        SmartDashboard.putNumber("Sub TY", ty.getDouble(0));
+        SmartDashboard.putNumber("Sub TA", ta.getDouble(0));
+        SmartDashboard.putBoolean("Sub LimelightFrontMounted", VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT);
+
+        SmartDashboard.putNumber("Sub CurrentDistance", getVerticalOffset());
+        SmartDashboard.putNumber("Sub TargetDistance", VisionConstants.TARGET_DISTANCE_METERS);
+        SmartDashboard.putNumber("Sub DistanceError", 
+            Math.abs(getVerticalOffset() - VisionConstants.TARGET_DISTANCE_METERS));
     }
     
     
