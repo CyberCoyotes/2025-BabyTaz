@@ -1,4 +1,4 @@
-package frc.robot.turret;
+package frc.robot.subsystems.turret;
 
 // https://claude.ai/chat/420a3d4c-6d25-4de7-8930-f6be5ae112ec
 // Includes more modern example if wanting to persue this further

@@ -1,8 +1,8 @@
 package frc.robot.commands;
 
-import frc.robot.turret.TurretSubsystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.turret.TurretSubsystem;
 
 public class TurnTurretCommand extends Command {
     private final TurretSubsystem motorSubsystem;
