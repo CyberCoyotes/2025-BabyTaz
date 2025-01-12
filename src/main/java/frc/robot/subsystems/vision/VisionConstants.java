@@ -27,21 +27,41 @@ public final class VisionConstants {
     // public static final double TARGET_DISTANCE = 0.5; // meters
 
     // Motion constraints
-    public static final double MAX_TRANSLATION_VELOCITY = 2.0; // meters per second
-    public static final double MAX_TRANSLATION_ACCELERATION = 2.0; // meters per second squared
+    public static final double MAX_TRANSLATION_VELOCITY = 1.2; // meters per second
+    public static final double MAX_TRANSLATION_ACCELERATION = 0.6; // meters per second squared
     public static final double MAX_ROTATION_VELOCITY = Math.PI; // radians per second
     public static final double MAX_ROTATION_ACCELERATION = Math.PI; // radians per second squared
+    // TODO adjust
+    /*
+     * | Velocity | Acceleration | Description   |
+     * |----------|--------------|---------------|
+     * | 1.2      | 0.6          | Default          |
+     * | 2.0      | 2.0          | Too aggressive   |
+     * | 0.5      | 0.5          |                  |
+     */
 
     // PID gains
-    public static final double TRANSLATION_kP = 1.0;
+    public static final double TRANSLATION_kP = 0.4;
     public static final double TRANSLATION_kI = 0.0;
-    public static final double TRANSLATION_kD = 0.0;
+    public static final double TRANSLATION_kD = 0.05;
+
+    // TODO adjust
+    /* 
+     * | P      | I     | D     | Description   |
+     * |--------|-------|-------|---------------|
+     * | 1.0    | 0.0   | 0.0   | Default       |
+     * | 0.4    | 0.0   | 0.05  |               |
+     * | 0.5    | 0.0   | 0.0   |               |
+     * 
+    */
+
+
     public static final double ROTATION_kP = 0.5;
     public static final double ROTATION_kI = 0.0;
     public static final double ROTATION_kD = 0.0;
 
     // Tolerances
-    public static final double TRANSLATION_TOLERANCE_METERS = 0.02;
+    public static final double TRANSLATION_TOLERANCE_METERS = 0.02; // 2 cm tolerance
     public static final double ROTATION_TOLERANCE_RADIANS = Math.toRadians(2.0);
     
     // Target parameters

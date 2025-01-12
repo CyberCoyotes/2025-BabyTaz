@@ -17,6 +17,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
  * Improved command to align robot to target using vision and motion profiling.
  * Uses ProfiledPIDController for smoother motion control.
  */
+
+ // Tuning Chat https://claude.ai/chat/14464343-a583-4909-8d9d-35a1b91c53bd
+ 
 public class AlignToPoseCommand extends Command {
         private final ShuffleboardTab tab = Shuffleboard.getTab("Vision Alignment");
         private final GenericEntry pGain = tab.add("Distance P Gain", VisionConstants.TRANSLATION_kP).getEntry();
