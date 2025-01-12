@@ -35,12 +35,12 @@ public class ControlsTelemetry {
         driverLayout.addDouble("Right Trigger", () -> driver.getRightTriggerAxis());
         
         // Add driver button states
-        driverLayout.addBoolean("A Button", () -> driver.getHID().getAButton());
-        driverLayout.addBoolean("B Button", () -> driver.getHID().getBButton());
-        driverLayout.addBoolean("X Button", () -> driver.getHID().getXButton());
-        driverLayout.addBoolean("Y Button", () -> driver.getHID().getYButton());
-        driverLayout.addBoolean("Left Bumper", () -> driver.getHID().getLeftBumper());
-        driverLayout.addBoolean("Right Bumper", () -> driver.getHID().getRightBumper());
+        driverLayout.addBoolean("A Button", () -> driver.a().getAsBoolean());
+        driverLayout.addBoolean("B Button", () -> driver.b().getAsBoolean());
+        driverLayout.addBoolean("X Button", () -> driver.x().getAsBoolean());
+        driverLayout.addBoolean("Y Button", () -> driver.y().getAsBoolean());
+        driverLayout.addBoolean("Left Bumper", () -> driver.leftBumper().getAsBoolean());
+        driverLayout.addBoolean("Right Bumper", () -> driver.rightBumper().getAsBoolean());
         driverLayout.addInteger("POV", () -> driver.getHID().getPOV());
 
         // Operator Controls
@@ -59,12 +59,12 @@ public class ControlsTelemetry {
         operatorLayout.addDouble("Right Trigger", () -> operator.getRightTriggerAxis());
         
         // Add operator button states
-        operatorLayout.addBoolean("A Button", () -> operator.getHID().getAButton());
-        operatorLayout.addBoolean("B Button", () -> operator.getHID().getBButton());
-        operatorLayout.addBoolean("X Button", () -> operator.getHID().getXButton());
-        operatorLayout.addBoolean("Y Button", () -> operator.getHID().getYButton());
-        operatorLayout.addBoolean("Left Bumper", () -> operator.getHID().getLeftBumper());
-        operatorLayout.addBoolean("Right Bumper", () -> operator.getHID().getRightBumper());
+        operatorLayout.addBoolean("A Button", () -> operator.a().getAsBoolean());
+        operatorLayout.addBoolean("B Button", () -> operator.b().getAsBoolean());
+        operatorLayout.addBoolean("X Button", () -> operator.x().getAsBoolean());
+        operatorLayout.addBoolean("Y Button", () -> operator.y().getAsBoolean());
+        operatorLayout.addBoolean("Left Bumper", () -> operator.leftBumper().getAsBoolean());
+        operatorLayout.addBoolean("Right Bumper", () -> operator.rightBumper().getAsBoolean());
         operatorLayout.addInteger("POV", () -> operator.getHID().getPOV());
 
         // Add Command Scheduler data

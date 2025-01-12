@@ -2,11 +2,13 @@ package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 public class ArmIOPhoenix6 {
 
@@ -15,7 +17,12 @@ public class ArmIOPhoenix6 {
         // Set the default configuration for the arm motor
         m_arm.getConfigurator().apply(new TalonFXConfiguration());
 
+        var motorOutputConfigs = new MotorOutputConfigs();
+        // motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive; // Normal
+        motorOutputConfigs.Inverted = InvertedValue.Clockwise_Positive; // Inverted
+        /* DEPRECATED: Use MotorOutputConfigs instead 
         m_arm.setInverted(true); // Set to true if you want to invert the motor direction
+        */
 
         /* Gains or configuration of arm motor for config slot 0 */
         var armGains0 = new Slot0Configs();
@@ -51,5 +58,6 @@ public class ArmIOPhoenix6 {
         m_arm.getConfigurator().apply(armMotionMagic0, 0.050);
         m_arm.getConfigurator().apply(armSoftLimit0, 0.050);
         m_arm.getConfigurator().apply(armCurrent0, 0.050);
+        m_arm.getConfigurator().apply(motorOutputConfigs );
     }        
 } // end of class ArmIO

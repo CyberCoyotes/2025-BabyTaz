@@ -4,9 +4,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.ctre.phoenix6.StatusSignal;
-
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final TalonFX motor;
