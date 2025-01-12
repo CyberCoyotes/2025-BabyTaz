@@ -27,8 +27,8 @@ public final class VisionConstants {
     // public static final double TARGET_DISTANCE = 0.5; // meters
 
     // Motion constraints
-    public static final double MAX_TRANSLATION_VELOCITY = 1.2; // meters per second
-    public static final double MAX_TRANSLATION_ACCELERATION = 0.6; // meters per second squared
+    public static final double MAX_TRANSLATION_VELOCITY = .5; // meters per second
+    public static final double MAX_TRANSLATION_ACCELERATION = 0.2; // meters per second squared
     public static final double MAX_ROTATION_VELOCITY = Math.PI; // radians per second
     public static final double MAX_ROTATION_ACCELERATION = Math.PI; // radians per second squared
     // TODO adjust
