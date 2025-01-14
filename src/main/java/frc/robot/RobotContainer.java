@@ -54,7 +54,7 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
     private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
-    private final TOFSubsystem tof = new TOFSubsystem(1); // TODO Run configuration for TOF sensor to confirm
+    private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
 
   // TODO Emergency stop trigger based on TOF distance
     private final Trigger emergencyStop = new Trigger(() -> 

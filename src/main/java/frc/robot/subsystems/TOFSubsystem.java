@@ -9,8 +9,8 @@ public class TOFSubsystem extends SubsystemBase {
     private static final int SENSOR_RANGE_MM = 5000; // 5m max range
     private static final int MIN_RANGE_MM = 30; // Minimum valid range
     
-    public TOFSubsystem(int canID) {
-        tof = new TimeOfFlight(canID);
+    public TOFSubsystem() {
+        tof = new TimeOfFlight(0); // TODO double check
         // Configure for long range mode
         tof.setRangingMode(TimeOfFlight.RangingMode.Long, 24);
         // Sample time of 50ms
