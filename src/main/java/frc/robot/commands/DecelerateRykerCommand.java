@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -18,15 +20,21 @@ public class DecelerateRykerCommand extends Command {
     private final SwerveRequest.RobotCentric drive;
 
     // Tuning constants
-    private static final double MAX_VELOCITY = 4.0; // meters/second  
-    private static final double MAX_ACCEL = 3.0; // meters/second²
+    // Tune these constants to be more conservative
+    private static final double MAX_VELOCITY = 1.0; // Reduced from 4.0 m/s
+    private static final double MAX_ACCEL = 1.0; // Reduced from 3.0 m/s²
     private static final double TARGET_DISTANCE = 1.0; // meters
-    private static final double DISTANCE_TOLERANCE = 0.05; // meters
+    private static final double DISTANCE_TOLERANCE = 0.1; // Increased from 0.05m
     
-    // PID Gains - will need tuning
-    private static final double kP = 1.0;
-    private static final double kI = 0.0;
-    private static final double kD = 0.0;
+ // Start with just proportional control
+ private static final double kP = 0.5; // Reduced from 1.0
+ private static final double kI = 0.0;
+ private static final double kD = 0.0;
+
+   // Add debug logging
+   private double lastCalculatedVelocity = 0.0;
+   private double lastMeasuredDistance = 0.0;
+
 
     public DecelerateRykerCommand(CommandSwerveDrivetrain drivetrain, 
                                 VisionSubsystem vision,
@@ -49,38 +57,50 @@ public class DecelerateRykerCommand extends Command {
 
     @Override
     public void initialize() {
-        distanceController.reset(tof.getDistanceMeters());
-    }
+  // Reset controller with current distance
+        lastMeasuredDistance = tof.getDistanceMeters();
+        distanceController.reset(lastMeasuredDistance);
+        
+        System.out.println("DecelerateRyker initialized at distance: " + lastMeasuredDistance);    }
 
     @Override
     public void execute() {
+  // Validate sensor data first
         if (!vision.hasTarget() || !tof.isRangeValid()) {
-            drivetrain.setControl(drive.withVelocityX(0)
-                                    .withVelocityY(0)
-                                    .withRotationalRate(0));
+            stopMovement();
+            System.out.println("No valid target or TOF reading");
             return;
         }
 
-        // Calculate velocity based on current distance
-        double currentDistance = tof.getDistanceMeters();
-        double velocity = distanceController.calculate(currentDistance, TARGET_DISTANCE);
+        try {
+            // Get current distance
+            lastMeasuredDistance = tof.getDistanceMeters();
+            
+            // Calculate velocity with bounds checking
+            lastCalculatedVelocity = distanceController.calculate(lastMeasuredDistance, TARGET_DISTANCE);
+            lastCalculatedVelocity = MathUtil.clamp(lastCalculatedVelocity, -MAX_VELOCITY, MAX_VELOCITY);
 
-        // Keep robot aligned to target while moving
-        double rotationSpeed = -vision.getHorizontalOffset() * 0.1; // Simple P control
+            // Calculate rotation with bounds
+            double rotationSpeed = -vision.getHorizontalOffset() * 0.05; // Reduced from 0.1
+            rotationSpeed = MathUtil.clamp(rotationSpeed, -0.5, 0.5);
 
-        // Apply control
-        drivetrain.setControl(drive.withVelocityX(velocity)
-                                 .withVelocityY(0)
-                                 .withRotationalRate(rotationSpeed));
-                                 
-        // Create or get the Shuffleboard tab
-        ShuffleboardTab tab = Shuffleboard.getTab("DecelerateToTag");
+            // Log before applying
+            System.out.printf("Distance: %.2f, Velocity: %.2f, Rotation: %.2f%n", 
+                            lastMeasuredDistance, lastCalculatedVelocity, rotationSpeed);
 
-        // Log data to Shuffleboard
-        tab.add("Decel CurrentDistance", currentDistance);
-        tab.add("Decel TargetVelocity", velocity);
-        tab.add("Decel RotationSpeed", rotationSpeed);
-    }
+            // Apply control
+            drivetrain.setControl(drive.withVelocityX(lastCalculatedVelocity)
+                                     .withVelocityY(0)
+                                     .withRotationalRate(rotationSpeed));
+
+            // Update telemetry
+            updateTelemetry();
+
+        } catch (Exception e) {
+            stopMovement();
+            System.out.println("Error in DecelerateRyker execute: " + e.getMessage());
+            e.printStackTrace();
+        }    }
 
     @Override
     public boolean isFinished() {
@@ -95,4 +115,19 @@ public class DecelerateRykerCommand extends Command {
                                  .withVelocityY(0)
                                  .withRotationalRate(0));
     }
+
+    private void stopMovement() {
+        drivetrain.setControl(drive.withVelocityX(0)
+                                 .withVelocityY(0)
+                                 .withRotationalRate(0));
+    }
+    private void updateTelemetry() {
+        SmartDashboard.putNumber("Decel/CurrentDistance", lastMeasuredDistance);
+        SmartDashboard.putNumber("Decel/TargetDistance", TARGET_DISTANCE);
+        SmartDashboard.putNumber("Decel/CalculatedVelocity", lastCalculatedVelocity);
+        SmartDashboard.putBoolean("Decel/AtGoal", distanceController.atGoal());
+        SmartDashboard.putBoolean("Decel/HasTarget", vision.hasTarget());
+        SmartDashboard.putBoolean("Decel/ValidRange", tof.isRangeValid());
+    }
+
 }

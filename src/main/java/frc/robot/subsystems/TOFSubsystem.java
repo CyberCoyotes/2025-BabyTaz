@@ -19,10 +19,16 @@ public class TOFSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Log distance data
-        SmartDashboard.putNumber("TOF/Distance_mm", getRawDistance());
+        double currentDist = getRawDistance();
+        SmartDashboard.putNumber("TOF/Raw_Distance_mm", currentDist);
         SmartDashboard.putNumber("TOF/Distance_m", getDistanceMeters());
         SmartDashboard.putBoolean("TOF/Valid", isRangeValid());
+        
+        // Add bounds checking
+        if (currentDist < MIN_RANGE_MM || currentDist > SENSOR_RANGE_MM) {
+            System.out.println("TOF distance out of bounds: " + currentDist);
+        }
+    
     }
 
     public double getRawDistance() {

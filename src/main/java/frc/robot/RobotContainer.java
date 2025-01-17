@@ -57,8 +57,8 @@ public class RobotContainer {
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
 
   // TODO Emergency stop trigger based on TOF distance
-    private final Trigger emergencyStop = new Trigger(() -> 
-        tof.isRangeValid() && tof.getDistanceMeters() < 0.3); // 30cm minimum
+    // private final Trigger emergencyStop = new Trigger(() -> 
+        // tof.isRangeValid() && tof.getDistanceMeters() < 100.0); // 30cm minimum
 
 
     // Drive requests
@@ -126,15 +126,27 @@ public class RobotContainer {
         driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
         // TODO
         // Emergency stop when too close
+        /*
         emergencyStop.onTrue(Commands.runOnce(() -> 
             drivetrain.setControl(new SwerveRequest.RobotCentric()
                 .withVelocityX(0)
                 .withVelocityY(0)
                 .withRotationalRate(0)))
         );
+         */
 
         // Bind decelerate command to button
-        driver.x().whileTrue(new DecelerateRykerCommand(drivetrain, vision, tof));
+        driver.x().whileTrue(
+            new DecelerateRykerCommand(drivetrain, vision, tof)
+                .withTimeout(5)  // Add timeout for safety
+                .handleInterrupt(() -> {
+                    System.out.println("DecelerateRyker interrupted");
+                    drivetrain.setControl(drive.withVelocityX(0)
+                                             .withVelocityY(0)
+                                             .withRotationalRate(0));
+                })
+        );
+    
 
         driver.start().whileTrue(new StrafeToCenterCommand(vision, drivetrain));
 
