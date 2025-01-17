@@ -17,22 +17,25 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.commands.AlignToPoseCommand;
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.CenterOnTagCommand;
+import frc.robot.commands.DecelerateRykerCommand;
 import frc.robot.commands.StrafeToCenterCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.TOFSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
     private final Pose2d targetPose;
-
 
     // Drive constants
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -43,9 +46,7 @@ public class RobotContainer {
     private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
     private double rotationSpeedFactor = 0.25; // 25% rotation speed
 
-
-
-    // Controller setup
+        // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
     private final CommandXboxController operator = new CommandXboxController(1);
 
@@ -53,6 +54,12 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
     private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
+    private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
+
+  // TODO Emergency stop trigger based on TOF distance
+    // private final Trigger emergencyStop = new Trigger(() -> 
+        // tof.isRangeValid() && tof.getDistanceMeters() < 100.0); // 30cm minimum
+
 
     // Drive requests
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -117,6 +124,30 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
         driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
         driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
+        // TODO
+        // Emergency stop when too close
+        /*
+        emergencyStop.onTrue(Commands.runOnce(() -> 
+            drivetrain.setControl(new SwerveRequest.RobotCentric()
+                .withVelocityX(0)
+                .withVelocityY(0)
+                .withRotationalRate(0)))
+        );
+         */
+
+        // Bind decelerate command to button
+        driver.x().whileTrue(
+            new DecelerateRykerCommand(drivetrain, vision, tof)
+                .withTimeout(5)  // Add timeout for safety
+                .handleInterrupt(() -> {
+                    System.out.println("DecelerateRyker interrupted");
+                    drivetrain.setControl(drive.withVelocityX(0)
+                                             .withVelocityY(0)
+                                             .withRotationalRate(0));
+                })
+        );
+    
+
         driver.start().whileTrue(new StrafeToCenterCommand(vision, drivetrain));
 
 
