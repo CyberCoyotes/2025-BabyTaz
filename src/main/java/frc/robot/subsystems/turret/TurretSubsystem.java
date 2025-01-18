@@ -1,10 +1,15 @@
 package frc.robot.subsystems.turret;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 // https://claude.ai/chat/420a3d4c-6d25-4de7-8930-f6be5ae112ec
 // Includes more modern example if wanting to persue this further
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import static edu.wpi.first.wpilibj2.command.Commands.print;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -31,6 +36,13 @@ public class TurretSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+    }
+
+    public Command TurnTurretClockwise() {
+        // TODO Auto-generated method stub
+        
+        // print to console
+        return print("Turning Turret Clockwise");
     }
 }
 

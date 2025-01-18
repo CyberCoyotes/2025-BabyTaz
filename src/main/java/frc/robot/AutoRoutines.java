@@ -3,12 +3,16 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import frc.robot.commands.TurnTurretClockwise;
+import frc.robot.subsystems.turret.TurretSubsystem;
 
 public class AutoRoutines {
     private final AutoFactory m_factory;
+    private final TurretSubsystem m_turret;
 
-    public AutoRoutines(AutoFactory factory) {
+    public AutoRoutines(AutoFactory factory, TurretSubsystem turret) {
         m_factory = factory;
+        m_turret = new TurretSubsystem(27);
     }
 
 
@@ -40,8 +44,15 @@ public class AutoRoutines {
                 
         cProject.active().onTrue(
             threeMetersPlus.resetOdometry()
-                .andThen(threeMetersPlus.cmd())
+                .andThen(threeMetersPlus.cmd()
+                    // This works, not exactly what I envisioned
+                    
+                    // .deadlineWith(new TurnTurretClockwise(m_turret))
+                    // .beforeStarting(() -> {})
+                    // .andThen(() -> {})
+                )
         );
+
         return cProject;
     }
 }

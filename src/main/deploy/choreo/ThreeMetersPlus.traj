@@ -69,5 +69,5 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Marker", "from":{"target":1, "targetTimestamp":0.89714, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"wait", "data":{"waitTime":{"exp":"2 s", "val":2.0}}}}]
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":0.89714, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"TurnTurretClockwise"}}}]
 }
