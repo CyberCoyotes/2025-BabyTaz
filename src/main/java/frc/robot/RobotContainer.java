@@ -87,9 +87,11 @@ public class RobotContainer {
         configureTelemetry();
 
     }
-    
+    // Score1Command?
     private void configureAutoRoutines() {
-        autoChooser.addRoutine("Two Meters", autoRoutines::twoMeters);
+        autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
+        autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 

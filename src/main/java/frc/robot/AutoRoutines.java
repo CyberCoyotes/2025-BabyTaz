@@ -11,14 +11,37 @@ public class AutoRoutines {
         m_factory = factory;
     }
 
-    public AutoRoutine twoMeters() {
-        final AutoRoutine routine = m_factory.newRoutine("Two Meters");
-        final AutoTrajectory twoMeters = routine.trajectory("TwoMeters");
 
-        routine.active().onTrue(
-            twoMeters.resetOdometry()
-                .andThen(twoMeters.cmd())
+  public AutoRoutine threeMeters() {
+
+        // This is the name of the Choreo Project
+        final AutoRoutine cProject = m_factory.newRoutine("BabyTazLV");
+
+        // This is the name of the path/traj in the Choreo Project
+        final AutoTrajectory threeMeters = cProject.trajectory("ThreeMeters");
+
+
+        
+        cProject.active().onTrue(
+            threeMeters.resetOdometry()
+                .andThen(threeMeters.cmd())
         );
-        return routine;
+        return cProject;
+    }
+
+
+    public AutoRoutine threeMetersPlus() {
+
+        // This is the name of the Choreo Project
+        final AutoRoutine cProject = m_factory.newRoutine("BabyTazLV");
+        
+        // This is the name of the path/traj in the Choreo Project
+        final AutoTrajectory threeMetersPlus = cProject.trajectory("ThreeMetersPlus");
+                
+        cProject.active().onTrue(
+            threeMetersPlus.resetOdometry()
+                .andThen(threeMetersPlus.cmd())
+        );
+        return cProject;
     }
 }
