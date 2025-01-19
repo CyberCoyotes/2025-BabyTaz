@@ -28,6 +28,6 @@ public class TurnTurretClockwise extends Command {
 
     @Override
     public boolean isFinished() {
-        return timer.hasElapsed(1.0);
+        return timer.hasElapsed(0.5);
     }
 }

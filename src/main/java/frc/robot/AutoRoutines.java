@@ -6,6 +6,9 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.commands.TurnTurretClockwise;
+
+import edu.wpi.first.wpilibj2.command.Command;
 
 /*
  * CTRE Example Reference
@@ -25,7 +28,10 @@ public class AutoRoutines {
     public AutoRoutines(AutoFactory factory, TurretSubsystem turret) {
         m_factory = factory;
         m_turret = new TurretSubsystem(27);
+        Command TurnTurretClockwise = new TurnTurretClockwise(m_turret);
+
     }
+
 
     /*
     CHOREO EXAMPLE 
@@ -78,15 +84,24 @@ public class AutoRoutines {
         // When first path is done, start turret command
 
         // Starting at the event marker named "intake", run the intake 
-        // TODO Test
+        // TODO Test 1
+        // RESULTS turret never stopped
         // myPath.atTime("turret").onTrue(new RunCommand(() -> m_turret.turnClockwise(-0.5), m_turret));
-        // TODO Test
-        myPath.atTime("turret").onTrue(m_turret.turnClockwiseNonVoid());
+
+        // TODO Test 2
+        // RESULTS turret never
+        // myPath.atTime("turret").onTrue(m_turret.turnClockwiseNonVoid());
+
+
+        // TODO Test 3
+        // RESULTS ran at the start, but stop after a time and before the end of the path
+        myPath.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
+
 
         // firstPath.done().onTrue(new TurnTurretClockwise(m_turret));
 
         // When turret is done, start second path
-        // m_turret.done().onTrue(secondPath.cmd());
+    // m_turret.done().onTrue(secondPath.cmd());
 
         return routine;
     }
