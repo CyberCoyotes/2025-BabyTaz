@@ -85,16 +85,13 @@ public class AutoRoutines {
 
         // Starting at the event marker named "intake", run the intake 
         // TODO Test 1
-        // RESULTS turret never stopped
         // myPath.atTime("turret").onTrue(new RunCommand(() -> m_turret.turnClockwise(-0.5), m_turret));
 
         // TODO Test 2
-        // RESULTS turret never
         // myPath.atTime("turret").onTrue(m_turret.turnClockwiseNonVoid());
 
 
         // TODO Test 3
-        // RESULTS ran at the start, but stop after a time and before the end of the path
         myPath.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
 
 
