@@ -17,7 +17,7 @@ public class TurnTurretCommand extends Command {
     public void initialize() {
         timer.reset();
         timer.start();
-        motorSubsystem.setMotorSpeed(-0.5);
+        motorSubsystem.setTurretSpeed(-0.5);
     }
 
     @Override

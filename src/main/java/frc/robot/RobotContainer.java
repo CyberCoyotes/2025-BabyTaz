@@ -86,7 +86,8 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, turret);
 
-        NamedCommands.registerCommand("TurnTurretClockwise", turret.TurnTurretClockwise()); // TODO Add named command for TurnTurretClockwise
+        // Something like this was used with PathPlanner
+        // NamedCommands.registerCommand("TurnTurretClockwise", Commands.run(() -> turret.turnClockwise(0.5))); // TODO Add named command for TurnTurretClockwise
 
 
         configureAutoRoutines();
@@ -96,7 +97,7 @@ public class RobotContainer {
     }
     // Score1Command?
     private void configureAutoRoutines() {
-        autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
+        // autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
         autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);

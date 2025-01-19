@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
 public class TurnTurretClockwise extends Command {
-    private final TurretSubsystem motorSubsystem;
+    private final TurretSubsystem turretSubsystem;
     private final Timer timer = new Timer();
 
     public TurnTurretClockwise(TurretSubsystem subsystem) {
-        motorSubsystem = subsystem;
+        turretSubsystem = subsystem;
         addRequirements(subsystem);
     }
 
@@ -17,12 +17,12 @@ public class TurnTurretClockwise extends Command {
     public void initialize() {
         timer.reset();
         timer.start();
-        motorSubsystem.setMotorSpeed(0.5);
+        turretSubsystem.turnClockwise(0.5);;
     }
 
     @Override
     public void end(boolean interrupted) {
-        motorSubsystem.stopMotor();
+        turretSubsystem.stopMotor();
         timer.stop();
     }
 
