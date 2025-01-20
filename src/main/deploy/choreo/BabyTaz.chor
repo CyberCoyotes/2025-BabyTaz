@@ -5,20 +5,6 @@
  "variables":{
   "expressions":{},
   "poses":{
-   "StartTop":{
-    "x":{
-     "exp":"7 m",
-     "val":7.0
-    },
-    "y":{
-     "exp":"7 m",
-     "val":7.0
-    },
-    "heading":{
-     "exp":"-90 deg",
-     "val":-1.5707963267948966
-    }
-   },
    "StartBottom":{
     "x":{
      "exp":"7.134431838989258 m",
@@ -31,6 +17,20 @@
     "heading":{
      "exp":"90 deg",
      "val":1.5707963267948966
+    }
+   },
+   "StartTop":{
+    "x":{
+     "exp":"7 m",
+     "val":7.0
+    },
+    "y":{
+     "exp":"7 m",
+     "val":7.0
+    },
+    "heading":{
+     "exp":"-90 deg",
+     "val":-1.5707963267948966
     }
    }
   }
@@ -48,8 +48,8 @@
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"11 in",
+    "val":0.2794
    },
    "y":{
     "exp":"11 in",
@@ -57,8 +57,8 @@
    }
   },
   "mass":{
-   "exp":"100 lbs",
-   "val":45.359237
+   "exp":"85 lbs",
+   "val":38.55535145
   },
   "inertia":{
    "exp":"6 kg m ^ 2",
