@@ -47,11 +47,15 @@ public class TurretSubsystem extends SubsystemBase {
         motor.set(ControlMode.PercentOutput, 0);
     }
 
-    public void turnClockwise(double speed) {
+    public void turnClockwise() {
         motor.set(ControlMode.PercentOutput, CLOCKWISE);
         // Add a print command to print the speed of the motor
     }
-    
+    public void turnCounterClockwise() {
+        motor.set(ControlMode.PercentOutput, COUNTERCLOCKWISE);
+        // Add a print command to print the speed of the motor
+    }
+
     public Command turnClockwiseNonVoid() {
         return new Command() {
             @Override

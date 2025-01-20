@@ -28,7 +28,7 @@ public class AutoRoutines {
     public AutoRoutines(AutoFactory factory, TurretSubsystem turret) {
         m_factory = factory;
         m_turret = new TurretSubsystem(27);
-        Command TurnTurretClockwise = new TurnTurretClockwise(m_turret);
+        // Command TurnTurretClockwise = new TurnTurretClockwise(m_turret);
 
     }
 
@@ -67,16 +67,15 @@ public class AutoRoutines {
         final AutoRoutine routine = m_factory.newRoutine("ThreeMetersPlus");
 
         // Step 2: Load trajectories
-        // final AutoTrajectory firstPath = routine.trajectory("PathOne");
-        // final AutoTrajectory secondPath = routine.trajectory("PathTwo");
-
-        final AutoTrajectory myPath = routine.trajectory("ThreeMetersPlus");
-        // final AutoTrajectory threeMetersPlus = routine.trajectory("ThreeMetersPlus");
+        // e.g. final AutoTrajectory firstPath = routine.trajectory("PathOne");
+        // e.g. final AutoTrajectory secondPath = routine.trajectory("PathTwo");
+        final AutoTrajectory startScoreK = routine.trajectory("ThreeMetersPlus");
+        final AutoTrajectory kTopStation = routine.trajectory("ThreeMetersPlus");
 
         routine.active().onTrue(
                 Commands.sequence(
-                        myPath.resetOdometry(), // Always reset odometry first
-                        myPath.cmd() // Follow first path
+                        startScoreK.resetOdometry(), // Always reset odometry first
+                        startScoreK.cmd() // Follow first path
 
                 ));
 
@@ -84,30 +83,52 @@ public class AutoRoutines {
         // When first path is done, start turret command
 
         // Starting at the event marker named "intake", run the intake 
-        // TODO Test 1
+        // TODO Approach 1
         // myPath.atTime("turret").onTrue(new RunCommand(() -> m_turret.turnClockwise(-0.5), m_turret));
 
-        // TODO Test 2
-        // myPath.atTime("turret").onTrue(m_turret.turnClockwiseNonVoid());
+        // TODO Approach 2
+        // myPath.atTime("turret").onTrue(TurretSubsystem.turnClockwise());
 
-
-        // TODO Test 3
-        myPath.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
-
-
-        // firstPath.done().onTrue(new TurnTurretClockwise(m_turret));
+        // TODO Approach 3
+        startScoreK.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
 
         // When turret is done, start second path
-    // m_turret.done().onTrue(secondPath.cmd());
+        startScoreK.done().onTrue(kTopStation.cmd());
 
         return routine;
     }
 
-    // You can add more autonomous routines as additional methods
-    // public AutoRoutine anotherAuto() {
-    // Implementation for another autonomous routine
-    // }
+    public AutoRoutine scoreK1() {
+        final AutoRoutine routine = m_factory.newRoutine("StartTopScoreK");
+        final AutoTrajectory startTopScoreK = routine.trajectory("StartTopScoreK");
 
+        routine.active().onTrue(
+                startTopScoreK.resetOdometry()
+                        .andThen(startTopScoreK.cmd()));
+        return routine;
+    }
+
+    public AutoRoutine scoreK2() {
+        final AutoRoutine routine = m_factory.newRoutine("StartTopScoreK");
+        final AutoTrajectory startTopScoreK = routine.trajectory("StartTopScoreK");
+
+        routine.active().onTrue(
+                startTopScoreK.resetOdometry()
+                        .andThen(startTopScoreK.cmd()));
+        return routine;
+    }
+
+    public AutoRoutine scoreK4() {
+        final AutoRoutine routine = m_factory.newRoutine("StartTopScoreK");
+        final AutoTrajectory startTopScoreK = routine.trajectory("StartTopScoreK");
+
+        routine.active().onTrue(
+                startTopScoreK.resetOdometry()
+                        .andThen(startTopScoreK.cmd()));
+        return routine;
+    }
+
+    
     public AutoRoutine threeMeters() {
 
         // Creates a new routine with the name "exampleRoutine"

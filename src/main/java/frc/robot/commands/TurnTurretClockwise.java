@@ -17,7 +17,7 @@ public class TurnTurretClockwise extends Command {
     public void initialize() {
         timer.reset();
         timer.start();
-        turretSubsystem.turnClockwise(0.5);;
+        turretSubsystem.turnClockwise();;
     }
 
     @Override
