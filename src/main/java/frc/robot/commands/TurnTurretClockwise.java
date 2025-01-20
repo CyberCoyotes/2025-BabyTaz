@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
-public class TurnTurretCommand extends Command {
-    private final TurretSubsystem motorSubsystem;
+public class TurnTurretClockwise extends Command {
+    private final TurretSubsystem turretSubsystem;
     private final Timer timer = new Timer();
 
-    public TurnTurretCommand(TurretSubsystem subsystem) {
-        motorSubsystem = subsystem;
+    public TurnTurretClockwise(TurretSubsystem subsystem) {
+        turretSubsystem = subsystem;
         addRequirements(subsystem);
     }
 
@@ -17,17 +17,17 @@ public class TurnTurretCommand extends Command {
     public void initialize() {
         timer.reset();
         timer.start();
-        motorSubsystem.setTurretSpeed(-0.5);
+        turretSubsystem.turnClockwise();;
     }
 
     @Override
     public void end(boolean interrupted) {
-        motorSubsystem.stopMotor();
+        turretSubsystem.stopMotor();
         timer.stop();
     }
 
     @Override
     public boolean isFinished() {
-        return timer.hasElapsed(1.0);
+        return timer.hasElapsed(0.5);
     }
 }

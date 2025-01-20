@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import choreo.auto.AutoChooser; // TODO added Choreo import
 import choreo.auto.AutoFactory; // TODO added Choreo import
@@ -32,6 +33,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
@@ -75,21 +77,29 @@ public class RobotContainer {
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
 
+    private final TurretSubsystem turret = new TurretSubsystem(27); // TODO Add turret subsystem
+
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public RobotContainer() {
         targetPose = new Pose2d(); // Initialize targetPose
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
+        autoRoutines = new AutoRoutines(autoFactory, turret);
+
+        // Something like this was used with PathPlanner
+        // NamedCommands.registerCommand("TurnTurretClockwise", Commands.run(() -> turret.turnClockwise(0.5))); // TODO Add named command for TurnTurretClockwise
+
 
         configureAutoRoutines();
         configureBindings();
         configureTelemetry();
 
     }
-    
+    // Score1Command?
     private void configureAutoRoutines() {
-        autoChooser.addRoutine("Two Meters", autoRoutines::twoMeters);
+        // autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
+        autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 

@@ -1,5 +1,5 @@
 {
- "name":"BabyTaz",
+ "name":"ExperimentalChoreo",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -28,8 +28,8 @@
    }
   },
   "mass":{
-   "exp":"100 lbs",
-   "val":45.359237
+   "exp":"70 lbs",
+   "val":31.751465900000003
   },
   "inertia":{
    "exp":"6 kg m ^ 2",

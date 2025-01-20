@@ -1,26 +1,45 @@
 package frc.robot.subsystems.turret;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 // https://claude.ai/chat/420a3d4c-6d25-4de7-8930-f6be5ae112ec
 // Includes more modern example if wanting to persue this further
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import static edu.wpi.first.wpilibj2.command.Commands.print;
+
+import java.io.ObjectInputFilter.Config;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 public class TurretSubsystem extends SubsystemBase {
     private final WPI_TalonSRX motor;
 
     // Constants for motor speed
-    private static final double CLOCKWISE_SPEED = 0.5;
-    private static final double COUNTERCLOCKWISE_SPEED = -0.5;
+    private static final double CLOCKWISE = 0.5;
+    public static final double COUNTERCLOCKWISE = -1*CLOCKWISE;
 
     int motorCANID = 27;
 
     public TurretSubsystem(int motorCANID) {
         motor = new WPI_TalonSRX(motorCANID);
+        configureMotor();
     }
 
-    public void setMotorSpeed(double speed) {
+    private void configureMotor() {
+        motor.configFactoryDefault();
+        motor.setInverted(false);
+        // motor.setSensorPhase(false);
+        motor.configVoltageCompSaturation(12);
+        motor.enableVoltageCompensation(true);
+        motor.setNeutralMode(NeutralMode.Brake);
+        motor.configPeakOutputForward(0.7);  // Limit max output
+        motor.configPeakOutputReverse(-0.7);
+    }
+    public void setTurretSpeed(double speed) {
         motor.set(ControlMode.PercentOutput, speed);
     }
 
@@ -28,9 +47,40 @@ public class TurretSubsystem extends SubsystemBase {
         motor.set(ControlMode.PercentOutput, 0);
     }
 
+    public void turnClockwise() {
+        motor.set(ControlMode.PercentOutput, CLOCKWISE);
+        // Add a print command to print the speed of the motor
+    }
+    public void turnCounterClockwise() {
+        motor.set(ControlMode.PercentOutput, COUNTERCLOCKWISE);
+        // Add a print command to print the speed of the motor
+    }
+
+    public Command turnClockwiseNonVoid() {
+        return new Command() {
+            @Override
+            public void initialize() {
+                motor.set(ControlMode.PercentOutput, CLOCKWISE);
+                // Add a print command to print the speed of the motor
+                System.out.println("Turret speed: " + motor.getMotorOutputPercent());
+            }
+
+            @Override
+            public boolean isFinished() {
+                return true; // Command ends immediately after initialization
+            }
+        };
+    }
+
+    public void turnCounterClockwise(double speed) {
+        motor.set(ControlMode.PercentOutput, COUNTERCLOCKWISE);
+    }
+
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-    }
-}
+        print("Turret speed: " + motor.getMotorOutputPercent());
 
+    }
+
+}
