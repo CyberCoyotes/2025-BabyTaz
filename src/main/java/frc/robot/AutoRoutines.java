@@ -76,20 +76,11 @@ public class AutoRoutines {
                 Commands.sequence(
                         startScoreK.resetOdometry(), // Always reset odometry first
                         startScoreK.cmd() // Follow first path
-
+                        // ,Commands.waitSeconds(2.0)   // Pause for 2 seconds
                 ));
 
         // Step 4: Add trigger-based behaviors
         // When first path is done, start turret command
-
-        // Starting at the event marker named "intake", run the intake 
-        // TODO Approach 1
-        // myPath.atTime("turret").onTrue(new RunCommand(() -> m_turret.turnClockwise(-0.5), m_turret));
-
-        // TODO Approach 2
-        // myPath.atTime("turret").onTrue(TurretSubsystem.turnClockwise());
-
-        // TODO Approach 3
         startScoreK.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
 
         // When turret is done, start second path
