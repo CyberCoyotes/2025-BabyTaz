@@ -10,17 +10,15 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.NamedCommands;
 
 import choreo.auto.AutoChooser; // TODO added Choreo import
 import choreo.auto.AutoFactory; // TODO added Choreo import
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
@@ -77,7 +75,8 @@ public class RobotContainer {
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
 
-    private final TurretSubsystem turret = new TurretSubsystem(27); // TODO Add turret subsystem
+    // TODO Add turret subsystem
+    private final TurretSubsystem turret = new TurretSubsystem(27); 
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -86,8 +85,15 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, turret);
 
-        // Something like this was used with PathPlanner
-        // NamedCommands.registerCommand("TurnTurretClockwise", Commands.run(() -> turret.turnClockwise(0.5))); // TODO Add named command for TurnTurretClockwise
+         // TODO Add global commands for event triggers in Choreo
+        // In RobotContainer constructor, after creating autoFactory:
+        autoFactory
+            // Will run TurnTurretClockwise whenever "turret" marker is hit
+            .bind("turret", turret.turnClockwise()) 
+            // another approach
+            //.bind("turret", Commands.run(() -> turret.turnClockwise(0.5)))
+            .bind("scoreL1", turret.turnClockwise())
+            .bind("scoreL2", turret.turnCounterClockwise());
 
 
         configureAutoRoutines();
@@ -95,7 +101,6 @@ public class RobotContainer {
         configureTelemetry();
 
     }
-    // Score1Command?
     private void configureAutoRoutines() {
         // autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
         autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
@@ -134,16 +139,6 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
         driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
         driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
-        // TODO
-        // Emergency stop when too close
-        /*
-        emergencyStop.onTrue(Commands.runOnce(() -> 
-            drivetrain.setControl(new SwerveRequest.RobotCentric()
-                .withVelocityX(0)
-                .withVelocityY(0)
-                .withRotationalRate(0)))
-        );
-         */
 
         // Bind decelerate command to button
         driver.x().whileTrue(
@@ -159,8 +154,6 @@ public class RobotContainer {
     
 
         driver.start().whileTrue(new StrafeToCenterCommand(vision, drivetrain));
-
-
 
         // Field-centric reset
         // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));

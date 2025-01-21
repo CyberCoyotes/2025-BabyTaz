@@ -1,6 +1,7 @@
 package frc.robot.subsystems.turret;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 // https://claude.ai/chat/420a3d4c-6d25-4de7-8930-f6be5ae112ec
 // Includes more modern example if wanting to persue this further
@@ -20,7 +21,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     // Constants for motor speed
     private static final double CLOCKWISE = 0.5;
-    public static final double COUNTERCLOCKWISE = -1*CLOCKWISE;
+    public static final double COUNTERCLOCKWISE = CLOCKWISE * -1;
 
     int motorCANID = 27;
 
@@ -47,13 +48,21 @@ public class TurretSubsystem extends SubsystemBase {
         motor.set(ControlMode.PercentOutput, 0);
     }
 
-    public void turnClockwise() {
-        motor.set(ControlMode.PercentOutput, CLOCKWISE);
-        // Add a print command to print the speed of the motor
+    // Factory Method will be used to create the command?
+    // Implement a command to turn the turret clockwise.
+    // The command should run until a certain condition is met, and then stop the motor.
+    public Command turnClockwise() {
+        return Commands.run(() -> setTurretSpeed(CLOCKWISE))
+        // .until(() -> /* some condition */)
+        .withTimeout(0.5)
+        .finallyDo(interrupted -> stopMotor());    
     }
-    public void turnCounterClockwise() {
-        motor.set(ControlMode.PercentOutput, COUNTERCLOCKWISE);
-        // Add a print command to print the speed of the motor
+
+    public Command turnCounterClockwise() {
+        return Commands.run(() -> setTurretSpeed(COUNTERCLOCKWISE))
+        // .until(() -> /* some condition */)
+        .withTimeout(0.5)
+        .finallyDo(interrupted -> stopMotor());    
     }
 
     public Command turnClockwiseNonVoid() {

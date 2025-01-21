@@ -33,6 +33,27 @@ public class AutoRoutines {
     }
 
 
+    // TODO Test this feature
+    /*
+     * Auto bindings are used to bind event markers in trajectories made by the AutoFactory to commands.
+     * Commands added to the AutoFactory using bind exhibit the same behavior as those bound to AutoTrajectory.atTime(String),
+     * except they are applied globally across all routines.
+     * This is useful if you have simpler actions that you want to trigger in any trajectory without much thought.
+     * Warning
+     * Even if a marker is bound individually in an AutoTrajectory.atTime(String) trigger, the global binding will still run, and cannot be disabled for a single marker.
+    ```
+    autoFactory
+    .bind("intake", intakeSubsystem.intake())
+    .bind("score", scoringSubsystem.score());
+    ```
+    my example
+
+    auto
+    
+     */
+
+
+
     /*
     CHOREO EXAMPLE 
      * // Load the routine's trajectories
@@ -67,10 +88,10 @@ public class AutoRoutines {
         final AutoRoutine routine = m_factory.newRoutine("ThreeMetersPlus");
 
         // Step 2: Load trajectories
-        // e.g. final AutoTrajectory firstPath = routine.trajectory("PathOne");
-        // e.g. final AutoTrajectory secondPath = routine.trajectory("PathTwo");
+        // final AutoTrajectory startScoreA = routine.trajectory("ThreeMetersPlus");
+        // final AutoTrajectory startScoreB = routine.trajectory("ThreeMetersPlus");
         final AutoTrajectory startScoreK = routine.trajectory("ThreeMetersPlus");
-        final AutoTrajectory kTopStation = routine.trajectory("ThreeMetersPlus");
+        // final AutoTrajectory topStationFromK = routine.trajectory("ThreeMetersPlus");
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -79,12 +100,18 @@ public class AutoRoutines {
                         // ,Commands.waitSeconds(2.0)   // Pause for 2 seconds
                 ));
 
+
+        // TODO comment out because trying auto bindings from robot container on things like "turret"
         // Step 4: Add trigger-based behaviors
-        // When first path is done, start turret command
-        startScoreK.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
+
+        // Approach using a Command class
+        // startScoreK.atTime("turret").onTrue(new TurnTurretClockwise(m_turret));
+
+        // Approach using a lambda function referencing the turret subsystem and a method
+        // startScoreK.atTime("turret").onTrue(m_turret.turnClockwise());
 
         // When turret is done, start second path
-        startScoreK.done().onTrue(kTopStation.cmd());
+        // startScoreK.done().onTrue(kTopStation.cmd());
 
         return routine;
     }
