@@ -83,7 +83,7 @@ public class RobotContainer {
     public RobotContainer() {
         targetPose = new Pose2d(); // Initialize targetPose
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory, turret);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, turret);
 
          // TODO Add global commands for event triggers in Choreo
         // In RobotContainer constructor, after creating autoFactory:
@@ -92,9 +92,10 @@ public class RobotContainer {
             .bind("turret", turret.turnClockwise()) 
             // another approach
             //.bind("turret", Commands.run(() -> turret.turnClockwise(0.5)))
-            .bind("scoreL1", turret.turnClockwise())
-            .bind("scoreL2", turret.turnCounterClockwise());
-
+            // These run!
+            // .bind("scoreL1", turret.turnClockwise()) // Comment out for in method testing with atTime()
+            // .bind("scoreL2", turret.turnCounterClockwise());
+        ;
 
         configureAutoRoutines();
         configureBindings();
@@ -104,6 +105,7 @@ public class RobotContainer {
     private void configureAutoRoutines() {
         // autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
         autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
+        autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }

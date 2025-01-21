@@ -54,14 +54,14 @@ public class TurretSubsystem extends SubsystemBase {
     public Command turnClockwise() {
         return Commands.run(() -> setTurretSpeed(CLOCKWISE))
         // .until(() -> /* some condition */)
-        .withTimeout(0.5)
+        .withTimeout(1)
         .finallyDo(interrupted -> stopMotor());    
     }
 
     public Command turnCounterClockwise() {
         return Commands.run(() -> setTurretSpeed(COUNTERCLOCKWISE))
         // .until(() -> /* some condition */)
-        .withTimeout(0.5)
+        .withTimeout(0.75)
         .finallyDo(interrupted -> stopMotor());    
     }
 

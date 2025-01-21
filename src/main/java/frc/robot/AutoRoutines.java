@@ -4,11 +4,9 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.commands.TurnTurretClockwise;
-
-import edu.wpi.first.wpilibj2.command.Command;
 
 /*
  * CTRE Example Reference
@@ -22,14 +20,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutoRoutines {
     private final AutoFactory m_factory;
+    private CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
     private final TurretSubsystem m_turret;
 
     // Constructor to receive dependencies
-    public AutoRoutines(AutoFactory factory, TurretSubsystem turret) {
+    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, TurretSubsystem turret) {
         m_factory = factory;
+        m_drivetrain = drivetrain;
         m_turret = new TurretSubsystem(27);
         // Command TurnTurretClockwise = new TurnTurretClockwise(m_turret);
-
     }
 
 
@@ -158,6 +157,45 @@ public class AutoRoutines {
         routine.active().onTrue(
                 threeMeters.resetOdometry()
                         .andThen(threeMeters.cmd()));
+        return routine;
+    }
+
+    public AutoRoutine testEvents() {
+
+        // Create the routine container
+        final AutoRoutine routine = m_factory.newRoutine("TestingEvents");
+
+        // Load trajectories
+        final AutoTrajectory pathOneSeg1 = routine.trajectory("TestingEvents",0);
+
+        // First split is actually at waypoint 2, but I needed to "pick up" the path again at the point prior for the routine to continue
+        final AutoTrajectory pathOneSeg2 = routine.trajectory("TestingEvents",1); 
+
+        // Second split is actually at waypoint 2, but I needed to "pick up" the path again at the point prior for the routine to continue
+        final AutoTrajectory pathOneSeg3 = routine.trajectory("TestingEvents",2); 
+
+        // Define entry point using routine.active()
+        routine.active().onTrue(
+                Commands.sequence(
+                        pathOneSeg1.resetOdometry(), // Always reset odometry first
+                        pathOneSeg1.cmd(),
+                        m_drivetrain.stop().withTimeout(1),
+                        pathOneSeg2.cmd(),
+                        m_drivetrain.stop().withTimeout(1),
+                        pathOneSeg3.cmd()
+                ));
+
+        /* This works, mostly as expected.
+        See also autobindings in RobotContainer for repetitive commands.
+        Robot doesn't stop at waypoint 2 as expected */
+        
+        // Add trigger-based behaviors
+        pathOneSeg1.atTime("scoreL1").onTrue(m_turret.turnClockwise());
+        pathOneSeg2.atTime("scoreL2").onTrue(m_turret.turnCounterClockwise());
+
+        // When turret is done, start second path
+        // testingEvents.done().onTrue(testingEvents.cmd());
+
         return routine;
     }
 
