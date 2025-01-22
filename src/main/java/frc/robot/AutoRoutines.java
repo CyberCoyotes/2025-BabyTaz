@@ -160,41 +160,47 @@ public class AutoRoutines {
         return routine;
     }
 
+    // Example method for an auton routine, i.e. series of actions and commands (not necessarily command classes)
     public AutoRoutine testEvents() {
 
         // Create the routine container
-        final AutoRoutine routine = m_factory.newRoutine("TestingEvents");
+        final AutoRoutine routine = m_factory.newRoutine("testEvents");
 
-        // Load trajectories
-        final AutoTrajectory pathOneSeg1 = routine.trajectory("TestingEvents",0);
+        // Load first trajectory/path. If using splits, then add a comma and 0 for the first segment of the path
+        final AutoTrajectory pathOneScore = routine.trajectory("PathOneTest",0);
+        
+        /* 
+        Load the next trajectory/path -OR-
+        If using splits as is the case here, you can load segment 1 for the next segment of the first path
+        */ 
+        final AutoTrajectory pathOneLoad = routine.trajectory("PathOneTest",1); 
+        
+        /*
+        Load the next trajectory/path. 
+        In this example, no splits are used so no split index is needed.
+        Alternatively, you can load segment 2 for the next segment of the first path.
+        */ 
+        final AutoTrajectory pathTwoScore = routine.trajectory("PathTwoTest");
 
-        // First split is actually at waypoint 2, but I needed to "pick up" the path again at the point prior for the routine to continue
-        final AutoTrajectory pathOneSeg2 = routine.trajectory("TestingEvents",1); 
-
-        // Second split is actually at waypoint 2, but I needed to "pick up" the path again at the point prior for the routine to continue
-        final AutoTrajectory pathOneSeg3 = routine.trajectory("TestingEvents",2); 
 
         // Define entry point using routine.active()
         routine.active().onTrue(
                 Commands.sequence(
-                        pathOneSeg1.resetOdometry(), // Always reset odometry first
-                        pathOneSeg1.cmd(),
+                         // Always reset odometry in first path
+                        pathOneScore.resetOdometry(),
+                        pathOneScore.cmd(),
+                        m_drivetrain.stop().withTimeout(1), // We needed to add this to our drivetrain
+                        pathOneLoad.cmd(),
                         m_drivetrain.stop().withTimeout(1),
-                        pathOneSeg2.cmd(),
-                        m_drivetrain.stop().withTimeout(1),
-                        pathOneSeg3.cmd()
+                        pathTwoScore.cmd()
                 ));
-
-        /* This works, mostly as expected.
-        See also autobindings in RobotContainer for repetitive commands.
-        Robot doesn't stop at waypoint 2 as expected */
-        
-        // Add trigger-based behaviors
-        pathOneSeg1.atTime("scoreL1").onTrue(m_turret.turnClockwise());
-        pathOneSeg2.atTime("scoreL2").onTrue(m_turret.turnCounterClockwise());
-
-        // When turret is done, start second path
-        // testingEvents.done().onTrue(testingEvents.cmd());
+        /* 
+        Option 1. Add event marker trigger-based behaviors.
+        Option 2. Consider creating AutoBindings in RobotContainer for standard, repetitive commands
+        that use common Event Markers which are bound to commands.
+        */
+        pathOneScore.atTime("scoreL1").onTrue(m_turret.turnClockwise()); // Proof of concept
+        pathOneLoad.atTime("scoreL2").onTrue(m_turret.turnCounterClockwise()); // Proof of concept
 
         return routine;
     }
