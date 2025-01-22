@@ -5,18 +5,32 @@
  "variables":{
   "expressions":{},
   "poses":{
-   "StartTop":{
+   "LoadBottom":{
     "x":{
-     "exp":"7 m",
-     "val":7.0
+     "exp":"2 m",
+     "val":2.0
+    },
+    "y":{
+     "exp":"2 m",
+     "val":2.0
+    },
+    "heading":{
+     "exp":"45 deg",
+     "val":0.7853981633974483
+    }
+   },
+   "LoadTop":{
+    "x":{
+     "exp":"2 m",
+     "val":2.0
     },
     "y":{
      "exp":"7 m",
      "val":7.0
     },
     "heading":{
-     "exp":"-90 deg",
-     "val":-1.5707963267948966
+     "exp":"300 deg",
+     "val":5.235987755982989
     }
    },
    "ReefCenter":{
@@ -33,7 +47,7 @@
      "val":0.0
     }
    },
-   "StartBottom":{
+   "SBottom":{
     "x":{
      "exp":"7.134431838989258 m",
      "val":7.134431838989258
@@ -45,6 +59,20 @@
     "heading":{
      "exp":"90 deg",
      "val":1.5707963267948966
+    }
+   },
+   "STop":{
+    "x":{
+     "exp":"7 m",
+     "val":7.0
+    },
+    "y":{
+     "exp":"7 m",
+     "val":7.0
+    },
+    "heading":{
+     "exp":"-90 deg",
+     "val":-1.5707963267948966
     }
    }
   }
