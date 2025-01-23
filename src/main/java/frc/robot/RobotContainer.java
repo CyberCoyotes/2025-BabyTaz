@@ -23,11 +23,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.commands.AlignToPoseCommand;
-import frc.robot.commands.AlignToTargetCommand;
-import frc.robot.commands.CenterOnTagCommand;
+import frc.robot.commands.VisionImprovedCenterCommand;
 import frc.robot.commands.DecelerateRykerCommand;
-import frc.robot.commands.StrafeToCenterCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
@@ -98,7 +95,6 @@ public class RobotContainer {
         autoChooser.addRoutine("Drive Forward", autoRoutines::driveForward);
         autoChooser.addRoutine("Center Score", autoRoutines::driveForward);
         autoChooser.addRoutine("Top K", autoRoutines::topK);
-
         
         autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
         // autoBETAChooser.addRoutine("Drive and Align", autoRoutines::driveAndAlign);
@@ -135,9 +131,7 @@ public class RobotContainer {
         ));
 
         // Vision alignment
-        driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
-        driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
-        driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
+        driver.rightBumper().whileTrue(new VisionImprovedCenterCommand(vision, drivetrain));
 
         // Bind decelerate command to button
         driver.x().whileTrue(
@@ -151,9 +145,6 @@ public class RobotContainer {
                 })
         );
     
-
-        driver.start().whileTrue(new StrafeToCenterCommand(vision, drivetrain));
-
         // Field-centric reset
         // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -164,8 +155,8 @@ public class RobotContainer {
 
     private void configureOperatorBindings() {
         // Add operator controls here
-        operator.y().onTrue(runOnce(() -> vision.setLeds(true)))
-                  .onFalse(runOnce(() -> vision.setLeds(false)));
+        // operator.y().onTrue(runOnce(() -> vision.setLimelightLeds(true)))
+                //   .onFalse(runOnce(() -> vision.setLimelightLeds(false)));
 
     }
     

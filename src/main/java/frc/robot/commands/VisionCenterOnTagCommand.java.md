@@ -25,7 +25,7 @@ https://claude.ai/chat/71f069b3-88c6-40bf-851c-0a0e3dd93c98
 
 // First, let's create the basic command structure with necessary dependencies:
 
-public class CenterOnTagCommand extends Command {
+public class VisionCenterOnTagCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     
@@ -55,7 +55,7 @@ public class CenterOnTagCommand extends Command {
     }
 
     // Next, add the constructor and PID configuration:
-    public CenterOnTagCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionCenterOnTagCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         

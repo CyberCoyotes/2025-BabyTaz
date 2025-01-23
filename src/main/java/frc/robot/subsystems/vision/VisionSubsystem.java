@@ -53,7 +53,7 @@ public class VisionSubsystem extends SubsystemBase {
     private void configureLimelight() {
         // Set to AprilTag pipeline
         limelightTable.getEntry("pipeline").setNumber(0);
-        setLeds(true); // Turn off LEDs if false
+        setLimelightLeds(false); // TODO Turn off LEDs if false
         ledsEnabled = true;
 
         // NetworkTableInstance.getDefault().flush();
@@ -81,8 +81,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public void setLeds(boolean enabled) {
-        ledsEnabled = enabled;
+    public void setLimelightLeds(boolean enabled) {
+        ledsEnabled = enabled; //
         limelightTable.getEntry("ledMode").setNumber(enabled ? 3 : 1); // 3=force on, 1=force off
     }
 
