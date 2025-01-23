@@ -16,6 +16,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -280,6 +281,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    // TODO Create a stop method to stop the drive motors
+
     @Override
     public void periodic() {
         /*
@@ -300,6 +303,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
     }
+
+    // TODO Create a stop() command to stop the drive motors
+    public Command stop() {
+        // Cannot use a runOnce()
+        return run(() -> {
+            this.setControl(new SwerveRequest.RobotCentric()
+                .withVelocityX(0)
+                .withVelocityY(0) 
+                .withRotationalRate(0));
+        });
+    }
+
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
