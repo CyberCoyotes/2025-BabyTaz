@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
+import frc.robot.auto.AutoRoutines;
 import frc.robot.commands.AlignToPoseCommand;
 import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.commands.CenterOnTagCommand;
@@ -74,6 +75,8 @@ public class RobotContainer {
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
+    private final AutoChooser autoBETAChooser = new AutoChooser();
+
 
     // TODO Add turret subsystem
     private final TurretSubsystem turret = new TurretSubsystem(27); 
@@ -85,29 +88,23 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, turret);
 
-         // TODO Add global commands for event triggers in Choreo
-        // In RobotContainer constructor, after creating autoFactory:
-        autoFactory
-            // Will run TurnTurretClockwise whenever "turret" marker is hit
-            .bind("turret", turret.turnClockwise()) 
-            // another approach
-            //.bind("turret", Commands.run(() -> turret.turnClockwise(0.5)))
-            // These run!
-            // .bind("scoreL1", turret.turnClockwise()) // Comment out for in method testing with atTime()
-            // .bind("scoreL2", turret.turnCounterClockwise());
-        ;
-
         configureAutoRoutines();
         configureBindings();
         configureTelemetry();
 
     }
     private void configureAutoRoutines() {
-        // autoChooser.addRoutine("Three Meters", autoRoutines::threeMeters);
-        autoChooser.addRoutine("Three Meters Plus", autoRoutines::threeMetersPlus);
-        autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
+        
+        autoChooser.addRoutine("Drive Forward", autoRoutines::driveForward);
+        autoChooser.addRoutine("Center Score", autoRoutines::driveForward);
+        autoChooser.addRoutine("Top K", autoRoutines::topK);
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        
+        autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
+        // autoBETAChooser.addRoutine("Drive and Align", autoRoutines::driveAndAlign);
+
+        SmartDashboard.putData("Autonomous", autoChooser);
+        SmartDashboard.putData("BETA Autos", autoChooser);
     }
 
     private void configureBindings() {
