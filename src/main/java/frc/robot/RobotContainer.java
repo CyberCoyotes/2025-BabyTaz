@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoRoutinesBETA;
@@ -42,8 +41,8 @@ public class RobotContainer {
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
-    private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
-    private double rotationSpeedFactor = 0.25; // 25% rotation speed
+    private double driveSpeedFactor = 0.5; // 25% speed for rookie drivers
+    private double rotationSpeedFactor = 1.0; // 25% rotation speed
 
         // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);

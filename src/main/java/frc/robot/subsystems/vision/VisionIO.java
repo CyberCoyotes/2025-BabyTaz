@@ -6,7 +6,7 @@ package frc.robot.subsystems.vision;
 
 public interface VisionIO {
     public default void updateInputs(VisionIOInputs inputs) {}
-    public default void setLeds(boolean on) {}
+    // public default void setLeds(boolean on) {}
 
     public static class VisionIOInputs {
         // Timestamp data

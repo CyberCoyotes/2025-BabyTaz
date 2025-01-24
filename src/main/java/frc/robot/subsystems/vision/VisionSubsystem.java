@@ -39,7 +39,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Initialize NetworkTable
         limelightTable = NetworkTableInstance.getDefault().getTable(tableName);
         tv = limelightTable.getEntry("tv");
-        tx = limelightTable.getEntry("tx"); // Yaw?
+        tx = limelightTable.getEntry("tx");
         ty = limelightTable.getEntry("ty");
         ta = limelightTable.getEntry("ta");
         tid = limelightTable.getEntry("tid");
@@ -104,6 +104,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void logData() {
+        /*
         SmartDashboard.putString("Sub State", currentState.toString());
         SmartDashboard.putNumber("Sub TagID", tid.getDouble(0));
         SmartDashboard.putNumber("Sub TX", tx.getDouble(0) * VisionConstants.LIMELIGHT_DIRECTION); // Apply direction multiplier
@@ -115,6 +116,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Sub TargetDistance", VisionConstants.TARGET_DISTANCE_METERS);
         SmartDashboard.putNumber("Sub DistanceError", 
             Math.abs(getVerticalOffset() - VisionConstants.TARGET_DISTANCE_METERS));
+        */
     }
     
     

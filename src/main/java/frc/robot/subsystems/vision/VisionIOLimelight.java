@@ -81,8 +81,10 @@ public class VisionIOLimelight implements VisionIO {
         inputs.captureLatency = this.captureLatency;
     }
 
+    /*
     @Override 
     public void setLeds(boolean on) {
         ledEntry.setNumber(on ? 3 : 1); // 3=force on, 1=force off
-    }
+    } 
+    */
 }

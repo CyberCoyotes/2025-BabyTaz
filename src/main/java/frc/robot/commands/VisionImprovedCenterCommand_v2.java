@@ -118,22 +118,23 @@ public void execute() {
 
     // Calculate strafing and rotation speeds independently
     double strafeSpeed = strafeController.calculate(horizontalOffset, 0);
-    double rotationRate = rotationController.calculate(targetYaw, 0);
+    // double rotationRate = rotationController.calculate(targetYaw, 0);
 
     // Apply movement
     drivetrain.setControl(drive
         .withVelocityX(0)
         .withVelocityY(strafeSpeed)
-        .withRotationalRate(rotationRate));
+        // .withRotationalRate(rotationRate)
+        );
 
-    updateTelemetry(horizontalOffset, targetYaw, strafeSpeed, rotationRate);
+    updateTelemetry(horizontalOffset, strafeSpeed); /*, rotationRate targetYaw, strafeSpeed);*/
 }
 
-private void updateTelemetry(double offset, double yaw, double strafeSpeed, double rotationRate) {
+private void updateTelemetry(double offset, /*double yaw,*/ double strafeSpeed) {
     SmartDashboard.putNumber("Vision/HorizontalOffset", offset);
-    SmartDashboard.putNumber("Vision/TargetYaw", yaw);
+    // SmartDashboard.putNumber("Vision/TargetYaw", yaw);
     SmartDashboard.putNumber("Vision/StrafeSpeed", strafeSpeed);
-    SmartDashboard.putNumber("Vision/RotationRate", rotationRate);
+    // SmartDashboard.putNumber("Vision/RotationRate", rotationRate);
     SmartDashboard.putBoolean("Vision/AtTarget", isFinished());
 }
 

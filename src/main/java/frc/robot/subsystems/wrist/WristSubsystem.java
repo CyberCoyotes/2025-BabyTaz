@@ -1,6 +1,6 @@
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.wrist;
 
-public class ArmSubsystem {
+public class WristSubsystem {
           /* Arm has been set to invert so positive values for arm poses */
           public static final double DEG_TO_ARM_NATIVE = 0.93;// -83.7 / 90
           public static final double ARM_NATIVE_TO_DEG = 1 / DEG_TO_ARM_NATIVE;
