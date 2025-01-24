@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.auto.AutoRoutines;
+import frc.robot.auto.AutoRoutinesBETA;
 import frc.robot.commands.VisionImprovedCenterCommand;
 import frc.robot.commands.DecelerateRykerCommand;
 import frc.robot.generated.TunerConstants;
@@ -71,8 +72,9 @@ public class RobotContainer {
     /* Auto Related */
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
+    private final AutoRoutinesBETA autoRoutinesBETA;
     private final AutoChooser autoChooser = new AutoChooser();
-    private final AutoChooser autoBETAChooser = new AutoChooser();
+    private final AutoChooser autoChooserBETA = new AutoChooser();
 
 
     // TODO Add turret subsystem
@@ -84,6 +86,8 @@ public class RobotContainer {
         targetPose = new Pose2d(); // Initialize targetPose
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, turret);
+        autoRoutinesBETA = new AutoRoutinesBETA(autoFactory, drivetrain, turret);
+
 
         configureAutoRoutines();
         configureBindings();
@@ -96,8 +100,8 @@ public class RobotContainer {
         autoChooser.addRoutine("Center Score", autoRoutines::driveForward);
         autoChooser.addRoutine("Top K", autoRoutines::topK);
         
-        autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
-        // autoBETAChooser.addRoutine("Drive and Align", autoRoutines::driveAndAlign);
+        // BETA autos
+        autoChooserBETA.addRoutine("Test Drive", autoRoutinesBETA::testEvents);
 
         SmartDashboard.putData("Autonomous", autoChooser);
         SmartDashboard.putData("BETA Autos", autoChooser);

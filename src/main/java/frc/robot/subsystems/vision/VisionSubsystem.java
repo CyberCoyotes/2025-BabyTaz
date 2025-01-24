@@ -39,7 +39,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Initialize NetworkTable
         limelightTable = NetworkTableInstance.getDefault().getTable(tableName);
         tv = limelightTable.getEntry("tv");
-        tx = limelightTable.getEntry("tx");
+        tx = limelightTable.getEntry("tx"); // Yaw?
         ty = limelightTable.getEntry("ty");
         ta = limelightTable.getEntry("ta");
         tid = limelightTable.getEntry("tid");
