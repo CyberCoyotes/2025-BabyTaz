@@ -5,6 +5,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionState;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -141,6 +142,7 @@ private void updateTelemetry(double offset, /*double yaw,*/ double strafeSpeed) 
     @Override
     public boolean isFinished() {
         return !vision.hasTarget() || 
+               vision.getState() == VisionState.TARGET_LOCKED ||
                (strafeController.atGoal() && rotationController.atGoal());
     }
 

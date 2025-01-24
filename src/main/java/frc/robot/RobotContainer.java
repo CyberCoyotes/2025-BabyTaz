@@ -24,6 +24,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoRoutinesBETA;
 import frc.robot.commands.VisionImprovedCenterCommand;
+import frc.robot.commands.VisionImprovedCenterCommand_v1;
+import frc.robot.commands.VisionImprovedCenterCommand_v2;
+import frc.robot.commands.VisionImprovedCenterCommand_v3;
+
+
 import frc.robot.commands.DecelerateRykerCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -41,8 +46,8 @@ public class RobotContainer {
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
-    private double driveSpeedFactor = 0.5; // 25% speed for rookie drivers
-    private double rotationSpeedFactor = 1.0; // 25% rotation speed
+    private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
+    private double rotationSpeedFactor = 0.5; // 25% rotation speed
 
         // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -133,9 +138,11 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
+        // TODO
         // Vision alignment
-        driver.rightBumper().whileTrue(new VisionImprovedCenterCommand(vision, drivetrain));
+        driver.rightBumper().whileTrue(new VisionImprovedCenterCommand_v2(vision, drivetrain));
 
+        /* Version 2 seems to be working as expected by over shooting */
         // Bind decelerate command to button
         driver.x().whileTrue(
             new DecelerateRykerCommand(drivetrain, vision, tof)
