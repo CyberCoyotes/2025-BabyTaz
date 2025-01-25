@@ -14,7 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import java.util.Map;
 
-public class VisionImprovedCenterCommand extends Command {
+public class VisionImprovedCenterCommand_v4 extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final SwerveRequest.RobotCentric drive;
@@ -37,7 +37,7 @@ public class VisionImprovedCenterCommand extends Command {
     private final ProfiledPIDController strafeController;
     private final ProfiledPIDController rotationController;
 
-    public VisionImprovedCenterCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionImprovedCenterCommand_v4(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.drive = new SwerveRequest.RobotCentric();

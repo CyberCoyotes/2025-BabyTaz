@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoRoutinesBETA;
-import frc.robot.commands.VisionImprovedCenterCommand;
+import frc.robot.commands.VisionImprovedCenterCommand_v4;
 import frc.robot.commands.VisionImprovedCenterCommand_v1;
 import frc.robot.commands.VisionImprovedCenterCommand_v2;
 import frc.robot.commands.VisionImprovedCenterCommand_v3;
