@@ -36,7 +36,7 @@ public class WristSubsystem extends SubsystemBase {
     // FIXME - Update with your motor configuration and move to a separate file
 
     public WristSubsystem() {
-        wristMotor = new TalonFX(WRIST_MOTOR_ID, "canivore");  // Update canbus name
+        wristMotor = new TalonFX(WRIST_MOTOR_ID /*, "canivore"*/);  // Update canbus name
         positionRequest = new PositionVoltage(0).withSlot(0);
         
         configureMotor();

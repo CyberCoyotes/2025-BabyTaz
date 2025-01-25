@@ -158,7 +158,7 @@ public class RobotContainer {
         // Vision alignment
         // driver.rightBumper().whileTrue(new VisionCenterCommand_v2(vision, drivetrain));
         // driver.rightBumper().whileTrue(new VisionCenterCommand_v3(vision, drivetrain));
-        driver.rightBumper().whileTrue(new VisionCenterCommand_v5(vision, drivetrain));
+        // driver.rightBumper().whileTrue(new VisionCenterCommand_v5(vision, drivetrain));
         driver.leftBumper().whileTrue(new VisionCenterCommand_v6(clockworkVision, drivetrain));
 
         /* Version 2 seems to be working as expected by over shooting */
