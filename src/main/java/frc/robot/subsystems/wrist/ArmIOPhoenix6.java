@@ -10,7 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
-public class WristIOPhoenix6 {
+public class ArmIOPhoenix6 {
 
     public static void applyArmConfigs(TalonFX m_arm) {
 

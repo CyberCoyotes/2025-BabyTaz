@@ -1,6 +1,6 @@
 package frc.robot.subsystems.wrist;
 
-public interface WristO {
+public interface ArmIO {
 
     default void updateInputs(ArmIOInputs inputs) {}
 

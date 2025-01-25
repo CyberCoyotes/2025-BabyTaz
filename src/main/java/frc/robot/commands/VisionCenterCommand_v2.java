@@ -25,7 +25,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 * targetYaw (or a similar value from the vision system) drives rotation control.
  */
 
-public class VisionImprovedCenterCommand_v2 extends Command {
+public class VisionCenterCommand_v2 extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final SwerveRequest.RobotCentric drive;
@@ -54,7 +54,7 @@ public class VisionImprovedCenterCommand_v2 extends Command {
     private final ProfiledPIDController strafeController;
     private final ProfiledPIDController rotationController;
 
-    public VisionImprovedCenterCommand_v2(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionCenterCommand_v2(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.drive = new SwerveRequest.RobotCentric();

@@ -25,7 +25,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class VisionImprovedCenterCommand_v5 extends Command {
+public class VisionCenterCommand_v5 extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
 
@@ -64,7 +64,7 @@ public class VisionImprovedCenterCommand_v5 extends Command {
     
         // public VisionImprovedCenterCommand_v5(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
     
-        public VisionImprovedCenterCommand_v5(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+        public VisionCenterCommand_v5(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
             this.vision = vision;
             this.drivetrain = drivetrain;
             // this.drive = new SwerveRequest.RobotCentric();

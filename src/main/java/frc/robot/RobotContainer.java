@@ -16,6 +16,9 @@ import choreo.auto.AutoFactory; // TODO added Choreo import
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,10 +26,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoRoutinesBETA;
-import frc.robot.commands.VisionImprovedCenterCommand_v4;
-import frc.robot.commands.VisionImprovedCenterCommand_v1;
-import frc.robot.commands.VisionImprovedCenterCommand_v2;
-import frc.robot.commands.VisionImprovedCenterCommand_v3;
+import frc.robot.commands.VisionCenterCommand_v4;
+import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.VisionCenterCommand_v6;
+import frc.robot.commands.VisionCenterCommand_v1;
+import frc.robot.commands.VisionCenterCommand_v2;
+import frc.robot.commands.VisionCenterCommand_v3;
 
 
 import frc.robot.commands.DecelerateRykerCommand;
@@ -36,6 +41,8 @@ import frc.robot.subsystems.TOFSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.clockwork.ClockworkDriveConstants;
+import frc.robot.subsystems.clockwork.ClockworkVisionSubsystem;
 
 public class RobotContainer {
     private final Pose2d targetPose;
@@ -58,6 +65,7 @@ public class RobotContainer {
     private final LEDSubsystem leds = new LEDSubsystem();
     private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
+    private final ClockworkVisionSubsystem clockworkVision = new ClockworkVisionSubsystem(leds);
 
   // TODO Emergency stop trigger based on TOF distance
     // private final Trigger emergencyStop = new Trigger(() -> 
@@ -109,6 +117,14 @@ public class RobotContainer {
 
         SmartDashboard.putData("Autonomous", autoChooser);
         SmartDashboard.putData("BETA Autos", autoChooser);
+
+        // Shuffleboard Setup
+        ShuffleboardTab autoTab = Shuffleboard.getTab("Autonomous");
+        autoTab.add("Auto Chooser", autoChooser)
+            .withWidget(BuiltInWidgets.kCommand);
+        autoTab.add("BETA Auto Chooser", autoChooserBETA)
+            .withWidget(BuiltInWidgets.kCommand);
+    
     }
 
     private void configureBindings() {
@@ -140,7 +156,10 @@ public class RobotContainer {
 
         // TODO
         // Vision alignment
-        driver.rightBumper().whileTrue(new VisionImprovedCenterCommand_v2(vision, drivetrain));
+        // driver.rightBumper().whileTrue(new VisionCenterCommand_v2(vision, drivetrain));
+        // driver.rightBumper().whileTrue(new VisionCenterCommand_v3(vision, drivetrain));
+        driver.rightBumper().whileTrue(new VisionCenterCommand_v5(vision, drivetrain));
+        driver.rightBumper().whileTrue(new VisionCenterCommand_v6(clockworkVision, drivetrain));
 
         /* Version 2 seems to be working as expected by over shooting */
         // Bind decelerate command to button
