@@ -16,7 +16,7 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
 
     public ClockworkVisionSubsystem(LEDSubsystem leds) {
         this.leds = leds;
-        LimelightHelpers.setLEDMode_ForceOn(""); // Turn on Limelight LEDs
+        LimelightHelpers.setLEDMode_ForceOn("marvin"); // Turn on Limelight LEDs
     }
 
     @Override 
@@ -26,8 +26,8 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
     }
 
     private void updateVisionState() {
-        boolean hasTarget = LimelightHelpers.getTV("");
-        double targetArea = LimelightHelpers.getTA("");
+        boolean hasTarget = LimelightHelpers.getTV("marvin");
+        double targetArea = LimelightHelpers.getTA("marvin");
 
         // Update vision state based on target visibility
         if (!hasTarget || targetArea < ClockworkDriveConstants.MIN_TARGET_AREA) {
@@ -37,7 +37,7 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
         }
         
         // Update LEDs based on vision state
-        updateLEDs();
+        // updateLEDs();
     }
 
     private void updateLEDs() {
@@ -58,12 +58,12 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
     }
 
     public double getHorizontalOffset() {
-        return LimelightHelpers.getTX("") * 
+        return LimelightHelpers.getTX("marvin") * 
                (ClockworkDriveConstants.LIMELIGHT_MOUNTED_FRONT ? 1.0 : -1.0);
     }
 
     public double getVerticalOffset() {
-        return LimelightHelpers.getTY("");
+        return LimelightHelpers.getTY("marvin"); // FIXME
     }
 
     private void updateTelemetry() {
@@ -72,6 +72,7 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
         SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
 
+        /*
         // Create a Shuffleboard Tab for Clockwork Vision
         ShuffleboardTab tab = Shuffleboard.getTab("Clockwork Vision");
         tab.add("State", currentState.toString())
@@ -82,7 +83,7 @@ public class ClockworkVisionSubsystem extends SubsystemBase {
             .withWidget("Number Bar");
         tab.add("Has Target", hasTarget())
             .withWidget("Boolean Box");
-
+        */
     }
 
     public enum VisionState {
