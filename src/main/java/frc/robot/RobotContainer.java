@@ -28,6 +28,7 @@ import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoRoutinesBETA;
 import frc.robot.commands.VisionCenterCommand_v4;
 import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.VisionCenterCommand_v5_no_lockout;
 import frc.robot.commands.VisionCenterCommand_v6;
 import frc.robot.commands.VisionCenterCommand_v1;
 import frc.robot.commands.VisionCenterCommand_v2;
@@ -153,39 +154,9 @@ public class RobotContainer {
 
         // TODO
         // Vision alignment
-        // driver.rightBumper().whileTrue(new VisionCenterCommand_v2(vision, drivetrain));
-        // driver.rightBumper().whileTrue(new VisionCenterCommand_v3(vision, drivetrain));
         driver.rightBumper().whileTrue(
-            new VisionCenterCommand_v5(vision, drivetrain));
+            new VisionCenterCommand_v5_no_lockout(vision, drivetrain, driver));
         
-        driver.leftBumper().whileTrue(
-            new VisionCenterCommand_v6(vision, drivetrain)
-            .withTimeout(2.0) // TODO Add timeout for safety
-            .beforeStarting(() -> {
-                System.out.println("Starting vision alignment");
-                // Optional - turn  on Limelight LEDs during targeting; 
-            })
-            .finallyDo((interrupted) -> {
-                System.out.println("Vision alignment ended. Interrupted: " + interrupted);
-                // Optional - turn off the Limelight LEDs when not targeting
-            })
-        );
-        
-        /* Version 2 seems to be working as expected by over shooting */
-        // Bind decelerate command to button
-        /*
-        driver.x().whileTrue(
-            new DecelerateRykerCommand(drivetrain, vision, tof)
-                .withTimeout(5)  // Add timeout for safety
-                .handleInterrupt(() -> {
-                    System.out.println("DecelerateRyker interrupted");
-                    drivetrain.setControl(drive.withVelocityX(0)
-                                             .withVelocityY(0)
-                                             .withRotationalRate(0));
-                })
-        ); 
-        */
-    
         // Field-centric reset
         // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
 
