@@ -1,8 +1,13 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.util.Units;
+
 public final class VisionConstants {
     // Physical mounting configuration
     public static final boolean LIMELIGHT_MOUNTED_ON_FRONT = false;
+    
+    // Target parameters
+    public static final double TARGET_DISTANCE_METERS = 0.5;
     
     /* The value of LIMELIGHT_DIRECTION_MULTIPLIER is determined using a ternary conditional operator (? :). This operator evaluates the boolean expression LIMELIGHT_MOUNTED_ON_FRONT. If LIMELIGHT_MOUNTED_ON_FRONT is true, the constant is assigned a value of -1.0. 
     If LIMELIGHT_MOUNTED_ON_FRONT is false, the constant is assigned a value of 1.0.
@@ -31,6 +36,10 @@ public final class VisionConstants {
     public static final double MAX_TRANSLATION_ACCELERATION = 0.2; // meters per second squared
     public static final double MAX_ROTATION_VELOCITY = Math.PI; // radians per second
     public static final double MAX_ROTATION_ACCELERATION = Math.PI; // radians per second squared
+
+    public static final double VISION_kP = 0.035; // Proportional control for vision steering
+    public static final double VISION_kI = 0.0;
+    public static final double VISION_kD = 0.0;
     // TODO adjust
     /*
      * | Velocity | Acceleration | Description   |
@@ -61,12 +70,9 @@ public final class VisionConstants {
     public static final double ROTATION_kD = 0.0;
 
     // Tolerances
-    public static final double TRANSLATION_TOLERANCE_METERS = 0.02; // 2 cm tolerance
+    public static final double TRANSLATION_TOLERANCE_METERS = 0.04; // 4 cm tolerance
     public static final double ROTATION_TOLERANCE_RADIANS = Math.toRadians(2.0);
-    
-    // Target parameters
-    public static final double TARGET_DISTANCE_METERS = 6.0;
-    
+        
     public static boolean isValidTagId(int tagId) {
         return tagId >= MIN_VALID_TAG && tagId <= MAX_VALID_TAG;
     }
@@ -75,4 +81,22 @@ public final class VisionConstants {
         return area >= MIN_TARGET_AREA;
     }
     
+        // Swerve Drivetrain 
+    public static final double MAX_SPEED = 4.5; // meters per second
+    public static final double MAX_ANGULAR_RATE = Math.PI; // radians per second
+
+    // Deadbands prevent drift from tiny joystick movements
+    public static final double DRIVE_DEADBAND = 0.1; 
+    public static final double ROTATION_DEADBAND = 0.1;
+
+    // Movement thresholds
+    public static final double SPEED_THRESHOLD = 0.05; // m/s - Below this speed, robot can coast
+    public static final double COAST_TIMEOUT = 5.0; // seconds before allowing coast mode
+    
+    // Auto-rotate settings
+    public static final double ROTATE_TOLERANCE = Units.degreesToRadians(1.5);
+    public static final double MIN_ROTATE_SPEED = Units.degreesToRadians(4);
+
+    
+
 }

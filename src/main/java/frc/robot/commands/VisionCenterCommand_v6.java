@@ -14,53 +14,86 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.clockwork.ClockworkDriveConstants;
-import frc.robot.subsystems.clockwork.ClockworkVisionSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class VisionCenterCommand_v6 extends Command {
-    private final ClockworkVisionSubsystem vision;
+    private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController rotationController;
     private final SwerveRequest.RobotCentric drive;
+    
+    // Make tunable PID values
+    private double kP = VisionConstants.VISION_kP;
+    private double kI = VisionConstants.VISION_kI;
+    private double kD = VisionConstants.VISION_kD;
     
     // Rate limiters for smooth acceleration/deceleration
     private final SlewRateLimiter speedLimiter = new SlewRateLimiter(3);
     private final SlewRateLimiter rotationLimiter = new SlewRateLimiter(3);
 
-    public VisionCenterCommand_v6(ClockworkVisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionCenterCommand_v6(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         
         // Configure PID for rotation control
-        rotationController = new PIDController(ClockworkDriveConstants.VISION_kP, 0, 0);
-        rotationController.setTolerance(ClockworkDriveConstants.ROTATE_TOLERANCE);
+        rotationController = new PIDController(VisionConstants.VISION_kP, 0, 0);
+        rotationController.setTolerance(VisionConstants.ROTATE_TOLERANCE);
         
         // Create robot-centric drive request for vision alignment
         drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
         addRequirements(drivetrain);
+
+        // Add tunable values to SmartDashboard
+        SmartDashboard.putNumber("Vision/kP", kP);
+        SmartDashboard.putNumber("Vision/kI", kI); 
+        SmartDashboard.putNumber("Vision/kD", kD);
+
+
     }
 
     @Override
+    public void initialize() {
+        System.out.println("VisionCenterCommand initialized");
+    }
+
+    @Override 
     public void execute() {
+        System.out.println("Vision has target: " + vision.hasTarget());
+        System.out.println("Horizontal offset: " + vision.getHorizontalOffset());
+
+         // Update PID values from dashboard
+         double newP = SmartDashboard.getNumber("Vision/kP", kP);
+         double newI = SmartDashboard.getNumber("Vision/kI", kI);
+         double newD = SmartDashboard.getNumber("Vision/kD", kD);
+         
+         if (newP != kP || newI != kI || newD != kD) {
+             kP = newP;
+             kI = newI; 
+             kD = newD;
+             rotationController.setPID(kP, kI, kD);
+         }
+        
         if (!vision.hasTarget()) {
+            System.out.println("No target - stopping movement");
             stopMovement();
             return;
         }
 
-        // Calculate rotation speed based on target offset
-        double rotationSpeed = calculateRotationSpeed();
-        
         // Apply rate limiting for smooth motion
-        rotationSpeed = rotationLimiter.calculate(rotationSpeed);
+        double rotationSpeed = calculateRotationSpeed();
 
+        System.out.println("Calculated rotation speed: " + rotationSpeed);
+        
+        rotationSpeed = rotationLimiter.calculate(rotationSpeed);
+        System.out.println("Limited rotation speed: " + rotationSpeed);
         // Update drive command with calculated speeds
         drivetrain.setControl(drive
-            .withVelocityX(0)  // No forward/back movement during alignment
-            .withVelocityY(0)  // No strafe during alignment
+            .withVelocityX(0)
+            .withVelocityY(0) 
             .withRotationalRate(rotationSpeed));
-        
 
         // Log alignment data
         logTelemetry(rotationSpeed);
@@ -73,7 +106,7 @@ public class VisionCenterCommand_v6 extends Command {
         double rawSpeed = rotationController.calculate(horizontalOffset, 0);
         
         // Clamp speed to prevent excessive rotation
-        return Math.min(Math.abs(rawSpeed), ClockworkDriveConstants.MAX_ANGULAR_RATE) 
+        return Math.min(Math.abs(rawSpeed), VisionConstants.MAX_ANGULAR_RATE) 
                * Math.signum(rawSpeed);
     }
 

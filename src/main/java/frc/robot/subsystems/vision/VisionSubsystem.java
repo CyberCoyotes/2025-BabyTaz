@@ -1,89 +1,50 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.vision.VisionState;
-
 
 public class VisionSubsystem extends SubsystemBase {
-    private final String tableName;
-    private final NetworkTable limelightTable;
-    private final CommandSwerveDrivetrain drivetrain;
+    private final String limelightName;
     private final LEDSubsystem leds;
-    
-    // NetworkTable entries
-    private final NetworkTableEntry tv; // Whether there are valid targets
-    private final NetworkTableEntry tx; // Horizontal offset
-    private final NetworkTableEntry ty; // Vertical offset
-    private final NetworkTableEntry ta; // Target area
-    private final NetworkTableEntry tid; // AprilTag ID
-    
-    // Vision processing constants
-    private static final double TARGET_LOCK_THRESHOLD = 2.0; // Degrees
-    private static final double VALID_TARGET_AREA = 0.1; // % of image
-    
     private VisionState currentState = VisionState.NO_TARGET;
-    private boolean ledsEnabled = false;
 
-    public VisionSubsystem(String tableName, CommandSwerveDrivetrain drivetrain, LEDSubsystem leds) {
-        this.tableName = tableName;
-        this.drivetrain = drivetrain;
+    // Vision processing constants 
+    private static final double TARGET_LOCK_THRESHOLD = 2.0; // Degrees
+    private static final double MIN_TARGET_AREA = 0.1; // % of image
+
+    public VisionSubsystem(String limelightName, LEDSubsystem leds) {
+        this.limelightName = limelightName;
         this.leds = leds;
-        
-        // Initialize NetworkTable
-        limelightTable = NetworkTableInstance.getDefault().getTable(tableName);
-        tv = limelightTable.getEntry("tv");
-        tx = limelightTable.getEntry("tx");
-        ty = limelightTable.getEntry("ty");
-        ta = limelightTable.getEntry("ta");
-        tid = limelightTable.getEntry("tid");
-        
-        // Configure Limelight
         configureLimelight();
-        // setLeds(false);
-        // ledsEnabled = false;
     }
 
     private void configureLimelight() {
-        // Set to AprilTag pipeline
-        limelightTable.getEntry("pipeline").setNumber(0);
-        setLimelightLeds(false); // TODO Turn off LEDs if false
-        ledsEnabled = true;
-
-        // NetworkTableInstance.getDefault().flush();
-
+        // Set to AprilTag pipeline by default
+        LimelightHelpers.setPipelineIndex(limelightName, 0);
+        LimelightHelpers.setLEDMode_ForceOn(limelightName);
     }
 
     @Override
     public void periodic() {
         updateVisionState();
         updateLEDs();
-        logData();
+        logTelemetry();
     }
 
     private void updateVisionState() {
-        boolean hasTarget = tv.getDouble(0.0) > 0.5;
-        double horizontalOffset = tx.getDouble(0.0);
-        double area = ta.getDouble(0.0);
+        boolean hasTarget = LimelightHelpers.getTV(limelightName);
+        double horizontalOffset = getHorizontalOffset();
+        double targetArea = LimelightHelpers.getTA(limelightName);
 
-        if (!hasTarget || area < VALID_TARGET_AREA) {
+        if (!hasTarget || targetArea < MIN_TARGET_AREA) {
             currentState = VisionState.NO_TARGET;
         } else if (Math.abs(horizontalOffset) <= TARGET_LOCK_THRESHOLD) {
             currentState = VisionState.TARGET_LOCKED;
         } else {
             currentState = VisionState.TARGET_VISIBLE;
         }
-    }
-
-    public void setLimelightLeds(boolean enabled) {
-        ledsEnabled = enabled; //
-        limelightTable.getEntry("ledMode").setNumber(enabled ? 3 : 1); // 3=force on, 1=force off
     }
 
     private void updateLEDs() {
@@ -96,32 +57,12 @@ public class VisionSubsystem extends SubsystemBase {
                     leds.setState(LEDState.TARGET_VISIBLE);
                     break;
                 case NO_TARGET:
-                default:
                     leds.setState(LEDState.NO_TARGET);
                     break;
             }
         }
     }
 
-    private void logData() {
-        /*
-        SmartDashboard.putString("Sub State", currentState.toString());
-        SmartDashboard.putNumber("Sub TagID", tid.getDouble(0));
-        SmartDashboard.putNumber("Sub TX", tx.getDouble(0) * VisionConstants.LIMELIGHT_DIRECTION); // Apply direction multiplier
-        SmartDashboard.putNumber("Sub TY", ty.getDouble(0));
-        SmartDashboard.putNumber("Sub TA", ta.getDouble(0));
-        SmartDashboard.putBoolean("Sub LimelightFrontMounted", VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT);
-
-        SmartDashboard.putNumber("Sub CurrentDistance", getVerticalOffset());
-        SmartDashboard.putNumber("Sub TargetDistance", VisionConstants.TARGET_DISTANCE_METERS);
-        SmartDashboard.putNumber("Sub DistanceError", 
-            Math.abs(getVerticalOffset() - VisionConstants.TARGET_DISTANCE_METERS));
-        */
-    }
-    
-    
-
-    // Getter methods for use in commands
     public VisionState getState() {
         return currentState;
     }
@@ -131,30 +72,16 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double getHorizontalOffset() {
-        return tx.getDouble(0.0) * VisionConstants.LIMELIGHT_DIRECTION;
+        return LimelightHelpers.getTX(limelightName) * 
+               (VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT ? 1.0 : -1.0);
     }
 
     public double getVerticalOffset() {
-        return ty.getDouble(0.0);
+        return LimelightHelpers.getTY(limelightName);
     }
 
     public int getTagId() {
-        return (int) tid.getDouble(0);
-    }
-
-    public void resetPoseEstimate() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'resetPoseEstimate'");
-    }
-
-    public void disable() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disable'");
-    }
-
-    public void enable() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'enable'");
+        return (int) LimelightHelpers.getFiducialID(limelightName);
     }
 
     public boolean isTagValid(int tagId) {
@@ -162,4 +89,20 @@ public class VisionSubsystem extends SubsystemBase {
                tagId <= VisionConstants.MAX_VALID_TAG;
     }
 
+    private void logTelemetry() {
+        SmartDashboard.putString("Vision/State", currentState.toString());
+        SmartDashboard.putNumber("Vision/TagID", getTagId());
+        SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
+        SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
+        SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
+        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
+    }
+
+    /*
+    public enum VisionState {
+        NO_TARGET,
+        TARGET_VISIBLE,
+        TARGET_LOCKED
+    } 
+    */
 }

@@ -159,6 +159,7 @@ public class VisionCenterCommand_v3 extends Command {
     @Override
     public boolean isFinished() {
         return !vision.hasTarget() ||
+                // Changed from VisionSubsystem to VisionState reference
                 vision.getState() == VisionState.TARGET_LOCKED ||
                 (strafeController.atGoal() && rotationController.atGoal());
     }

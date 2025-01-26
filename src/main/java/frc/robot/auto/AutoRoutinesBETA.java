@@ -44,7 +44,7 @@ public class AutoRoutinesBETA {
         // m_elevator = new ElevatorSubsystem(); // Competition robot only
         // m_intake = new IntakeSubsystem(); // Competition robot only
         // m_score = new ScoreSubsystem(); // Competition robot only
-        m_vision = new VisionSubsystem("limelight", m_drivetrain, m_leds);
+        m_vision = new VisionSubsystem("marvin", m_leds);
         m_leds = new LEDSubsystem();
 
     }

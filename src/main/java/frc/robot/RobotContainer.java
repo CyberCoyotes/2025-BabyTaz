@@ -41,15 +41,13 @@ import frc.robot.subsystems.TOFSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.subsystems.clockwork.ClockworkDriveConstants;
-import frc.robot.subsystems.clockwork.ClockworkVisionSubsystem;
 
 public class RobotContainer {
     private final Pose2d targetPose;
 
     // Drive constants
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(1.0).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
@@ -63,9 +61,8 @@ public class RobotContainer {
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
-    private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
+    private final VisionSubsystem vision = new VisionSubsystem("marvin", leds);
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
-    private final ClockworkVisionSubsystem clockworkVision = new ClockworkVisionSubsystem(leds);
 
   // TODO Emergency stop trigger based on TOF distance
     // private final Trigger emergencyStop = new Trigger(() -> 
@@ -113,17 +110,17 @@ public class RobotContainer {
         autoChooser.addRoutine("Top K", autoRoutines::topK);
         
         // BETA autos
-        autoChooserBETA.addRoutine("Test Drive", autoRoutinesBETA::testEvents);
+        // autoChooserBETA.addRoutine("Test Drive", autoRoutinesBETA::testEvents);
 
         SmartDashboard.putData("Autonomous", autoChooser);
-        SmartDashboard.putData("BETA Autos", autoChooser);
+        // SmartDashboard.putData("BETA Autos", autoChooser);
 
         // Shuffleboard Setup
         ShuffleboardTab autoTab = Shuffleboard.getTab("Autonomous");
         autoTab.add("Auto Chooser", autoChooser)
             .withWidget(BuiltInWidgets.kCommand);
-        autoTab.add("BETA Auto Chooser", autoChooserBETA)
-            .withWidget(BuiltInWidgets.kCommand);
+        // autoTab.add("BETA Auto Chooser", autoChooserBETA)
+            // .withWidget(BuiltInWidgets.kCommand);
     
     }
 
@@ -158,11 +155,25 @@ public class RobotContainer {
         // Vision alignment
         // driver.rightBumper().whileTrue(new VisionCenterCommand_v2(vision, drivetrain));
         // driver.rightBumper().whileTrue(new VisionCenterCommand_v3(vision, drivetrain));
-        // driver.rightBumper().whileTrue(new VisionCenterCommand_v5(vision, drivetrain));
-        driver.leftBumper().whileTrue(new VisionCenterCommand_v6(clockworkVision, drivetrain));
-
+        driver.rightBumper().whileTrue(
+            new VisionCenterCommand_v5(vision, drivetrain));
+        
+        driver.leftBumper().whileTrue(
+            new VisionCenterCommand_v6(vision, drivetrain)
+            .withTimeout(2.0) // TODO Add timeout for safety
+            .beforeStarting(() -> {
+                System.out.println("Starting vision alignment");
+                // Optional - turn  on Limelight LEDs during targeting; 
+            })
+            .finallyDo((interrupted) -> {
+                System.out.println("Vision alignment ended. Interrupted: " + interrupted);
+                // Optional - turn off the Limelight LEDs when not targeting
+            })
+        );
+        
         /* Version 2 seems to be working as expected by over shooting */
         // Bind decelerate command to button
+        /*
         driver.x().whileTrue(
             new DecelerateRykerCommand(drivetrain, vision, tof)
                 .withTimeout(5)  // Add timeout for safety
@@ -172,7 +183,8 @@ public class RobotContainer {
                                              .withVelocityY(0)
                                              .withRotationalRate(0));
                 })
-        );
+        ); 
+        */
     
         // Field-centric reset
         // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
