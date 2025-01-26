@@ -88,8 +88,8 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double getDistanceToTarget() { // TODO
-        double targetHeightMeters = 0.61; // Adjust based on AprilTag height
-        double cameraHeightMeters = 0.5;  // Adjust based on camera mount
+        double targetHeightMeters = 0.25; // Adjust based on AprilTag height
+        double cameraHeightMeters = 0.25;  // Adjust based on camera mount
         double cameraPitchDegrees = 0.0;  // Adjust based on camera angle
         
         double targetPitchDegrees = getVerticalOffset();
