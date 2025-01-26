@@ -55,11 +55,13 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     }
 
     // Shuffleboard tuning entries
+    /* 
     private final GenericEntry pGainEntry = Shuffleboard.getTab("Vision")
             .add("Translation P", Constraints.TRANSLATION_P).getEntry();
     private final GenericEntry rotPGainEntry = Shuffleboard.getTab("Vision")
             .add("Rotation P", Constraints.ROTATION_P).getEntry();
-
+    */
+    
     private final ProfiledPIDController strafeController;
     private final ProfiledPIDController rotationController;
 
