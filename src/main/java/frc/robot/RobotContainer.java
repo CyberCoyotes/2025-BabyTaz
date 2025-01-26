@@ -147,8 +147,9 @@ public class RobotContainer {
             new VisionCenterCommand_v5_no_lockout(vision, drivetrain, driver));
         
         // Field-centric reset
-        // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
-
+        driver.leftBumper().whileTrue(
+            new VisionCenterCommand_v5(vision, drivetrain));
+            
         // SysId testing 
         configureSysIdBindings();
 
