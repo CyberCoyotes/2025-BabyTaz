@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionState;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -35,24 +36,6 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo); // TODO Hoping this is the secret sauce!
-
-    private static final class Constraints {
-        // Adjust these based on your robot's capabilities
-        static final double MAX_VELOCITY = 1.0; // Start conservative
-        static final double MAX_ACCELERATION = 2.0;
-        static final double MAX_ROTATION_VELOCITY = Math.PI / 2; // ~90 deg/sec
-        static final double MAX_ROTATION_ACCELERATION = Math.PI;
-
-        static final double POSITION_TOLERANCE = 0.02; // meters
-        static final double ROTATION_TOLERANCE = 0.02; // radians
-
-        static final double TRANSLATION_P = 0.5;
-        static final double TRANSLATION_I = 0.0;
-        static final double TRANSLATION_D = 0.0;
-        static final double ROTATION_P = 1.0;
-        static final double ROTATION_I = 0.0;
-        static final double ROTATION_D = 0.05;
-    }
 
     // Shuffleboard tuning entries
     /* 
@@ -77,22 +60,22 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         // Only require vision subsystem since we want to blend driver input
         addRequirements(vision);
 
-        TrapezoidProfile.Constraints translationConstraints = new TrapezoidProfile.Constraints(Constraints.MAX_VELOCITY,
-                Constraints.MAX_ACCELERATION);
+        TrapezoidProfile.Constraints translationConstraints = new TrapezoidProfile.Constraints(VisionConstants.MAX_TRANSLATIONAL_VELOCITY,
+                VisionConstants.MAX_TRANSLATIONAL_ACCELERATION);
         TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(
-                Constraints.MAX_ROTATION_VELOCITY, Constraints.MAX_ROTATION_ACCELERATION);
+                VisionConstants.MAX_ANGULAR_VELOCITY, VisionConstants.MAX_ANGULAR_ACCELERATION);
 
         strafeController = new ProfiledPIDController(
-                Constraints.TRANSLATION_P,
-                Constraints.TRANSLATION_I,
-                Constraints.TRANSLATION_D,
+                VisionConstants.TRANSLATIONAL_kP,
+                VisionConstants.TRANSLATIONAL_kI,
+                VisionConstants.TRANSLATIONAL_kD,
                 translationConstraints,
                 0.02);
 
         rotationController = new ProfiledPIDController(
-                Constraints.ROTATION_P,
-                Constraints.ROTATION_I,
-                Constraints.ROTATION_D,
+            VisionConstants.ROTATIONAL_kP,
+            VisionConstants.ROTATIONAL_kI,
+            VisionConstants.ROTATIONAL_kD,
                 rotationConstraints,
                 0.02);
 
@@ -152,8 +135,8 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     }
 
     private void configurePIDControllers() {
-        strafeController.setTolerance(Constraints.POSITION_TOLERANCE);
-        rotationController.setTolerance(Constraints.ROTATION_TOLERANCE);
+        strafeController.setTolerance(VisionConstants.POSITION_TOLERANCE);
+        rotationController.setTolerance(VisionConstants.ROTATIONAL_TOLERANCE);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -181,9 +164,9 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         double rotationRate = calculateRotationRate();
 
         // Blend with driver input
-        double driverForward = -driverController.getLeftY() * Constraints.MAX_VELOCITY;
-        double driverStrafe = -driverController.getLeftX() * Constraints.MAX_VELOCITY;
-        double driverRotation = -driverController.getRightX() * Constraints.MAX_ROTATION_VELOCITY;
+        double driverForward = -driverController.getLeftY() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double driverStrafe = -driverController.getLeftX() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double driverRotation = -driverController.getRightX() * VisionConstants.MAX_ANGULAR_VELOCITY;
 
         // Combine vision and driver inputs
         drivetrain.setControl(drive
@@ -214,9 +197,9 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
 
 
     private void handleDriverInput() {
-        double forward = -driverController.getLeftY() * Constraints.MAX_VELOCITY;
-        double strafe = -driverController.getLeftX() * Constraints.MAX_VELOCITY;
-        double rotation = -driverController.getRightX() * Constraints.MAX_ROTATION_VELOCITY;
+        double forward = -driverController.getLeftY() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double strafe = -driverController.getLeftX() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double rotation = -driverController.getRightX() * VisionConstants.MAX_ANGULAR_VELOCITY;
 
         drivetrain.setControl(drive
             .withVelocityX(forward)
@@ -234,16 +217,16 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     }
 
     private void updateTelemetry(double offset, double strafeSpeed, double rotationRate) {
-        SmartDashboard.putNumber("V5/HorizontalOffset", offset);
-        SmartDashboard.putNumber("V5/StrafeSpeed", strafeSpeed);
-        SmartDashboard.putNumber("V5/RotationRate", rotationRate);
-        SmartDashboard.putNumber("V5/StrateError", strafeController.getPositionError());
-        SmartDashboard.putNumber("V5/RotationError", rotationController.getPositionError());
-        SmartDashboard.putBoolean("V5/AtTarget", isFinished());
-        SmartDashboard.putString("V5/DriveRequestType", drive.DriveRequestType.toString());
-        SmartDashboard.putString("V5/SteerRequestType", drive.SteerRequestType.toString());
-        SignalLogger.writeDouble("V5/HorizontalOffset", offset);
-        SignalLogger.writeDouble("V5/StrafeSpeed", strafeSpeed);
+        SmartDashboard.putNumber("V5l/HorizontalOffset", offset);
+        SmartDashboard.putNumber("V5l/StrafeSpeed", strafeSpeed);
+        SmartDashboard.putNumber("V5l/RotationRate", rotationRate);
+        SmartDashboard.putNumber("V5l/StrateError", strafeController.getPositionError());
+        SmartDashboard.putNumber("V5l/RotationError", rotationController.getPositionError());
+        SmartDashboard.putBoolean("V5l/AtTarget", isFinished());
+        SmartDashboard.putString("V5l/DriveRequestType", drive.DriveRequestType.toString());
+        SmartDashboard.putString("V5l/SteerRequestType", drive.SteerRequestType.toString());
+        SignalLogger.writeDouble("V5l/HorizontalOffset", offset);
+        SignalLogger.writeDouble("V5l/StrafeSpeed", strafeSpeed);
     }
 
     @Override
@@ -269,7 +252,7 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         rotationController.reset(new TrapezoidProfile.State(0, 0));
 
         // Optional: Call drivetrain stop command
-        drivetrain.stop().schedule();
+        // drivetrain.stop().schedule();
     }
 
 }

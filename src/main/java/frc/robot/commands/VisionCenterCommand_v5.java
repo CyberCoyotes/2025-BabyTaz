@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionState;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -34,31 +35,13 @@ public class VisionCenterCommand_v5 extends Command {
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo); // TODO Hoping this is the secret sauce!
     
-        private static final class Constraints {
-            // Adjust these based on your robot's capabilities
-        static final double MAX_VELOCITY = 1.0; // Start conservative
-        static final double MAX_ACCELERATION = 2.0;
-        static final double MAX_ROTATION_VELOCITY = Math.PI/2; // ~90 deg/sec
-        static final double MAX_ROTATION_ACCELERATION = Math.PI;
-    
-            
-            static final double POSITION_TOLERANCE = 0.02; // meters
-            static final double ROTATION_TOLERANCE = 0.02; // radians
-            
-            static final double TRANSLATION_P = 0.5;
-            static final double TRANSLATION_I = 0.0;
-            static final double TRANSLATION_D = 0.0;
-            static final double ROTATION_P = 1.0;
-            static final double ROTATION_I = 0.0;
-            static final double ROTATION_D = 0.05;
-        }
-    
+    /* 
         // Shuffleboard tuning entries
         private final GenericEntry pGainEntry = Shuffleboard.getTab("Vision")
             .add("Translation P", Constraints.TRANSLATION_P).getEntry();
         private final GenericEntry rotPGainEntry = Shuffleboard.getTab("Vision")
             .add("Rotation P", Constraints.ROTATION_P).getEntry();
-    
+    */
         private final ProfiledPIDController strafeController;
         private final ProfiledPIDController rotationController;
     
@@ -70,26 +53,26 @@ public class VisionCenterCommand_v5 extends Command {
             // this.drive = new SwerveRequest.RobotCentric();
 
         TrapezoidProfile.Constraints translationConstraints = 
-            new TrapezoidProfile.Constraints(Constraints.MAX_VELOCITY, Constraints.MAX_ACCELERATION);
+            new TrapezoidProfile.Constraints(VisionConstants.MAX_TRANSLATIONAL_VELOCITY, VisionConstants.MAX_TRANSLATIONAL_ACCELERATION);
         TrapezoidProfile.Constraints rotationConstraints = 
-            new TrapezoidProfile.Constraints(Constraints.MAX_ROTATION_VELOCITY, Constraints.MAX_ROTATION_ACCELERATION);
+            new TrapezoidProfile.Constraints(VisionConstants.MAX_ANGULAR_VELOCITY, VisionConstants.MAX_ANGULAR_ACCELERATION);
 
         strafeController = new ProfiledPIDController(
-            Constraints.TRANSLATION_P,
-            Constraints.TRANSLATION_I, 
-            Constraints.TRANSLATION_D,
+            VisionConstants.TRANSLATIONAL_kP,
+            VisionConstants.TRANSLATIONAL_kI, 
+            VisionConstants.TRANSLATIONAL_kD,
             translationConstraints,
             0.02
         );
 
         rotationController = new ProfiledPIDController(
-            Constraints.ROTATION_P,
-            Constraints.ROTATION_I,
-            Constraints.ROTATION_D,
+            VisionConstants.ROTATIONAL_kP,
+            VisionConstants.ROTATIONAL_kI,
+            VisionConstants.ROTATIONAL_kD,
             rotationConstraints,
             0.02
         );
-
+/* 
                 // Create Shuffleboard tab for tuning
         ShuffleboardTab tab = Shuffleboard.getTab("Vision Tuning");
         // Constraints
@@ -115,7 +98,7 @@ public class VisionCenterCommand_v5 extends Command {
         tab.addNumber("Rotation Tolerance", () -> Constraints.ROTATION_TOLERANCE)
            .withWidget(BuiltInWidgets.kNumberSlider)
            .withProperties(Map.of("min", 0.01, "max", 0.2));
-        
+   
         // Gains
         tab.addNumber("Translation P", () -> Constraints.TRANSLATION_P)
            .withWidget(BuiltInWidgets.kNumberSlider)
@@ -136,14 +119,14 @@ public class VisionCenterCommand_v5 extends Command {
             .withWidget(BuiltInWidgets.kNumberSlider)
             .withProperties(Map.of("min", 0.0, "max", 2.0));
 
-            
+    */    
         configurePIDControllers();
         addRequirements(vision, drivetrain);
     }
 
     private void configurePIDControllers() {
-        strafeController.setTolerance(Constraints.POSITION_TOLERANCE);
-        rotationController.setTolerance(Constraints.ROTATION_TOLERANCE);
+        strafeController.setTolerance(VisionConstants.POSITION_TOLERANCE);
+        rotationController.setTolerance(VisionConstants.ROTATIONAL_TOLERANCE);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -173,9 +156,11 @@ public class VisionCenterCommand_v5 extends Command {
         distanceScale = Math.max(0.3, distanceScale); 
 
         // Update PID gains from dashboard and scale them
+        /*
         strafeController.setP(pGainEntry.getDouble(Constraints.TRANSLATION_P) * distanceScale);
         rotationController.setP(rotPGainEntry.getDouble(Constraints.ROTATION_P) * distanceScale);
-
+        */
+        
         double strafeSpeed = strafeController.calculate(horizontalOffset, 0);
         double rotationRate = rotationController.calculate(Units.degreesToRadians(horizontalOffset), 0);
 
@@ -223,7 +208,7 @@ public class VisionCenterCommand_v5 extends Command {
         rotationController.reset(new TrapezoidProfile.State(0, 0));
 
         // Optional: Call drivetrain stop command
-        drivetrain.stop().schedule();
+        // drivetrain.stop().schedule();
     }
     
     

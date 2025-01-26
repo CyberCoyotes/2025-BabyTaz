@@ -25,17 +25,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.auto.AutoRoutinesBETA;
-import frc.robot.commands.VisionCenterCommand_v4;
 import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.VisionCenterCommand_v5_no_lockout;
-import frc.robot.commands.VisionCenterCommand_v6;
-import frc.robot.commands.VisionCenterCommand_v1;
-import frc.robot.commands.VisionCenterCommand_v2;
-import frc.robot.commands.VisionCenterCommand_v3;
 
-
-import frc.robot.commands.DecelerateRykerCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
@@ -82,9 +74,7 @@ public class RobotContainer {
     /* Auto Related */
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
-    private final AutoRoutinesBETA autoRoutinesBETA;
     private final AutoChooser autoChooser = new AutoChooser();
-    private final AutoChooser autoChooserBETA = new AutoChooser();
 
 
     // TODO Add turret subsystem
@@ -96,7 +86,6 @@ public class RobotContainer {
         targetPose = new Pose2d(); // Initialize targetPose
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, turret);
-        autoRoutinesBETA = new AutoRoutinesBETA(autoFactory, drivetrain, turret);
 
 
         configureAutoRoutines();

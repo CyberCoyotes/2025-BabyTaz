@@ -45,6 +45,11 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             currentState = VisionState.TARGET_VISIBLE;
         }
+
+        // Add to VisionSubsystem periodic():
+        boolean targetValid = LimelightHelpers.getTV(limelightName);
+        System.out.println("Target Valid: " + targetValid);
+        System.out.println("Current State: " + getState());
     }
 
     private void updateLEDs() {
@@ -68,12 +73,15 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public boolean hasTarget() {
-        return currentState != VisionState.NO_TARGET;
+        // return currentState != VisionState.NO_TARGET;
+        boolean valid = LimelightHelpers.getTV(limelightName);
+        System.out.println("Raw Target Valid: " + valid); 
+        return valid;
+
     }
 
     public double getHorizontalOffset() {
-        return LimelightHelpers.getTX(limelightName) * 
-               (VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT ? 1.0 : -1.0);
+        return LimelightHelpers.getTX(limelightName) * (VisionConstants.LIMELIGHT_DIRECTION);
     }
 
     public double getVerticalOffset() {
