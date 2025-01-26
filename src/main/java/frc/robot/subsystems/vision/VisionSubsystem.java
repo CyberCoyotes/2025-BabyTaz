@@ -10,10 +10,6 @@ public class VisionSubsystem extends SubsystemBase {
     private final LEDSubsystem leds;
     private VisionState currentState = VisionState.NO_TARGET;
 
-    // Vision processing constants 
-    private static final double TARGET_LOCK_THRESHOLD = 2.0; // Degrees
-    private static final double MIN_TARGET_AREA = 0.1; // % of image
-
     public VisionSubsystem(String limelightName, LEDSubsystem leds) {
         this.limelightName = limelightName;
         this.leds = leds;
@@ -21,9 +17,11 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void configureLimelight() {
-        // Set to AprilTag pipeline by default
         LimelightHelpers.setPipelineIndex(limelightName, 0);
-        LimelightHelpers.setLEDMode_ForceOn(limelightName);
+        // pipeline index 0 will be used for vision processing of AprilTags
+
+        // LimelightHelpers.setLEDMode_PipelineControl(limelightName);
+        LimelightHelpers.setLEDMode_ForceOff(limelightName);
     }
 
     @Override
@@ -38,9 +36,9 @@ public class VisionSubsystem extends SubsystemBase {
         double horizontalOffset = getHorizontalOffset();
         double targetArea = LimelightHelpers.getTA(limelightName);
 
-        if (!hasTarget || targetArea < MIN_TARGET_AREA) {
+        if (!hasTarget || targetArea < VisionConstants.MIN_TARGET_AREA) {
             currentState = VisionState.NO_TARGET;
-        } else if (Math.abs(horizontalOffset) <= TARGET_LOCK_THRESHOLD) {
+        } else if (Math.abs(horizontalOffset) <= VisionConstants.POSITION_TOLERANCE /*TODO Add a ROTATIONAL_TOL check? */) {
             currentState = VisionState.TARGET_LOCKED;
         } else {
             currentState = VisionState.TARGET_VISIBLE;
@@ -73,7 +71,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double getHorizontalOffset() {
         return LimelightHelpers.getTX(limelightName) * 
-               (VisionConstants.LIMELIGHT_MOUNTED_ON_FRONT ? 1.0 : -1.0);
+               (VisionConstants.LIMELIGHT_DIRECTION);
     }
 
     public double getVerticalOffset() {
@@ -89,20 +87,26 @@ public class VisionSubsystem extends SubsystemBase {
                tagId <= VisionConstants.MAX_VALID_TAG;
     }
 
+    public double getDistanceToTarget() { // TODO
+        double targetHeightMeters = 0.61; // Adjust based on AprilTag height
+        double cameraHeightMeters = 0.5;  // Adjust based on camera mount
+        double cameraPitchDegrees = 0.0;  // Adjust based on camera angle
+        
+        double targetPitchDegrees = getVerticalOffset();
+        double angleRadians = Math.toRadians(cameraPitchDegrees + targetPitchDegrees);
+        
+        return (targetHeightMeters - cameraHeightMeters) / Math.tan(angleRadians);
+    }
+    
+    
+
     private void logTelemetry() {
-        SmartDashboard.putString("Vision/State", currentState.toString());
-        SmartDashboard.putNumber("Vision/TagID", getTagId());
-        SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
-        SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
-        SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
-        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
+        SmartDashboard.putString("VSub/State", currentState.toString());
+        SmartDashboard.putNumber("VSub/TagID", getTagId());
+        SmartDashboard.putNumber("VSub/HorizontalOffset", getHorizontalOffset());
+        SmartDashboard.putNumber("VSub/VerticalOffset", getVerticalOffset());
+        SmartDashboard.putNumber("VSub/TargetArea", LimelightHelpers.getTA(limelightName));
+        SmartDashboard.putBoolean("VSub/HasTarget", hasTarget());
     }
 
-    /*
-    public enum VisionState {
-        NO_TARGET,
-        TARGET_VISIBLE,
-        TARGET_LOCKED
-    } 
-    */
 }

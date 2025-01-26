@@ -9,8 +9,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -22,12 +20,7 @@ public class VisionCenterCommand_v6 extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController rotationController;
     private final SwerveRequest.RobotCentric drive;
-    
-    // Make tunable PID values
-    private double kP = VisionConstants.VISION_kP;
-    private double kI = VisionConstants.VISION_kI;
-    private double kD = VisionConstants.VISION_kD;
-    
+        
     // Rate limiters for smooth acceleration/deceleration
     private final SlewRateLimiter speedLimiter = new SlewRateLimiter(3);
     private final SlewRateLimiter rotationLimiter = new SlewRateLimiter(3);
@@ -36,22 +29,19 @@ public class VisionCenterCommand_v6 extends Command {
         this.vision = vision;
         this.drivetrain = drivetrain;
         
-        // Configure PID for rotation control
-        rotationController = new PIDController(VisionConstants.VISION_kP, 0, 0);
-        rotationController.setTolerance(VisionConstants.ROTATE_TOLERANCE);
+        rotationController = new PIDController(
+            VisionConstants.ROTATIONAL_kP, 
+            VisionConstants.ROTATIONAL_kI,
+            VisionConstants.ROTATIONAL_kD
+        );
         
-        // Create robot-centric drive request for vision alignment
+        rotationController.setTolerance(VisionConstants.ROTATIONAL_TOLERANCE);
+        
         drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
         addRequirements(drivetrain);
-
-        // Add tunable values to SmartDashboard
-        SmartDashboard.putNumber("Vision/kP", kP);
-        SmartDashboard.putNumber("Vision/kI", kI); 
-        SmartDashboard.putNumber("Vision/kD", kD);
-
-
+        // initializeShuffleboard();
     }
 
     @Override
@@ -65,15 +55,15 @@ public class VisionCenterCommand_v6 extends Command {
         System.out.println("Horizontal offset: " + vision.getHorizontalOffset());
 
          // Update PID values from dashboard
-         double newP = SmartDashboard.getNumber("Vision/kP", kP);
-         double newI = SmartDashboard.getNumber("Vision/kI", kI);
-         double newD = SmartDashboard.getNumber("Vision/kD", kD);
+         double newP = SmartDashboard.getNumber("v6 Tran-kP", VisionConstants.TRANSLATIONAL_kP);
+         double newI = SmartDashboard.getNumber("v6 Tran-kI", VisionConstants.TRANSLATIONAL_kP);
+         double newD = SmartDashboard.getNumber("v6 Tran-kD", VisionConstants.TRANSLATIONAL_kD);
          
-         if (newP != kP || newI != kI || newD != kD) {
-             kP = newP;
-             kI = newI; 
-             kD = newD;
-             rotationController.setPID(kP, kI, kD);
+         if (newP != VisionConstants.TRANSLATIONAL_kP || newI != VisionConstants.TRANSLATIONAL_kD || newD != VisionConstants.TRANSLATIONAL_kD) {
+            VisionConstants.TRANSLATIONAL_kP = newP;
+            VisionConstants.TRANSLATIONAL_kI = newI; 
+            VisionConstants.TRANSLATIONAL_kD = newD;
+            rotationController.setPID(VisionConstants.TRANSLATIONAL_kP, VisionConstants.TRANSLATIONAL_kI, VisionConstants.TRANSLATIONAL_kD);
          }
         
         if (!vision.hasTarget()) {
@@ -106,7 +96,7 @@ public class VisionCenterCommand_v6 extends Command {
         double rawSpeed = rotationController.calculate(horizontalOffset, 0);
         
         // Clamp speed to prevent excessive rotation
-        return Math.min(Math.abs(rawSpeed), VisionConstants.MAX_ANGULAR_RATE) 
+        return Math.min(Math.abs(rawSpeed), VisionConstants.MAX_ANGULAR_VELOCITY) 
                * Math.signum(rawSpeed);
     }
 
@@ -128,7 +118,7 @@ public class VisionCenterCommand_v6 extends Command {
     }
 
     private void logTelemetry(double rotationSpeed) {
-        SmartDashboard.putNumber("Vision/RotationSpeed", rotationSpeed);
-        SmartDashboard.putBoolean("Vision/AtSetpoint", rotationController.atSetpoint());
+        SmartDashboard.putNumber("v6 RotationSpeed", rotationSpeed);
+        SmartDashboard.putBoolean("v6 AtSetpoint", rotationController.atSetpoint());
     }
 }

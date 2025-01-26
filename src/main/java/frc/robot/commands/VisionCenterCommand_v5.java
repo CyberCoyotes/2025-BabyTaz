@@ -188,16 +188,16 @@ public class VisionCenterCommand_v5 extends Command {
     }
 
     private void updateTelemetry(double offset, double strafeSpeed, double rotationRate) {
-        SmartDashboard.putNumber("Vision/HorizontalOffset", offset);
-        SmartDashboard.putNumber("Vision/StrafeSpeed", strafeSpeed);
-        SmartDashboard.putNumber("Vision/RotationRate", rotationRate);
-        SmartDashboard.putNumber("Vision/StrateError", strafeController.getPositionError());
-        SmartDashboard.putNumber("Vision/RotationError", rotationController.getPositionError());
-        SmartDashboard.putBoolean("Vision/AtTarget", isFinished());
-        SmartDashboard.putString("Vision/DriveRequestType", drive.DriveRequestType.toString());
-        SmartDashboard.putString("Vision/SteerRequestType", drive.SteerRequestType.toString());
-        SignalLogger.writeDouble("Vision/HorizontalOffset", offset);
-        SignalLogger.writeDouble("Vision/StrafeSpeed", strafeSpeed);
+        SmartDashboard.putNumber("V5/HorizontalOffset", offset);
+        SmartDashboard.putNumber("V5/StrafeSpeed", strafeSpeed);
+        SmartDashboard.putNumber("V5/RotationRate", rotationRate);
+        SmartDashboard.putNumber("V5/StrateError", strafeController.getPositionError());
+        SmartDashboard.putNumber("V5/RotationError", rotationController.getPositionError());
+        SmartDashboard.putBoolean("V5/AtTarget", isFinished());
+        SmartDashboard.putString("V5/DriveRequestType", drive.DriveRequestType.toString());
+        SmartDashboard.putString("V5/SteerRequestType", drive.SteerRequestType.toString());
+        SignalLogger.writeDouble("V5/HorizontalOffset", offset);
+        SignalLogger.writeDouble("V5/StrafeSpeed", strafeSpeed);
     }
 
     @Override
