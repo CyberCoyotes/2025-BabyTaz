@@ -43,6 +43,7 @@ public class VisionCenterCommand_v7_profiles extends Command {
         this.vision = vision;
         this.drivetrain = drivetrain;
         
+        /* */
         rotationRequest = new DynamicMotionMagicVoltage(0, ROT_VELOCITY, ROT_ACCEL, ROT_JERK)
             .withSlot(0)
             .withEnableFOC(true);
@@ -60,9 +61,13 @@ public class VisionCenterCommand_v7_profiles extends Command {
             pigeon.getAngularVelocityZDevice()
         };
         BaseStatusSignal.setUpdateFrequencyForAll(100, signals);
+
+        // Call configureGains to apply the necessary gains
+        configureGains();
     
     }
     
+
     private void configureGains() {
         // TODO Rotation gains (Slot 0)
         var rotationGains = new Slot0Configs()
@@ -83,8 +88,11 @@ public class VisionCenterCommand_v7_profiles extends Command {
             // Consider applying the gains to the drivetrain based on drive motors OR turning motors
             // Apply the gains to the drivetrain
 
-            drivetrain.getConfigurator().apply(rotationGains);
+        // Apply the rotation gains to the drivetrain
+        drivetrain.getConfigurator().apply(rotationGains);
 
+        // Apply the translation gains to the drivetrain
+        drivetrain.getConfigurator().apply(translationGains);
     }
 
 
@@ -109,10 +117,13 @@ public class VisionCenterCommand_v7_profiles extends Command {
     }
 
     private double calculateTargetAngle() {
-        double currentAngle = drivetrain.getYaw().getValue();
-        double latencyCompensation = drivetrain.getYawRate() * (vision.getPipelineLatency() / 1000.0);
+        var pigeon = drivetrain.getState().getPigeon2();
+        double currentAngle = pigeon.getYaw().getValue();
+        double yawRate = pigeon.getAngularVelocityZ().getValue();
+        double latencyCompensation = yawRate * (vision.getPipelineLatency() / 1000.0);
         return currentAngle + vision.getHorizontalOffset() + latencyCompensation;
     }
+    
 
     private double calculateTargetDistance() {
         // Use Limelight ty or ta value to determine distance
