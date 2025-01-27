@@ -16,9 +16,9 @@ public final class VisionConstants {
         public static final int MIN_VALID_TAG = 1;
         public static final int MAX_VALID_TAG = 22;
 
-        public static final double LEFT_TARGET_OFFSET = 10.0; // 10 cm left offset
+        public static final double LEFT_TARGET_OFFSET = -16.5; // 10 cm left offset
         public static final double CENTER_TARGET_OFFSET = 0.0;  // No offset
-        public static final double RIGHT_TARGET_OFFSET = -10.0; // 10 cm right offset
+        public static final double RIGHT_TARGET_OFFSET = 16.5; // 10 cm right offset
     
         // Motion constraints
         public static final double MAX_TRANSLATIONAL_VELOCITY = 0.1; 
