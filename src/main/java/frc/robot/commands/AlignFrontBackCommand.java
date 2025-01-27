@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class AlignStrafeCommand extends Command {
+public class AlignFrontBackCommand extends Command {
     public static enum StrafeDirection {
         LEFT(1.0),
         RIGHT(-1.0),
@@ -19,9 +19,9 @@ public class AlignStrafeCommand extends Command {
     }
 
     // Constants
-    private static final double STRAFE_VELOCITY_MPS = 1.0;  // Meters per second
-    private static final double STRAFE_DISTANCE_INCHES = 12.0;  // Target distance in inches
-    private static final double STRAFE_DISTANCE_METERS = STRAFE_DISTANCE_INCHES * 0.0254;  // Converted to meters
+    private static final double DRIVE_VELOCITY_MPS = 1.0;  // Meters per second
+    private static final double DRIVE_DISTANCE_INCHES = 12.0;  // Target distance in inches
+    private static final double DRIVE_DISTANCE_METERS = DRIVE_DISTANCE_INCHES * 0.0254;  // Converted to meters
     private static final double MODULE_ALIGN_DELAY = 0.1;  // Seconds to wait for module alignment
 
     private final CommandSwerveDrivetrain m_drive;
@@ -29,7 +29,7 @@ public class AlignStrafeCommand extends Command {
     private final StrafeDirection m_direction;
     private final SwerveRequest.RobotCentric m_request = new SwerveRequest.RobotCentric();
 
-    public AlignStrafeCommand(CommandSwerveDrivetrain driveSubsystem, StrafeDirection direction) {
+    public AlignFrontBackCommand(CommandSwerveDrivetrain driveSubsystem, StrafeDirection direction) {
         m_drive = driveSubsystem;
         m_direction = direction;
         addRequirements(driveSubsystem);
@@ -40,10 +40,10 @@ public class AlignStrafeCommand extends Command {
         m_startPosition = m_drive.getState().Pose.getTranslation();
         
         // Configure strafe velocity based on direction
-        double velocityMps = STRAFE_VELOCITY_MPS * m_direction.getValue();
+        double velocityMps = DRIVE_VELOCITY_MPS * m_direction.getValue();
         
-        m_request.withVelocityY(velocityMps)
-                .withVelocityX(0)
+        m_request.withVelocityX(velocityMps) // "Y" Change to drive forward/backward "X"
+                .withVelocityY(0) // "X" Change to drive forward/backward "Y"
                 .withRotationalRate(0);
                 
         // Pre-align wheels
@@ -64,7 +64,7 @@ public class AlignStrafeCommand extends Command {
     @Override
     public boolean isFinished() {
         Translation2d currentPosition = m_drive.getState().Pose.getTranslation();
-        double distanceTraveled = Math.abs(currentPosition.getY() - m_startPosition.getY());
-        return distanceTraveled >= STRAFE_DISTANCE_METERS;
+        double distanceTraveled = Math.abs(currentPosition.getX() - m_startPosition.getX()); // "Y" Change to drive forward/backward "X"
+        return distanceTraveled >= DRIVE_DISTANCE_METERS;
     }
 }

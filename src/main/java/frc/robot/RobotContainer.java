@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
 import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
 
@@ -154,6 +155,9 @@ public class RobotContainer {
         // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
         driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));
+        
+        driver.povUp().onTrue(new AlignFrontBackCommand(drivetrain, AlignFrontBackCommand.StrafeDirection.FORWARD));
+        driver.povDown().onTrue(new AlignFrontBackCommand(drivetrain, AlignFrontBackCommand.StrafeDirection.BACKWARD));
         
         // SysId testing 
         configureSysIdBindings();
