@@ -23,7 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
  // Tuning Chat https://claude.ai/chat/14464343-a583-4909-8d9d-35a1b91c53bd
  
-public class AlignToPoseCommand extends Command {
+public class VisionAlignToPoseCommand extends Command {
         private final ShuffleboardTab tab = Shuffleboard.getTab("Vision Alignment");
         private final GenericEntry pGain = tab.add("Distance P Gain", VisionConstants.TRANSLATION_kP).getEntry();
         private final GenericEntry iGain = tab.add("Distance I Gain", VisionConstants.TRANSLATION_kI).getEntry();
@@ -57,7 +57,7 @@ public class AlignToPoseCommand extends Command {
         private double lastDistance = 0.0;
         private double lastHorizontalOffset = 0.0;
 
-        public AlignToPoseCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
+        public VisionAlignToPoseCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain, Pose2d targetPose) {
                 this.vision = vision;
                 this.drivetrain = drivetrain;
                 this.targetPose = targetPose;
@@ -178,7 +178,7 @@ public class AlignToPoseCommand extends Command {
                 drivetrain.setControl(drive
                                 .withVelocityX(xSpeed * VisionConstants.LIMELIGHT_DIRECTION)
                                 .withVelocityY(ySpeed * VisionConstants.LIMELIGHT_DIRECTION)
-                                .withRotationalRate(rotationSpeed));
+                                .withANGULARRate(rotationSpeed));
 
                 // Update state tracking
                 lastDistance = currentDistance;
@@ -205,7 +205,7 @@ public class AlignToPoseCommand extends Command {
                 drivetrain.setControl(drive
                                 .withVelocityX(0)
                                 .withVelocityY(0)
-                                .withRotationalRate(0));
+                                .withANGULARRate(0));
         }
 
         private void updateTelemetry() {

@@ -16,18 +16,20 @@ import choreo.auto.AutoFactory; // TODO added Choreo import
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.commands.AlignToPoseCommand;
-import frc.robot.commands.AlignToTargetCommand;
-import frc.robot.commands.CenterOnTagCommand;
-import frc.robot.commands.DecelerateRykerCommand;
-import frc.robot.commands.StrafeToCenterCommand;
+import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.AlignFrontBackCommand;
+import frc.robot.commands.AlignStrafeCommand;
+import frc.robot.commands.VisionCenterCommand_v10;
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
@@ -40,12 +42,12 @@ public class RobotContainer {
 
     // Drive constants
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(1.0).in(RadiansPerSecond); // 3/4 of a rotation per second                                                                                    // max angular velocity
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
     private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
-    private double rotationSpeedFactor = 0.25; // 25% rotation speed
+    private double rotationSpeedFactor = 0.5; // 25% rotation speed
 
         // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -54,7 +56,7 @@ public class RobotContainer {
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
-    private final VisionSubsystem vision = new VisionSubsystem("limelight", drivetrain, leds);
+    private final VisionSubsystem vision = new VisionSubsystem("limelight", leds);
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
 
   // TODO Emergency stop trigger based on TOF distance
@@ -75,7 +77,6 @@ public class RobotContainer {
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
-    private final AutoChooser autoBETAChooser = new AutoChooser();
 
 
     // TODO Add turret subsystem
@@ -88,6 +89,7 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, turret);
 
+
         configureAutoRoutines();
         configureBindings();
         configureTelemetry();
@@ -98,13 +100,20 @@ public class RobotContainer {
         autoChooser.addRoutine("Drive Forward", autoRoutines::driveForward);
         autoChooser.addRoutine("Center Score", autoRoutines::driveForward);
         autoChooser.addRoutine("Top K", autoRoutines::topK);
-
         
-        autoChooser.addRoutine("Testing Events", autoRoutines::testEvents);
-        // autoBETAChooser.addRoutine("Drive and Align", autoRoutines::driveAndAlign);
+        // BETA autos
+        // autoChooserBETA.addRoutine("Test Drive", autoRoutinesBETA::testEvents);
 
         SmartDashboard.putData("Autonomous", autoChooser);
-        SmartDashboard.putData("BETA Autos", autoChooser);
+        // SmartDashboard.putData("BETA Autos", autoChooser);
+
+        // Shuffleboard Setup
+        ShuffleboardTab autoTab = Shuffleboard.getTab("Autonomous");
+        autoTab.add("Auto Chooser", autoChooser)
+            .withWidget(BuiltInWidgets.kCommand);
+        // autoTab.add("BETA Auto Chooser", autoChooserBETA)
+            // .withWidget(BuiltInWidgets.kCommand);
+    
     }
 
     private void configureBindings() {
@@ -134,29 +143,22 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
+        // TODO Both are working. Both are aggressive, and overshoot but not wildly overshooting to the point of "shooting off" down the hall, lol
+        // I think it really is an issue of tuning now!
         // Vision alignment
-        driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
-        driver.leftBumper().whileTrue(new AlignToPoseCommand(vision, drivetrain, targetPose));
-        driver.y().whileTrue(new CenterOnTagCommand(vision, drivetrain));
+        driver.rightBumper().whileTrue(
+            new VisionCenterCommand_v10(vision, drivetrain, driver));
+        
+        driver.leftBumper().whileTrue(
+            new VisionCenterCommand_v5(vision, drivetrain));
 
-        // Bind decelerate command to button
-        driver.x().whileTrue(
-            new DecelerateRykerCommand(drivetrain, vision, tof)
-                .withTimeout(5)  // Add timeout for safety
-                .handleInterrupt(() -> {
-                    System.out.println("DecelerateRyker interrupted");
-                    drivetrain.setControl(drive.withVelocityX(0)
-                                             .withVelocityY(0)
-                                             .withRotationalRate(0));
-                })
-        );
-    
-
-        driver.start().whileTrue(new StrafeToCenterCommand(vision, drivetrain));
-
-        // Field-centric reset
-        // driver.leftBumper().onTrue(runOnce(() -> drivetrain.seedFieldCentric()));
-
+        // Strafe alignment
+        driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
+        driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));
+        
+        driver.povUp().onTrue(new AlignFrontBackCommand(drivetrain, AlignFrontBackCommand.StrafeDirection.FORWARD));
+        driver.povDown().onTrue(new AlignFrontBackCommand(drivetrain, AlignFrontBackCommand.StrafeDirection.BACKWARD));
+        
         // SysId testing 
         configureSysIdBindings();
 
@@ -164,8 +166,8 @@ public class RobotContainer {
 
     private void configureOperatorBindings() {
         // Add operator controls here
-        operator.y().onTrue(runOnce(() -> vision.setLeds(true)))
-                  .onFalse(runOnce(() -> vision.setLeds(false)));
+        // operator.y().onTrue(runOnce(() -> vision.setLimelightLeds(true)))
+                //   .onFalse(runOnce(() -> vision.setLimelightLeds(false)));
 
     }
     

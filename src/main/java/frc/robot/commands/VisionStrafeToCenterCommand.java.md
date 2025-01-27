@@ -7,7 +7,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class StrafeToCenterCommand extends Command {
+public class VisionStrafeToCenterCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final PIDController strafePID;
@@ -23,7 +23,7 @@ public class StrafeToCenterCommand extends Command {
     private static final double MAX_STRAFE_SPEED = 0.5; // Meters per second
     private static final double MIN_STRAFE_SPEED = 0.1; // Minimum speed to overcome friction
 
-    public StrafeToCenterCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionStrafeToCenterCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         
@@ -52,7 +52,7 @@ public class StrafeToCenterCommand extends Command {
     @Override
     public void execute() {
         if (!vision.hasTarget()) {
-            drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+            drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withANGULARRate(0));
             return;
         }
 
@@ -86,7 +86,7 @@ public class StrafeToCenterCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)  // No forward/back movement
             .withVelocityY(strafeSpeed)  // Strafe speed (positive = left, negative = right)
-            .withRotationalRate(0));  // No rotation
+            .withANGULARRate(0));  // No rotation
     }
 
     @Override
@@ -96,6 +96,6 @@ public class StrafeToCenterCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+        drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withANGULARRate(0));
     }
 }

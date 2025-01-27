@@ -9,8 +9,8 @@ import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 public class LEDConfig {
     public static final class Constants {
         public static final int CANDLE_ID = 30; // CAN ID of the LED controller
-        public static final int LED_COUNT = 30;
-        public static final double DEFAULT_BRIGHTNESS = 0.9;
+        public static final int LED_COUNT = 30; // TODO Turn off for now
+        public static final double DEFAULT_BRIGHTNESS = 0.0; // TODO Turned off LEDs for now
     }
 
     // Configuration properties

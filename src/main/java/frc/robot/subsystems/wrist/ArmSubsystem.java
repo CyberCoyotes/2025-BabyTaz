@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.wrist;
 
 public class ArmSubsystem {
           /* Arm has been set to invert so positive values for arm poses */

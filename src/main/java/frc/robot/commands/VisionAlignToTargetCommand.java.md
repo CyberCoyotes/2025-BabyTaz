@@ -16,7 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
  * Command to align robot rotation to face a vision target using PID control.
  * Uses limelight horizontal offset for feedback control.
  */
-public class AlignToTargetCommand extends Command {
+public class VisionAlignToTargetCommand extends Command {
     // Subsystem dependencies
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
@@ -37,7 +37,7 @@ public class AlignToTargetCommand extends Command {
     private final GenericEntry pGain = tab.add("P Gain", kP).getEntry();
     private final GenericEntry dGain = tab.add("D Gain", kD).getEntry();
 
-    public AlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionAlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.alignmentPID = new PIDController(kP, kI, kD);
@@ -85,13 +85,13 @@ public class AlignToTargetCommand extends Command {
             drivetrain.setControl(drive
                 .withVelocityX(0)    // No forward/back movement
                 .withVelocityY(0)    // No left/right movement
-                .withRotationalRate(rotationSpeed)); // Only rotate to target
+                .withANGULARRate(rotationSpeed)); // Only rotate to target
         } else {
             // No target visible - stop movement
             drivetrain.setControl(drive
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(0));
+                .withANGULARRate(0));
         }
     }
 
@@ -107,6 +107,6 @@ public class AlignToTargetCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
     }
 }

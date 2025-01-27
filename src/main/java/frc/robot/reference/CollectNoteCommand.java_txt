@@ -73,7 +73,7 @@ public class CollectNoteCommand extends Command {
         drivetrain.applyRequest(() -> drive
                 .withVelocityX(forwardSpeed)
                 .withVelocityY(0)
-                .withRotationalRate(rotationSpeed));
+                .withANGULARRate(rotationSpeed));
 
         updateTelemetry();
     }
@@ -96,7 +96,7 @@ public class CollectNoteCommand extends Command {
         drivetrain.applyRequest(() -> drive
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(0));
+                .withANGULARRate(0));
     }
 
     private void updateTelemetry() {

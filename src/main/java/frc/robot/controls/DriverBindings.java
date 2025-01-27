@@ -3,7 +3,6 @@ package frc.robot.controls;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AlignToTargetCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -34,7 +33,7 @@ public class DriverBindings {
         // driverController.leftBumper().onTrue(/* Left Bumper Press */);
         // driverController.leftBumper().whileTrue(/* Left Bumper Hold */);
         // driverController.rightBumper().onTrue(/* Right Bumper Press */);
-        driver.rightBumper().whileTrue(new AlignToTargetCommand(vision, drivetrain));
+        // driver.rightBumper().whileTrue(new VisionAlignToTargetCommand(vision, drivetrain));
 
         // Triggers
         // driverController.leftTrigger().onTrue(/* Left Trigger Press */);

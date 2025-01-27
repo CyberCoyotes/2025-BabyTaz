@@ -25,7 +25,7 @@ https://claude.ai/chat/71f069b3-88c6-40bf-851c-0a0e3dd93c98
 
 // First, let's create the basic command structure with necessary dependencies:
 
-public class CenterOnTagCommand extends Command {
+public class VisionCenterOnTagCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     
@@ -55,7 +55,7 @@ public class CenterOnTagCommand extends Command {
     }
 
     // Next, add the constructor and PID configuration:
-    public CenterOnTagCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+    public VisionCenterOnTagCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         
@@ -145,7 +145,7 @@ public class CenterOnTagCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0.0)  // No forward/backward movement
             .withVelocityY(strafeSpeed)  // Strafe left/right
-            .withRotationalRate(rotationSpeed));  // Rotate to align
+            .withANGULARRate(rotationSpeed));  // Rotate to align
             
         // Update telemetry
         updateTelemetry(horizontalOffset, rotationSpeed, strafeSpeed);
@@ -157,14 +157,14 @@ public class CenterOnTagCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0.0)
             .withVelocityY(0.0)
-            .withRotationalRate(0.0));
+            .withANGULARRate(0.0));
     }
 
     private void updateTelemetry(double offset, double rotationSpeed, double strafeSpeed) {
         SmartDashboard.putNumber("CenterTag/HorizontalOffset", offset);
         SmartDashboard.putNumber("CenterTag/RotationSpeed", rotationSpeed);
         SmartDashboard.putNumber("CenterTag/StrafeSpeed", strafeSpeed);
-        SmartDashboard.putBoolean("CenterTag/RotationAligned", rotationPID.atSetpoint());
+        SmartDashboard.putBoolean("CenterTag/ANGULARigned", rotationPID.atSetpoint());
         SmartDashboard.putBoolean("CenterTag/StrafeCentered", strafePID.atSetpoint());
     }
     // Finally, implement isFinished and end methods:
