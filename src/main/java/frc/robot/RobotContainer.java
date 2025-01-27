@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
 import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.VisionOffsetCommand;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
@@ -35,6 +36,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
@@ -146,13 +148,17 @@ public class RobotContainer {
         // TODO Both are working. Both are aggressive, and overshoot but not wildly overshooting to the point of "shooting off" down the hall, lol
         // I think it really is an issue of tuning now!
         // Vision alignment
-        driver.rightBumper().whileTrue(
-            new VisionCenterCommand_v11(vision, drivetrain, driver));
-        
-        driver.leftBumper().whileTrue(
-            new VisionCenterCommand_v10(vision, drivetrain, driver));
 
-        // Strafe alignment
+        driver.a().whileTrue(
+            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.CENTER_TARGET_OFFSET));
+
+        driver.leftBumper().whileTrue(
+            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.LEFT_TARGET_OFFSET));
+
+        driver.rightBumper().whileTrue(
+            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.RIGHT_TARGET_OFFSET));
+        
+                // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
         driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));
         
