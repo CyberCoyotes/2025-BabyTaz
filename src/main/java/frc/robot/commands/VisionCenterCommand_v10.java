@@ -27,7 +27,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class VisionCenterCommand_v5_no_lockout extends Command {
+public class VisionCenterCommand_v10 extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
@@ -51,7 +51,7 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     // public VisionImprovedCenterCommand_v5(VisionSubsystem vision,
     // CommandSwerveDrivetrain drivetrain) {
 
-    public VisionCenterCommand_v5_no_lockout(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain,
+    public VisionCenterCommand_v10(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain,
             CommandXboxController driverController) {
         this.vision = vision;
         this.drivetrain = drivetrain;

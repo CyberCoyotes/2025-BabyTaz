@@ -91,7 +91,7 @@ public class DecelerateRykerCommand extends Command {
             // Apply control
             drivetrain.setControl(drive.withVelocityX(lastCalculatedVelocity)
                                      .withVelocityY(0)
-                                     .withANGULARRate(rotationSpeed));
+                                     .withRotationalRate(rotationSpeed));
 
             // Update telemetry
             updateTelemetry();
@@ -113,13 +113,13 @@ public class DecelerateRykerCommand extends Command {
     public void end(boolean interrupted) {
         drivetrain.setControl(drive.withVelocityX(0)
                                  .withVelocityY(0)
-                                 .withANGULARRate(0));
+                                 .withRotationalRate(0));
     }
 
     private void stopMovement() {
         drivetrain.setControl(drive.withVelocityX(0)
                                  .withVelocityY(0)
-                                 .withANGULARRate(0));
+                                 .withRotationalRate(0));
     }
     private void updateTelemetry() {
         SmartDashboard.putNumber("Decel/CurrentDistance", lastMeasuredDistance);

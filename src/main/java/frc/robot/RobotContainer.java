@@ -25,8 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.commands.VisionCenterCommand_v5;
-import frc.robot.commands.VisionCenterCommand_v5_no_lockout;
+import frc.robot.commands.VisionCenterCommand_v05;
+import frc.robot.commands.VisionCenterCommand_v10;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -145,10 +145,10 @@ public class RobotContainer {
         // I think it really is an issue of tuning now!
         // Vision alignment
         driver.rightBumper().whileTrue(
-            new VisionCenterCommand_v5_no_lockout(vision, drivetrain, driver));
+            new VisionCenterCommand_v10(vision, drivetrain, driver));
         
         driver.leftBumper().whileTrue(
-            new VisionCenterCommand_v5(vision, drivetrain));
+            new VisionCenterCommand_v05(vision, drivetrain));
 
         // SysId testing 
         configureSysIdBindings();
