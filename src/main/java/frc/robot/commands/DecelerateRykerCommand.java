@@ -68,7 +68,7 @@ public class DecelerateRykerCommand extends Command {
   // Validate sensor data first
         if (!vision.hasTarget() || !tof.isRangeValid()) {
             stopMovement();
-            System.out.println("No valid target or TOF reading");
+            // System.out.println("No valid target or TOF reading");
             return;
         }
 

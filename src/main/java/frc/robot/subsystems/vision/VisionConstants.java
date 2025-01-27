@@ -10,7 +10,7 @@ public final class VisionConstants {
         If MOUNTED_ON_FRONT is false, LIMELIGHT_DIRECTION is assigned a value of -1.0.
         */
         public static final boolean MOUNTED_ON_FRONT = false;
-        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? 1.0 : -1.0;
+        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? -1.0 : 1.0; // Originally, then I noticed it but upside down... 1.0 : -1.0
         
         // AprilTag validation
         public static final int MIN_VALID_TAG = 1;

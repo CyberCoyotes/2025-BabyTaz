@@ -29,7 +29,7 @@ import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
-
+import frc.robot.commands.VisionCenterCommand_v11;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
@@ -147,10 +147,10 @@ public class RobotContainer {
         // I think it really is an issue of tuning now!
         // Vision alignment
         driver.rightBumper().whileTrue(
-            new VisionCenterCommand_v10(vision, drivetrain, driver));
+            new VisionCenterCommand_v11(vision, drivetrain, driver));
         
         driver.leftBumper().whileTrue(
-            new VisionCenterCommand_v5(vision, drivetrain));
+            new VisionCenterCommand_v10(vision, drivetrain, driver));
 
         // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));

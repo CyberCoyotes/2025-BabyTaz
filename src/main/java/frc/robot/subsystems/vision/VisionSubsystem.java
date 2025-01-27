@@ -48,7 +48,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Add to VisionSubsystem periodic():
         boolean targetValid = LimelightHelpers.getTV(limelightName);
-        System.out.println("Target Valid: " + targetValid);
+        // System.out.println("Target Valid: " + targetValid);
         System.out.println("Current State: " + getState());
     }
 
@@ -73,9 +73,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public boolean hasTarget() {
-        // return currentState != VisionState.NO_TARGET;
         boolean valid = LimelightHelpers.getTV(limelightName);
-        System.out.println("Raw Target Valid: " + valid); 
         return valid;
 
     }
