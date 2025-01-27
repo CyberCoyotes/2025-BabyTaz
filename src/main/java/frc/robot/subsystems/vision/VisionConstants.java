@@ -45,12 +45,19 @@ public final class VisionConstants {
         // 0.1 jittery
         // 0.2 jittery but less
         // 0.3 too aggressive
+        // 0.25 Seems ok, but overshoots a little
 
         public static double TRANSLATIONAL_kI = 0.0; 
         public static double TRANSLATIONAL_kD = 0.05;
+        //  |   0.25    |   0.05    |   solid results
+        //  |   0.20    |   0.05    |   jittery or overshoot?
+        //  |   0.20    |   0.10    |   worse
+        //  |   0.25    |   
         public static double ANGULAR_kP = 0.5;
         public static double ANGULAR_kI = 0.0;
         public static double ANGULAR_kD = 0.0;
+
+        // When inputing from joystick + left OR rightbumper, ignore velocityX
     
         // CTRE Motion parameters for rotation and translation
         public static final double ROT_VELOCITY = 80.0;  
