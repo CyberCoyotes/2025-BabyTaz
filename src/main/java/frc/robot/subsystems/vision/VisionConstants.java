@@ -17,8 +17,13 @@ public final class VisionConstants {
         public static final int MAX_VALID_TAG = 22;
     
         // Motion constraints
-        public static final double MAX_TRANSLATIONAL_VELOCITY = 0.5; 
-        public static final double MAX_TRANSLATIONAL_ACCELERATION = 1.0;
+        public static final double MAX_TRANSLATIONAL_VELOCITY = 0.1; 
+        // Was 0.5, I honestly don't think these impact the speed
+        
+        public static final double MAX_TRANSLATIONAL_ACCELERATION = 0.25;
+        // 1.0
+        // 0.25
+
         public static final double MAX_ANGULAR_VELOCITY = Math.PI/2;
         public static final double MAX_ANGULAR_ACCELERATION = Math.PI;
     
@@ -28,7 +33,12 @@ public final class VisionConstants {
         // src\main\java\frc\robot\documentation\degrees-to-radians.md
             
         // PID gains
-        public static double TRANSLATIONAL_kP = 0.4;
+        public static double TRANSLATIONAL_kP = 0.25;
+        // 0.4 aggressive
+        // 0.1 jittery
+        // 0.2 jittery but less
+        // 0.3 too aggressive
+
         public static double TRANSLATIONAL_kI = 0.0; 
         public static double TRANSLATIONAL_kD = 0.05;
         public static double ROTATIONAL_kP = 0.5;

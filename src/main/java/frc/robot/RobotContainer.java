@@ -141,12 +141,12 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
-        // TODO
+        // TODO Both are working. Both are aggressive, and overshoot but not wildly overshooting to the point of "shooting off" down the hall, lol
+        // I think it really is an issue of tuning now!
         // Vision alignment
         driver.rightBumper().whileTrue(
             new VisionCenterCommand_v5_no_lockout(vision, drivetrain, driver));
         
-        // Field-centric reset
         driver.leftBumper().whileTrue(
             new VisionCenterCommand_v5(vision, drivetrain));
 
