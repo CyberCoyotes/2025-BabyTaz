@@ -54,7 +54,7 @@ public class RobotContainer {
     // Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
-    private final VisionSubsystem vision = new VisionSubsystem("marvin", leds);
+    private final VisionSubsystem vision = new VisionSubsystem("limelight", leds);
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
 
   // TODO Emergency stop trigger based on TOF distance
@@ -149,7 +149,7 @@ public class RobotContainer {
         // Field-centric reset
         driver.leftBumper().whileTrue(
             new VisionCenterCommand_v5(vision, drivetrain));
-            
+
         // SysId testing 
         configureSysIdBindings();
 
