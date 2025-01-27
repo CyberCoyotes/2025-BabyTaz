@@ -59,6 +59,12 @@ public class AutoRoutines {
         return routine;
     }
 
+    /*
+     * 
+     * Auto routines that start from the center position
+     * 
+     */
+
         /* Drive forward from the center position, stop, and score */
         public AutoRoutine scoreCenter() {
             final AutoRoutine routine = m_factory.newRoutine("ScoreCenter");
@@ -87,14 +93,26 @@ public class AutoRoutines {
                             ));
                     // TODO Add event markers for scoring L1 as a last resort
                     return routine;
+
                 }
 
-    /* Start at the top, score K, and load another CHORAL */
+
+    /***************************************************************
+     * 
+     * Auto routines from the Start Top position
+     * 
+     ***************************************************************/
+
+    /***************************************************************
+     * BASICS
+     ***************************************************************/
+
+    /* |    ST-K    |   Start at the top, score K, and load another CHORAL */
     public AutoRoutine topK() {
 
-        final AutoRoutine routine = m_factory.newRoutine("TopK");
-        final AutoTrajectory topK = routine.trajectory("TopK", 0);
-        final AutoTrajectory loadK = routine.trajectory("TopK", 1);
+        final AutoRoutine routine = m_factory.newRoutine("topK");
+        final AutoTrajectory topK = routine.trajectory("ST-K", 0);
+        // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
         
         routine.active().onTrue(
             Commands.sequence(
@@ -102,14 +120,59 @@ public class AutoRoutines {
                 // Start to Score K
                 topK.cmd(),
                 // Stop and Score
-                m_drivetrain.stop().withTimeout(scoreDelay),
+                m_drivetrain.stop().withTimeout(scoreDelay)
                 // Drive to Load station from K
-                loadK.cmd()
+                // loadK.cmd()
             ));
 
         
         return routine;
     }
+    
+    /* |    ST-J    | Start at the top, score J, and load another CHORAL */
+        public AutoRoutine topJ() {
+
+            final AutoRoutine routine = m_factory.newRoutine("topJ");
+            final AutoTrajectory topK = routine.trajectory("ST-J", 0);
+            // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
+            
+            routine.active().onTrue(
+                Commands.sequence(
+                    topK.resetOdometry(),
+                    // Start to Score K
+                    topK.cmd(),
+                    // Stop and Score
+                    m_drivetrain.stop().withTimeout(scoreDelay)
+                    // Drive to Load station from K
+                    // loadK.cmd()
+                ));
+            
+            return routine;
+        }
+
+        /* |   ST-L    | Start at the top, score J, and load another CHORAL */
+         public AutoRoutine topL() {
+
+            final AutoRoutine routine = m_factory.newRoutine("topL");
+            final AutoTrajectory topK = routine.trajectory("ST-L", 0);
+            // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
+            
+            routine.active().onTrue(
+                Commands.sequence(
+                    topK.resetOdometry(),
+                    // Start to Score K
+                    topK.cmd(),
+                    // Stop and Score
+                    m_drivetrain.stop().withTimeout(scoreDelay)
+                    // Drive to Load station from K
+                    // loadK.cmd()
+                ));
+            
+            return routine;
+        }   
+    /***************************************************************
+     * Multiple paths
+     ***************************************************************/
     public AutoRoutine topKversion2() {
 
         final AutoRoutine routine = m_factory.newRoutine("TopK");
@@ -147,7 +210,80 @@ public class AutoRoutines {
                         .andThen(startTopScoreK.cmd()));
         return routine;
     }
-
+    /***************************************************************
+     * 
+     * Auto routines from the Start Bottom position
+     * 
+     ***************************************************************/
     
+    /***************************************************************
+     * BASICS
+     ***************************************************************/
+
+    /*  |   SB-C    |   */
+    public AutoRoutine topC() {
+
+        final AutoRoutine routine = m_factory.newRoutine("topC");
+        final AutoTrajectory topK = routine.trajectory("ST-C", 0);
+        // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
+        
+        routine.active().onTrue(
+            Commands.sequence(
+                topK.resetOdometry(),
+                // Start to Score K
+                topK.cmd(),
+                // Stop and Score
+                m_drivetrain.stop().withTimeout(scoreDelay)
+                // Drive to Load station from K
+                // loadK.cmd()
+            ));
+        
+        return routine;
+    }   
+    /*  |   SB-D    |   */
+    public AutoRoutine topD() {
+
+        final AutoRoutine routine = m_factory.newRoutine("topD");
+        final AutoTrajectory topK = routine.trajectory("ST-D", 0);
+        // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
+        
+        routine.active().onTrue(
+            Commands.sequence(
+                topK.resetOdometry(),
+                // Start to Score K
+                topK.cmd(),
+                // Stop and Score
+                m_drivetrain.stop().withTimeout(scoreDelay)
+                // Drive to Load station from K
+                // loadK.cmd()
+            ));
+        
+        return routine;
+    }   
+    /*  |   SB-E    |   */
+    public AutoRoutine topE() {
+
+        final AutoRoutine routine = m_factory.newRoutine("topE");
+        final AutoTrajectory topK = routine.trajectory("ST-E", 0);
+        // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
+        
+        routine.active().onTrue(
+            Commands.sequence(
+                topK.resetOdometry(),
+                // Start to Score K
+                topK.cmd(),
+                // Stop and Score
+                m_drivetrain.stop().withTimeout(scoreDelay)
+                // Drive to Load station from K
+                // loadK.cmd()
+            ));
+        
+        return routine;
+    }   
+
+    /***************************************************************
+     * MULTIPLE PATHS
+     ***************************************************************/
+
 
 }
