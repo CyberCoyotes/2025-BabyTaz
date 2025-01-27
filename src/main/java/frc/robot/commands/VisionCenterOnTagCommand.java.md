@@ -145,7 +145,7 @@ public class VisionCenterOnTagCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0.0)  // No forward/backward movement
             .withVelocityY(strafeSpeed)  // Strafe left/right
-            .withRotationalRate(rotationSpeed));  // Rotate to align
+            .withANGULARRate(rotationSpeed));  // Rotate to align
             
         // Update telemetry
         updateTelemetry(horizontalOffset, rotationSpeed, strafeSpeed);
@@ -157,14 +157,14 @@ public class VisionCenterOnTagCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0.0)
             .withVelocityY(0.0)
-            .withRotationalRate(0.0));
+            .withANGULARRate(0.0));
     }
 
     private void updateTelemetry(double offset, double rotationSpeed, double strafeSpeed) {
         SmartDashboard.putNumber("CenterTag/HorizontalOffset", offset);
         SmartDashboard.putNumber("CenterTag/RotationSpeed", rotationSpeed);
         SmartDashboard.putNumber("CenterTag/StrafeSpeed", strafeSpeed);
-        SmartDashboard.putBoolean("CenterTag/RotationAligned", rotationPID.atSetpoint());
+        SmartDashboard.putBoolean("CenterTag/ANGULARigned", rotationPID.atSetpoint());
         SmartDashboard.putBoolean("CenterTag/StrafeCentered", strafePID.atSetpoint());
     }
     // Finally, implement isFinished and end methods:

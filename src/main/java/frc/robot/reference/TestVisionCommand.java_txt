@@ -58,7 +58,7 @@ public class TestVisionCommand extends Command {
             }
 /*
             // Apply the rotation directly
-            drive.withRotationalRate(rotationSpeed);
+            drive.withANGULARRate(rotationSpeed);
             drivetrain.applyRequest(() -> drive);
 */
             // Output debug data
@@ -67,7 +67,7 @@ public class TestVisionCommand extends Command {
             
         // } else {
             // leds.setRed();
-            // drive.withRotationalRate(0);
+            // drive.withANGULARRate(0);
             // drivetrain.applyRequest(() -> drive);
 
             // SmartDashboard.putNumber("Vision Test/Tag ID", -1);
@@ -81,7 +81,7 @@ public class TestVisionCommand extends Command {
         drivetrain.applyRequest(() -> drive
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(0));
+                .withANGULARRate(0));
         leds.setOff();
         SmartDashboard.putBoolean("Vision Test/Running", false);
     }

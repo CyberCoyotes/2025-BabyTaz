@@ -66,9 +66,9 @@ public class VisionCenterCommand_v5 extends Command {
         );
 
         rotationController = new ProfiledPIDController(
-            VisionConstants.ROTATIONAL_kP,
-            VisionConstants.ROTATIONAL_kI,
-            VisionConstants.ROTATIONAL_kD,
+            VisionConstants.ANGULAR_kP,
+            VisionConstants.ANGULAR_kI,
+            VisionConstants.ANGULAR_kD,
             rotationConstraints,
             0.02
         );
@@ -126,7 +126,7 @@ public class VisionCenterCommand_v5 extends Command {
 
     private void configurePIDControllers() {
         strafeController.setTolerance(VisionConstants.POSITION_TOLERANCE);
-        rotationController.setTolerance(VisionConstants.ROTATIONAL_TOLERANCE);
+        rotationController.setTolerance(VisionConstants.ANGULAR_TOLERANCE);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 

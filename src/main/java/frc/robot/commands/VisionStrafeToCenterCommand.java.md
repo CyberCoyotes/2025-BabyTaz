@@ -52,7 +52,7 @@ public class VisionStrafeToCenterCommand extends Command {
     @Override
     public void execute() {
         if (!vision.hasTarget()) {
-            drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+            drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withANGULARRate(0));
             return;
         }
 
@@ -86,7 +86,7 @@ public class VisionStrafeToCenterCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)  // No forward/back movement
             .withVelocityY(strafeSpeed)  // Strafe speed (positive = left, negative = right)
-            .withRotationalRate(0));  // No rotation
+            .withANGULARRate(0));  // No rotation
     }
 
     @Override
@@ -96,6 +96,6 @@ public class VisionStrafeToCenterCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+        drivetrain.setControl(drive.withVelocityX(0).withVelocityY(0).withANGULARRate(0));
     }
 }

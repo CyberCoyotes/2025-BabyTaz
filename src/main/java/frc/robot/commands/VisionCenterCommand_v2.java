@@ -125,7 +125,7 @@ public void execute() {
     drivetrain.setControl(drive
         .withVelocityX(0)
         .withVelocityY(strafeSpeed)
-        // .withRotationalRate(rotationRate)
+        // .withANGULARRate(rotationRate)
         );
 
     updateTelemetry(horizontalOffset, strafeSpeed); /*, rotationRate targetYaw, strafeSpeed);*/
@@ -157,7 +157,7 @@ private void updateTelemetry(double offset, /*double yaw,*/ double strafeSpeed) 
         drivetrain.setControl(drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
     }
 
 }

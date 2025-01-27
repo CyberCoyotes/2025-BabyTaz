@@ -18,18 +18,25 @@ public final class VisionConstants {
     
         // Motion constraints
         public static final double MAX_TRANSLATIONAL_VELOCITY = 0.1; 
-        // Was 0.5, I honestly don't think these impact the speed
-        
+        /* 
+        I honestly don't think these impact the robot's performance.
+        |   0.5 |
+        |   0.25 |
+        |   0.1  |
+        */
         public static final double MAX_TRANSLATIONAL_ACCELERATION = 0.25;
-        // 1.0
-        // 0.25
-
+        /* 
+        I honestly don't think these impact the robot's performance either
+        |   1.0     |
+        |   0.25    |
+        */
+        
         public static final double MAX_ANGULAR_VELOCITY = Math.PI/2;
         public static final double MAX_ANGULAR_ACCELERATION = Math.PI;
     
         // Tolerances  
         public static final double POSITION_TOLERANCE = 0.02; // m
-        public static final double ROTATIONAL_TOLERANCE = 0.05; // radians
+        public static final double ANGULAR_TOLERANCE = 0.05; // radians
         // src\main\java\frc\robot\documentation\degrees-to-radians.md
             
         // PID gains
@@ -41,9 +48,9 @@ public final class VisionConstants {
 
         public static double TRANSLATIONAL_kI = 0.0; 
         public static double TRANSLATIONAL_kD = 0.05;
-        public static double ROTATIONAL_kP = 0.5;
-        public static double ROTATIONAL_kI = 0.0;
-        public static double ROTATIONAL_kD = 0.0;
+        public static double ANGULAR_kP = 0.5;
+        public static double ANGULAR_kI = 0.0;
+        public static double ANGULAR_kD = 0.0;
     
         // CTRE Motion parameters for rotation and translation
         public static final double ROT_VELOCITY = 80.0;  

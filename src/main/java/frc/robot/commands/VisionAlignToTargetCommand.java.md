@@ -85,13 +85,13 @@ public class VisionAlignToTargetCommand extends Command {
             drivetrain.setControl(drive
                 .withVelocityX(0)    // No forward/back movement
                 .withVelocityY(0)    // No left/right movement
-                .withRotationalRate(rotationSpeed)); // Only rotate to target
+                .withANGULARRate(rotationSpeed)); // Only rotate to target
         } else {
             // No target visible - stop movement
             drivetrain.setControl(drive
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(0));
+                .withANGULARRate(0));
         }
     }
 
@@ -107,6 +107,6 @@ public class VisionAlignToTargetCommand extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
     }
 }

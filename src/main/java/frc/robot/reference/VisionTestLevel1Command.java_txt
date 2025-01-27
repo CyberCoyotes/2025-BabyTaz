@@ -41,35 +41,35 @@ public class VisionTestLevel1Command extends Command {
                 drivetrain.applyRequest(() -> drive
                     .withVelocityX(0)
                     .withVelocityY(-TEST_SPEED) // Left
-                    .withRotationalRate(0));
+                    .withANGULARRate(0));
                 break;
             case TARGET_2:
                 leds.setColor(LEDSubsystem.Color.GREEN);
                 drivetrain.applyRequest(() -> drive
                     .withVelocityX(0)
                     .withVelocityY(TEST_SPEED) // Right
-                    .withRotationalRate(0));
+                    .withANGULARRate(0));
                 break;
             case TARGET_3:
                 leds.setColor(LEDSubsystem.Color.BLUE);
                 drivetrain.applyRequest(() -> drive
                     .withVelocityX(TEST_SPEED) // Forward
                     .withVelocityY(0)
-                    .withRotationalRate(0));
+                    .withANGULARRate(0));
                 break;
             case TARGET_4:
                 leds.setColor(LEDSubsystem.Color.YELLOW);
                 drivetrain.applyRequest(() -> drive
                     .withVelocityX(-TEST_SPEED) // Backward
                     .withVelocityY(0)
-                    .withRotationalRate(0));
+                    .withANGULARRate(0));
                 break;
             default:
                 leds.setColor(LEDSubsystem.Color.PURPLE);
                 drivetrain.applyRequest(() -> drive
                     .withVelocityX(0)
                     .withVelocityY(0)
-                    .withRotationalRate(0));
+                    .withANGULARRate(0));
                 break;
         }
     }
@@ -80,7 +80,7 @@ public class VisionTestLevel1Command extends Command {
         drivetrain.applyRequest(() -> drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
         leds.setOff();
     }
 

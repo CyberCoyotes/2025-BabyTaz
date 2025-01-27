@@ -178,7 +178,7 @@ public class VisionAlignToPoseCommand extends Command {
                 drivetrain.setControl(drive
                                 .withVelocityX(xSpeed * VisionConstants.LIMELIGHT_DIRECTION)
                                 .withVelocityY(ySpeed * VisionConstants.LIMELIGHT_DIRECTION)
-                                .withRotationalRate(rotationSpeed));
+                                .withANGULARRate(rotationSpeed));
 
                 // Update state tracking
                 lastDistance = currentDistance;
@@ -205,7 +205,7 @@ public class VisionAlignToPoseCommand extends Command {
                 drivetrain.setControl(drive
                                 .withVelocityX(0)
                                 .withVelocityY(0)
-                                .withRotationalRate(0));
+                                .withANGULARRate(0));
         }
 
         private void updateTelemetry() {

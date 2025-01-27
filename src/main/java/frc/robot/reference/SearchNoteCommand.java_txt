@@ -36,7 +36,7 @@ public class SearchNoteCommand extends Command {
             drivetrain.applyRequest(() -> drive
                     .withVelocityX(0)
                     .withVelocityY(0)
-                    .withRotationalRate(SEARCH_ROTATION_SPEED));
+                    .withANGULARRate(SEARCH_ROTATION_SPEED));
         }
     }
 
@@ -46,7 +46,7 @@ public class SearchNoteCommand extends Command {
         drivetrain.applyRequest(() -> drive
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withRotationalRate(0));
+                .withANGULARRate(0));
         SmartDashboard.putString("Search State", "ENDED");
     }
 

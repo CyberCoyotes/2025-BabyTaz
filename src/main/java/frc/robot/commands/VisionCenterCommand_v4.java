@@ -137,7 +137,7 @@ public class VisionCenterCommand_v4 extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)
             .withVelocityY(strafeSpeed)
-            .withRotationalRate(rotationRate));
+            .withANGULARRate(rotationRate));
 
         updateTelemetry(horizontalOffset, strafeSpeed, rotationRate);
     }
@@ -146,7 +146,7 @@ public class VisionCenterCommand_v4 extends Command {
         drivetrain.setControl(drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
     }
 
     private void updateTelemetry(double offset, double strafeSpeed, double rotationRate) {

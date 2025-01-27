@@ -109,14 +109,14 @@ public class VisionTestLevel2Command extends Command {
         drivetrain.applyRequest(() -> drive
             .withVelocityX(moveSpeed) // Forward/backward movement
             .withVelocityY(0)         // No sideways movement
-            .withRotationalRate(0));   // No rotation
+            .withANGULARRate(0));   // No rotation
     }
 
     private void stopMovement() {
         drivetrain.applyRequest(() -> drive
             .withVelocityX(0)
             .withVelocityY(0)
-            .withRotationalRate(0));
+            .withANGULARRate(0));
     }
 
     @Override

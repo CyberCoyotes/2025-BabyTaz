@@ -35,7 +35,7 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     // Updated for CTRE Swerve
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
-            .withSteerRequestType(SteerRequestType.MotionMagicExpo); // TODO Hoping this is the secret sauce!
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     // Shuffleboard tuning entries
     /* 
@@ -73,9 +73,9 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
                 0.02);
 
         rotationController = new ProfiledPIDController(
-            VisionConstants.ROTATIONAL_kP,
-            VisionConstants.ROTATIONAL_kI,
-            VisionConstants.ROTATIONAL_kD,
+            VisionConstants.ANGULAR_kP,
+            VisionConstants.ANGULAR_kI,
+            VisionConstants.ANGULAR_kD,
                 rotationConstraints,
                 0.02);
 
@@ -136,7 +136,7 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
 
     private void configurePIDControllers() {
         strafeController.setTolerance(VisionConstants.POSITION_TOLERANCE);
-        rotationController.setTolerance(VisionConstants.ROTATIONAL_TOLERANCE);
+        rotationController.setTolerance(VisionConstants.ANGULAR_TOLERANCE);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -149,10 +149,13 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
     @Override
     public void execute() {
         if (!vision.hasTarget()) {
-            handleDriverInput();
+            // handleDriverInput(); // TODO Test, but should NOT be needed
             return;
         }
 
+        /* 
+        TODO Find out the tagId for the vision targets this season.
+        */ 
         int tagId = (int) vision.getTagId();
         if (tagId < 1 || tagId > 22) {
             stopMovement();
@@ -195,7 +198,7 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         
     }
 
-
+/* Not Sure why this would even be needed...
     private void handleDriverInput() {
         double forward = -driverController.getLeftY() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
         double strafe = -driverController.getLeftX() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
@@ -204,8 +207,9 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         drivetrain.setControl(drive
             .withVelocityX(forward)
             .withVelocityY(strafe)
-            .withRotationalRate(rotation));
+            .withANGULARRate(rotation));
     }
+*/
     private double calculateStrafeSpeed() {
         double horizontalOffset = vision.getHorizontalOffset();
         return strafeController.calculate(horizontalOffset, 0);
@@ -250,9 +254,6 @@ public class VisionCenterCommand_v5_no_lockout extends Command {
         // rotationController.reset();
         strafeController.reset(new TrapezoidProfile.State(0, 0));
         rotationController.reset(new TrapezoidProfile.State(0, 0));
-
-        // Optional: Call drivetrain stop command
-        // drivetrain.stop().schedule();
     }
 
 }
