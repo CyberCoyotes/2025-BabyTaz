@@ -25,7 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.commands.VisionCenterCommand_v05;
+import frc.robot.commands.VisionCenterCommand_v5;
+import frc.robot.commands.AlignStrafeCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
 
 import frc.robot.generated.TunerConstants;
@@ -148,8 +149,12 @@ public class RobotContainer {
             new VisionCenterCommand_v10(vision, drivetrain, driver));
         
         driver.leftBumper().whileTrue(
-            new VisionCenterCommand_v05(vision, drivetrain));
+            new VisionCenterCommand_v5(vision, drivetrain));
 
+        // Strafe alignment
+        driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
+        driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));
+        
         // SysId testing 
         configureSysIdBindings();
 
