@@ -104,11 +104,15 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
     }
 
-    /*
-    public enum VisionState {
-        NO_TARGET,
-        TARGET_VISIBLE,
-        TARGET_LOCKED
-    } 
-    */
+    public double getTargetDistance() {
+        // Get distance from Limelight using 3D values
+        return LimelightHelpers.getTargetPose3d_RobotSpace(limelightName).getZ();
+    }
+    
+    public double getTargetRotation() {
+        // Get rotation from Limelight
+        return LimelightHelpers.getTargetPose3d_RobotSpace(limelightName).getRotation().getZ();
+    }
+
+    
 }
