@@ -59,11 +59,12 @@ public class AutoRoutines {
         return routine;
     }
 
-    /*
+
+    /***************************************************************
      * 
-     * Auto routines that start from the center position
+     * Auto routines from the Start CENTER position
      * 
-     */
+     ***************************************************************/
 
         /* Drive forward from the center position, stop, and score */
         public AutoRoutine scoreCenter() {
@@ -101,10 +102,6 @@ public class AutoRoutines {
      * 
      * Auto routines from the Start Top position
      * 
-     ***************************************************************/
-
-    /***************************************************************
-     * BASICS
      ***************************************************************/
 
     /* |    ST-K    |   Start at the top, score K, and load another CHORAL */
@@ -221,10 +218,10 @@ public class AutoRoutines {
      ***************************************************************/
 
     /*  |   SB-C    |   */
-    public AutoRoutine topC() {
+    public AutoRoutine bottomC() {
 
-        final AutoRoutine routine = m_factory.newRoutine("topC");
-        final AutoTrajectory topK = routine.trajectory("ST-C", 0);
+        final AutoRoutine routine = m_factory.newRoutine("bottomC");
+        final AutoTrajectory topK = routine.trajectory("SB-C", 0);
         // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
         
         routine.active().onTrue(
@@ -241,10 +238,10 @@ public class AutoRoutines {
         return routine;
     }   
     /*  |   SB-D    |   */
-    public AutoRoutine topD() {
+    public AutoRoutine bottomD() {
 
-        final AutoRoutine routine = m_factory.newRoutine("topD");
-        final AutoTrajectory topK = routine.trajectory("ST-D", 0);
+        final AutoRoutine routine = m_factory.newRoutine("bottomD");
+        final AutoTrajectory topK = routine.trajectory("SB-D", 0);
         // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
         
         routine.active().onTrue(
@@ -261,10 +258,10 @@ public class AutoRoutines {
         return routine;
     }   
     /*  |   SB-E    |   */
-    public AutoRoutine topE() {
+    public AutoRoutine bottomE() {
 
-        final AutoRoutine routine = m_factory.newRoutine("topE");
-        final AutoTrajectory topK = routine.trajectory("ST-E", 0);
+        final AutoRoutine routine = m_factory.newRoutine("bottomE");
+        final AutoTrajectory topK = routine.trajectory("SB-E", 0);
         // final AutoTrajectory loadK = routine.trajectory("ST-K", 1);
         
         routine.active().onTrue(
@@ -286,4 +283,47 @@ public class AutoRoutines {
      ***************************************************************/
 
 
+     public AutoRoutine testEvents() {
+
+        // Create the routine container
+        final AutoRoutine routine = m_factory.newRoutine("testEvents");
+
+        // Load first trajectory/path. If using splits, then add a comma and 0 for the
+        // first segment of the path
+        final AutoTrajectory pathOneScore = routine.trajectory("PathOneTest", 0);
+
+        /*
+         * Load the next trajectory/path -OR-
+         * If using splits as is the case here, you can load segment 1 for the next
+         * segment of the first path
+         */
+        final AutoTrajectory pathOneLoad = routine.trajectory("PathOneTest", 1);
+
+        /*
+         * Load the next trajectory/path.
+         * In this example, no splits are used so no split index is needed.
+         * Alternatively, you can load segment 2 for the next segment of the first path.
+         */
+        final AutoTrajectory pathTwoScore = routine.trajectory("PathTwoTest");
+
+        // Define entry point using routine.active()
+        routine.active().onTrue(
+                Commands.sequence(
+                        // Always reset odometry in first path
+                        pathOneScore.resetOdometry(),
+                        pathOneScore.cmd(),
+                        m_drivetrain.stop().withTimeout(scoreDelayLow), // We needed to add this to our drivetrain
+                        pathOneLoad.cmd(),
+                        m_drivetrain.stop().withTimeout(scoreDelay),
+                        pathTwoScore.cmd()));
+        /*
+         * Option 1. Add event marker trigger-based behaviors.
+         * Option 2. Consider using .bind for standard, repetitive commands
+         * that use common Event Markers which are bound to commands.
+         */
+        pathOneScore.atTime("scoreL1").onTrue(m_turret.turnClockwise()); // Proof of concept
+        pathOneLoad.atTime("scoreL2").onTrue(m_turret.turnCounterClockwise()); // Proof of concept
+
+        return routine;
+    }
 }

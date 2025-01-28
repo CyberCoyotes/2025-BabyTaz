@@ -97,23 +97,65 @@ public class RobotContainer {
     }
     private void configureAutoRoutines() {
         
+        // DEFAULT without scoring 
         autoChooser.addRoutine("Drive Forward", autoRoutines::driveForward);
-        autoChooser.addRoutine("Center Score", autoRoutines::driveForward);
-        autoChooser.addRoutine("Top K", autoRoutines::topK);
+
+        /****   START CENTER    ****/
+        // autoChooser.addRoutine("Center H1", autoRoutines::centerH); // FIXME Add this routine
+        // autoChooser.addRoutine("Center H2", autoRoutines::centerH); // FIXME Add this routine
+        // autoChooser.addRoutine("Center H4", autoRoutines::centerH); // FIXME Add this routine <--
+        // autoChooser.addRoutine("Center G1", autoRoutines::centerG); // FIXME Add this routine
+        // autoChooser.addRoutine("Center G2", autoRoutines::centerG); // FIXME Add this routine
+        // autoChooser.addRoutine("Center G4", autoRoutines::centerG); // FIXME Add this routine <--
+
+
+        /****   START TOP-BARGE   ****/
+        autoChooser.addRoutine("Top L1", autoRoutines::topL);    // FIXME Finish this routine
+        autoChooser.addRoutine("Top L2", autoRoutines::topL);    // FIXME Finish this routine
+        autoChooser.addRoutine("Top L4", autoRoutines::topL);    // FIXME Finish this routine <--
+        autoChooser.addRoutine("Top K1", autoRoutines::topK);    // FIXME Finish this routine
+        autoChooser.addRoutine("Top K2", autoRoutines::topK);    // FIXME Finish this routine
+        autoChooser.addRoutine("Top K4", autoRoutines::topK);    // FIXME Finish this routine <--
+
+
+        autoChooser.addRoutine("Top J1", autoRoutines::topJ);    // FIXME Finish this routine
+        autoChooser.addRoutine("Top J1-K4-L4-A4", autoRoutines::topJ); // FIXME Finish this routine
+        autoChooser.addRoutine("Top J4-K4-L4-A4", autoRoutines::topJ); // FIXME Finish this routine <--
+        // autoChooser.addRoutine("Top I1", autoRoutines::topI); // FIXME Add this routine
         
-        // BETA autos
-        // autoChooserBETA.addRoutine("Test Drive", autoRoutinesBETA::testEvents);
+        // autoChooser.addRoutine("Top H", autoRoutines::topH); // CENTER Barge Side
+        // autoChooser.addRoutine("Top G", autoRoutines::topG); // CENTER Barge Side
+        // autoChooser.addRoutine("Top B", autoRoutines::topB); // CENTER Driver Side
+        // autoChooser.addRoutine("Top A", autoRoutines::topA); // CENTER Driver Side
+        
+        /****   START BOTTOM-NONBARGE    ****/
+        autoChooser.addRoutine("Bottom C1", autoRoutines::bottomC);  // FIXME Finish this routine
+        autoChooser.addRoutine("Bottom C2", autoRoutines::bottomC);  // FIXME Finish this routine
+        autoChooser.addRoutine("Bottom C4", autoRoutines::bottomC);  // FIXME Finish this routine <--
 
+        autoChooser.addRoutine("Bottom D1", autoRoutines::bottomD);  // FIXME Finish this routine
+        autoChooser.addRoutine("Bottom D2", autoRoutines::bottomD);  // FIXME Finish this routin
+        autoChooser.addRoutine("Bottom D4", autoRoutines::bottomD);  // FIXME Finish this routine <--
+        
+        autoChooser.addRoutine("Bottom E1", autoRoutines::bottomE);  // FIXME Finish this routine
+        autoChooser.addRoutine("Bottom E1-D4-C4-B4", autoRoutines::bottomE);  // FIXME Finish this routine
+        autoChooser.addRoutine("Bottom E4-D4-C4-B4", autoRoutines::bottomE);  // FIXME Finish this routine <--
+        // autoChooser.addRoutine("Bottom F1", autoRoutines::bottomF); // FIXME Add this routine
+        
+
+        // autoChooser.addRoutine("Bottom B", autoRoutines::bottomB); // CENTER Driver Side
+        // autoChooser.addRoutine("Bottom A", autoRoutines::bottomA); // CENTER Driver Side
+        // autoChooser.addRoutine("Bottom H", autoRoutines::bottomH); // CENTER Barge Side
+        // autoChooser.addRoutine("Bottom G", autoRoutines::bottomG); // CENTER Barge Side
+
+
+        
         SmartDashboard.putData("Autonomous", autoChooser);
-        // SmartDashboard.putData("BETA Autos", autoChooser);
-
+        
         // Shuffleboard Setup
         ShuffleboardTab autoTab = Shuffleboard.getTab("Autonomous");
         autoTab.add("Auto Chooser", autoChooser)
-            .withWidget(BuiltInWidgets.kCommand);
-        // autoTab.add("BETA Auto Chooser", autoChooserBETA)
-            // .withWidget(BuiltInWidgets.kCommand);
-    
+            .withWidget(BuiltInWidgets.kCommand);    
     }
 
     private void configureBindings() {
