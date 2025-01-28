@@ -27,7 +27,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class VisionOffsetCommand extends Command {
+public class VisionOffsetDriveForwardCommand extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
@@ -42,7 +42,7 @@ public class VisionOffsetCommand extends Command {
     private final ProfiledPIDController rotationController;
 
     // Modified constructor to accept offset
-    public VisionOffsetCommand(
+    public VisionOffsetDriveForwardCommand(
             VisionSubsystem vision,
             CommandSwerveDrivetrain drivetrain,
             CommandXboxController driverController,
