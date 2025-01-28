@@ -29,6 +29,7 @@ import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.VisionOffsetCommand;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
+import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
 import frc.robot.commands.VisionCenterCommand_v11;
 import frc.robot.generated.TunerConstants;
@@ -153,10 +154,10 @@ public class RobotContainer {
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.CENTER_TARGET_OFFSET));
 
         driver.leftBumper().whileTrue(
-            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.LEFT_TARGET_OFFSET));
+            new VisionAlignCommand(vision, drivetrain, VisionConstants.CENTER_TARGET_TAG_ID, 5.0));
 
         driver.rightBumper().whileTrue(
-            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.RIGHT_TARGET_OFFSET));
+            new VisionAlignCommand(vision, drivetrain, driver, VisionConstants.RIGHT_TARGET_OFFSET));
         
                 // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
