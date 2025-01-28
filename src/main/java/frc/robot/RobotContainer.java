@@ -125,17 +125,39 @@ public class RobotContainer {
     }
 
     private void configureDrivetrainDefault() {
+        // TODO Testing
         drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driver.getLeftY() * MaxSpeed * driveSpeedFactor) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driver.getLeftX() * MaxSpeed * driveSpeedFactor) // Drive left with negative X (left)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate * rotationSpeedFactor) // Drive counterclockwise with negative X (left)
-            )
+            drivetrain.applyRequest(() -> {
+                // Get base drive inputs
+                double forwardSpeed = -driver.getLeftY() * MaxSpeed * driveSpeedFactor;
+                double strafeSpeed = -driver.getLeftX() * MaxSpeed * driveSpeedFactor;
+                double rotationSpeed = -driver.getRightX() * MaxAngularRate * rotationSpeedFactor;
     
+                // If either bumper is held, lock out strafe input
+                if (driver.leftBumper().getAsBoolean() || driver.rightBumper().getAsBoolean()) {
+                    strafeSpeed = 0.0; // Lock out strafe movement
+                    
+                    // Apply vision alignment with appropriate offset
+                    if (driver.leftBumper().getAsBoolean()) {
+                        // Apply left offset alignment
+                        new VisionOffsetCommand(vision, drivetrain, driver, 
+                            VisionConstants.LEFT_TARGET_OFFSET).schedule();
+                    } else {
+                        // Apply right offset alignment
+                        new VisionOffsetCommand(vision, drivetrain, driver, 
+                            VisionConstants.RIGHT_TARGET_OFFSET).schedule();
+                    }
+                }
+    
+                // Return the drive request with modified inputs
+                return drive.withVelocityX(forwardSpeed)
+                           .withVelocityY(strafeSpeed)
+                           .withRotationalRate(rotationSpeed);
+            })
         );
     
         drivetrain.registerTelemetry(logger::telemeterize);
+    
     }
 
     private void configureDriverBindings() {
@@ -151,13 +173,13 @@ public class RobotContainer {
 
         driver.a().whileTrue(
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.CENTER_TARGET_OFFSET));
-
-        driver.leftBumper().whileTrue(
+/*        driver.leftBumper().whileTrue(
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.LEFT_TARGET_OFFSET));
 
         driver.rightBumper().whileTrue(
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.RIGHT_TARGET_OFFSET));
-        
+*/
+
                 // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
         driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));
