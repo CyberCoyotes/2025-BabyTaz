@@ -52,8 +52,8 @@ public class RobotContainer {
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
-    private double driveSpeedFactor = 0.25; // 25% speed for rookie drivers
-    private double rotationSpeedFactor = 0.5; // 25% rotation speed
+    private double driveSpeedFactor = 1.0; // 25% speed for rookie drivers
+    private double rotationSpeedFactor = 1.0; // 25% rotation speed
 
         // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -156,7 +156,7 @@ public class RobotContainer {
         // I think it really is an issue of tuning now!
         // Vision alignment
 
-        driver.a().whileTrue(
+        driver.rightBumper().whileTrue(
             new AlignToAprilTagCommand(drivetrain, visionV15));
 
         /* 

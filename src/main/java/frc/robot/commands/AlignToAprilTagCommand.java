@@ -25,7 +25,7 @@ public class AlignToAprilTagCommand extends Command {
     private boolean stopRequested = false;
 
     // Tunable PID values
-    private final TunableNumber xP = new TunableNumber("Vision/X/P", 0.7);
+    private final TunableNumber xP = new TunableNumber("Vision/X/P", 0.3);
     private final TunableNumber xI = new TunableNumber("Vision/X/I", 0.001);
     private final TunableNumber xD = new TunableNumber("Vision/X/D", 0.02);
     
@@ -39,11 +39,14 @@ public class AlignToAprilTagCommand extends Command {
 
     // Motion profiles
     private final TrapezoidProfile xProfile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(1.0, 0.5));
-    private final TrapezoidProfile yProfile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(1.0, 0.5));
+        new TrapezoidProfile.Constraints(4.0, 3.0)); 
+        // 1.0, 0.5 to start
+    
+        private final TrapezoidProfile yProfile = new TrapezoidProfile(
+        new TrapezoidProfile.Constraints(4.0, 3.0));
+
     private final TrapezoidProfile rotationProfile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(2.0, 2.0));
+        new TrapezoidProfile.Constraints(4.0, 3.0));
 
     private TrapezoidProfile.State xSetpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State ySetpoint = new TrapezoidProfile.State();
@@ -117,7 +120,7 @@ public class AlignToAprilTagCommand extends Command {
     @Override
     public void execute() {
         if (!isTargetValid() || stopRequested) {
-            drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
+            // drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
             return;
         }
 

@@ -24,7 +24,7 @@ public final class VisionConstantsV15 {
     public static final double POSE_HISTORY_SECONDS = 0.1;
 
     // Target alignment constants
-    public static final double TARGET_DISTANCE_METERS = 0.10;
+    public static final double TARGET_DISTANCE_METERS = 1.0;
     public static final double TRANSLATION_TOLERANCE_METERS = 0.02;
     public static final double ANGLE_TOLERANCE_DEGREES = 5.0;
 }
