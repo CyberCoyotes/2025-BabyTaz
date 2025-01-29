@@ -12,7 +12,7 @@ public final class VisionConstantsV15 {
         new Translation3d(
             Units.inchesToMeters(-5.0),  // X (negative because it's behind center)
             Units.inchesToMeters(0.0),   // Y (centered)
-            Units.inchesToMeters(30.0)   // Z (height off ground)
+            Units.inchesToMeters(20.0)   // Z (height off ground)
         ),
         new Rotation3d(0.0, 0.0, Math.PI) // Rotated 180 degrees (facing backward)
     );

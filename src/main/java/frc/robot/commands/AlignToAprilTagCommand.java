@@ -14,10 +14,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.vision.LimelightHelpers;
-import frc.robot.subsystems.vision.VisionConstantsV15; // FIXME update
-import frc.robot.subsystems.vision.VisionConstantsV15.VisionConstants;
+import frc.robot.subsystems.vision.VisionConstantsV15;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystemV15; // FIXME update
+import frc.robot.subsystems.vision.VisionSubsystemV15;
 import frc.robot.util.TunableNumber;
 
 public class AlignToAprilTagCommand extends Command {
@@ -63,9 +62,9 @@ public class AlignToAprilTagCommand extends Command {
         
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
         
-        xController.setTolerance(VisionConstants.TRANSLATION_TOLERANCE_METERS);
-        yController.setTolerance(VisionConstants.TRANSLATION_TOLERANCE_METERS);
-        rotationController.setTolerance(Math.toRadians(VisionConstants.ANGLE_TOLERANCE_DEGREES));
+        xController.setTolerance(VisionConstantsV15.TRANSLATION_TOLERANCE_METERS);
+        yController.setTolerance(VisionConstantsV15.TRANSLATION_TOLERANCE_METERS);       
+        rotationController.setTolerance(Math.toRadians(VisionConstantsV15.ANGLE_TOLERANCE_DEGREES));
 
         addRequirements(drivetrain, vision);
     }
@@ -94,13 +93,13 @@ public class AlignToAprilTagCommand extends Command {
     private boolean isTargetValid() {
         if (!vision.hasTarget()) return false;
         
-        if (vision.getTA() < VisionConstants.MIN_TARGET_AREA) return false;
+        if (vision.getTA() < VisionConstantsV15.MIN_TARGET_AREA) return false;
         
         var pose = vision.getTargetPose();
         if (pose == null) return false;
         
         double distance = pose.getTranslation().getNorm();
-        if (distance > VisionConstants.MAX_VALID_DISTANCE) return false;
+        if (distance > VisionConstantsV15.MAX_VALID_DISTANCE) return false;
         
     // Instead of ambiguity, check for valid target ID and reasonable tx/ty values
     double tagId = vision.getTagId();
@@ -127,7 +126,7 @@ public class AlignToAprilTagCommand extends Command {
 
         // Calculate profile setpoints
         xSetpoint = xProfile.calculate(0.02, xSetpoint, 
-            new TrapezoidProfile.State(VisionConstants.TARGET_DISTANCE_METERS, 0));
+            new TrapezoidProfile.State(VisionConstantsV15.TARGET_DISTANCE_METERS, 0));
         ySetpoint = yProfile.calculate(0.02, ySetpoint, 
             new TrapezoidProfile.State(0, 0));
         rotationSetpoint = rotationProfile.calculate(0.02, rotationSetpoint,

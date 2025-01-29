@@ -29,6 +29,7 @@ import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.VisionOffsetCommand;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
+import frc.robot.commands.AlignToAprilTagCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
 import frc.robot.commands.VisionCenterCommand_v11;
 import frc.robot.generated.TunerConstants;
@@ -38,6 +39,9 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystemV15;
+import frc.robot.subsystems.vision.VisionConstantsV15;
+
 
 public class RobotContainer {
     private final Pose2d targetPose;
@@ -60,6 +64,9 @@ public class RobotContainer {
     private final LEDSubsystem leds = new LEDSubsystem();
     private final VisionSubsystem vision = new VisionSubsystem("limelight", leds);
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
+    
+    private final VisionSubsystemV15 visionV15 = new VisionSubsystemV15("limelight", drivetrain);
+
 
   // TODO Emergency stop trigger based on TOF distance
     // private final Trigger emergencyStop = new Trigger(() -> 
@@ -150,14 +157,16 @@ public class RobotContainer {
         // Vision alignment
 
         driver.a().whileTrue(
-            new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.CENTER_TARGET_OFFSET));
+            new AlignToAprilTagCommand(drivetrain, visionV15));
 
+        /* 
         driver.leftBumper().whileTrue(
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.LEFT_TARGET_OFFSET));
 
         driver.rightBumper().whileTrue(
             new VisionOffsetCommand(vision, drivetrain, driver, VisionConstants.RIGHT_TARGET_OFFSET));
-        
+        */
+
                 // Strafe alignment
         driver.povLeft().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.LEFT));
         driver.povRight().onTrue(new AlignStrafeCommand(drivetrain, AlignStrafeCommand.StrafeDirection.RIGHT));

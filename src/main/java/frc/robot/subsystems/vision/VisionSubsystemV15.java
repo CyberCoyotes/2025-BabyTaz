@@ -1,18 +1,16 @@
 package frc.robot.subsystems.vision;
 
 // VisionSubsystem.java
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.vision.VisionConstants;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import java.util.Optional;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionConstantsV15;
-import frc.robot.subsystems.vision.VisionConstantsV15.*;
-
-import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
-import java.util.Optional;
 
 public class VisionSubsystemV15 extends SubsystemBase {
 private final String limelightName;
@@ -35,17 +33,19 @@ TimeInterpolatableBuffer.<Transform3d>createBuffer(VisionConstantsV15.POSE_HISTO
     }
     @Override
     public void periodic() {
-        // Update dashboard with vision data
-        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
-        SmartDashboard.putNumber("Vision/TagID", getTagId());
-        SmartDashboard.putNumber("Vision/TX", getTX());
-        SmartDashboard.putNumber("Vision/TY", getTY());
-        SmartDashboard.putNumber("Vision/TargetArea", getTA());
-        
-        if (hasTarget()) {
-            double timestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency(limelightName)/1000.0;
-            poseHistory.addSample(timestamp, getTargetPose());
-        }
+    // Update dashboard with vision data
+    SmartDashboard.putBoolean("V15/HasTarget", hasTarget());
+    SmartDashboard.putNumber("V15/TagID", getTagId());
+    SmartDashboard.putNumber("V15/TX", getTX());
+    SmartDashboard.putNumber("V15/TY", getTY());
+    SmartDashboard.putNumber("V15/TargetArea", getTA());
+
+if (hasTarget()) {
+    // Use getLatency_Pipeline() instead of getLatency()
+    double timestamp = Timer.getFPGATimestamp() - 
+                     LimelightHelpers.getLatency_Pipeline(limelightName)/1000.0;
+    poseHistory.addSample(timestamp, getTargetPose());
+}
     }
 
     public String getLimelightName() { return limelightName; }
@@ -71,15 +71,16 @@ TimeInterpolatableBuffer.<Transform3d>createBuffer(VisionConstantsV15.POSE_HISTO
     }
 
     public Transform3d getTargetPose() {
-        return LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+        return new Transform3d(LimelightHelpers.getTargetPose3d_RobotSpace(limelightName).getTranslation(), 
+                               LimelightHelpers.getTargetPose3d_RobotSpace(limelightName).getRotation());
     }
 
     public Optional<Transform3d> getLatencyCompensatedPose() {
         if (!hasTarget()) return Optional.empty();
-        return Optional.of(poseHistory.getSample(Timer.getFPGATimestamp()));
+        return poseHistory.getSample(Timer.getFPGATimestamp());
     }
 
     public void setLeds(boolean enabled) {
-        LimelightHelpers.setLEDMode(limelightName, enabled ? 3 : 1);
+        LimelightHelpers.setLEDMode_PipelineControl(limelightName);
     }
 }
