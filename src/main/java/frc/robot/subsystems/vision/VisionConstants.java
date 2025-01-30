@@ -10,11 +10,15 @@ public final class VisionConstants {
         If MOUNTED_ON_FRONT is false, LIMELIGHT_DIRECTION is assigned a value of -1.0.
         */
         public static final boolean MOUNTED_ON_FRONT = false;
-        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? 1.0 : -1.0;
+        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? -1.0 : 1.0; // Originally, then I noticed it but upside down... 1.0 : -1.0
         
         // AprilTag validation
         public static final int MIN_VALID_TAG = 1;
         public static final int MAX_VALID_TAG = 22;
+
+        public static final double LEFT_TARGET_OFFSET = -16.5; // 10 cm left offset
+        public static final double CENTER_TARGET_OFFSET = 0.0;  // No offset
+        public static final double RIGHT_TARGET_OFFSET = 16.5; // 10 cm right offset
     
         // Motion constraints
         public static final double MAX_TRANSLATIONAL_VELOCITY = 0.1; 
@@ -45,12 +49,19 @@ public final class VisionConstants {
         // 0.1 jittery
         // 0.2 jittery but less
         // 0.3 too aggressive
+        // 0.25 Seems ok, but overshoots a little
 
         public static double TRANSLATIONAL_kI = 0.0; 
         public static double TRANSLATIONAL_kD = 0.05;
+        //  |   0.25    |   0.05    |   solid results
+        //  |   0.20    |   0.05    |   jittery or overshoot?
+        //  |   0.20    |   0.10    |   worse
+        //  |   0.25    |   
         public static double ANGULAR_kP = 0.5;
         public static double ANGULAR_kI = 0.0;
         public static double ANGULAR_kD = 0.0;
+
+        // When inputing from joystick + left OR rightbumper, ignore velocityX
     
         // CTRE Motion parameters for rotation and translation
         public static final double ROT_VELOCITY = 80.0;  
