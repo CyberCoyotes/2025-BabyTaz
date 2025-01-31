@@ -1,5 +1,5 @@
 // VisionConstants.java  (renamed from VisionConstantsV15.java)
-package frc.robot.subsystems.vision;
+package frc.robot.visionV15;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -25,6 +25,7 @@ public final class VisionConstantsV15 {
 
     // Target alignment constants
     public static final double TARGET_DISTANCE_METERS = 1.0;
+    // tx = 0.0;
     public static final double TRANSLATION_TOLERANCE_METERS = 0.02;
     public static final double ANGLE_TOLERANCE_DEGREES = 5.0;
 }

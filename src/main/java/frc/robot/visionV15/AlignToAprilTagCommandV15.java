@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.visionV15;
 // Implement the full motion profiling system
 // https://claude.ai/chat/54e71d8f-a11f-4758-92d8-81ec727f8484
 
@@ -14,12 +14,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.vision.LimelightHelpers;
-import frc.robot.subsystems.vision.VisionConstantsV15;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystemV15;
 import frc.robot.util.TunableNumber;
 
-public class AlignToAprilTagCommand extends Command {
+public class AlignToAprilTagCommandV15 extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystemV15 vision;
     private boolean stopRequested = false;
@@ -59,7 +57,7 @@ public class AlignToAprilTagCommand extends Command {
     // Drive request
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
-    public AlignToAprilTagCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystemV15 vision) {
+    public AlignToAprilTagCommandV15(CommandSwerveDrivetrain drivetrain, VisionSubsystemV15 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         

@@ -29,7 +29,6 @@ import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.VisionOffsetCommand;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
-import frc.robot.commands.AlignToAprilTagCommand;
 import frc.robot.commands.VisionCenterCommand_v10;
 import frc.robot.commands.VisionCenterCommand_v11;
 import frc.robot.generated.TunerConstants;
@@ -39,8 +38,9 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystemV15;
-import frc.robot.subsystems.vision.VisionConstantsV15;
+import frc.robot.visionV15.AlignToAprilTagCommandV15;
+import frc.robot.visionV15.VisionConstantsV15;
+import frc.robot.visionV15.VisionSubsystemV15;
 
 
 public class RobotContainer {
@@ -157,7 +157,7 @@ public class RobotContainer {
         // Vision alignment
 
         driver.rightBumper().whileTrue(
-            new AlignToAprilTagCommand(drivetrain, visionV15));
+            new AlignToAprilTagCommandV15(drivetrain, visionV15));
 
         /* 
         driver.leftBumper().whileTrue(
