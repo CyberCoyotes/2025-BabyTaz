@@ -164,7 +164,7 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(
             new AlignToTargetCommand(drivetrain, vision16));
 
-        driver.rightBumper().whileTrue(
+        driver.leftBumper().whileTrue(
             new AlignToTargetCommand17(vision17, drivetrain));
 
         /* 
