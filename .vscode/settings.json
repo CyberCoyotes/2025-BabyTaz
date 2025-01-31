@@ -14,6 +14,7 @@
     "**/.factorypath": true,
     "**/*~": true
   },
+
   "java.test.config": [
     {
       "name": "WPIlibUnitTests",
@@ -56,5 +57,9 @@
     "edu.wpi.first.math.proto.*",
     "edu.wpi.first.math.**.proto.*",
     "edu.wpi.first.math.**.struct.*",
-  ]
-}
+  ],
+    "java.project.excludePaths": [
+      "reference-code/"
+    ],
+    "java.dependency.packagePresentation": "hierarchical"
+  }
