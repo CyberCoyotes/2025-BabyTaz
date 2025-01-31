@@ -5,13 +5,13 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.visionV16.VisionSubsystem;
+import frc.robot.visionV16.VisionSubsystem16;
 // import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 // import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 public class CenterOnTagCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem vision;
+    private final VisionSubsystem16 vision;
     
     // Constants for proportional control
     private static final double kP_Rotation = 0.015; // Tune this value
@@ -24,7 +24,7 @@ public class CenterOnTagCommand extends Command {
             .withRotationalDeadband(0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    public CenterOnTagCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public CenterOnTagCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         addRequirements(drivetrain, vision);

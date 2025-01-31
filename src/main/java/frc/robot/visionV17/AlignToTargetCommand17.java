@@ -1,6 +1,6 @@
 package frc.robot.visionV17;
 
-import frc.robot.visionV17.VisionSubsystem;
+import frc.robot.visionV17.VisionSubsystem17;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
     
-    public class AlignToTargetCommand extends Command {
-        private final VisionSubsystem vision;
+    public class AlignToTargetCommand17 extends Command {
+        private final VisionSubsystem17 vision;
         private final CommandSwerveDrivetrain drivetrain;
         private final SwerveRequest.FieldCentric drive;
         
@@ -18,7 +18,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
         private static final double kP = 0.03;
         private static final double ALIGNMENT_TOLERANCE = 2.0; // degrees
         
-        public AlignToTargetCommand(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain) {
+        public AlignToTargetCommand17(VisionSubsystem17 vision, CommandSwerveDrivetrain drivetrain) {
             this.vision = vision;
             this.drivetrain = drivetrain;
             this.drive = new SwerveRequest.FieldCentric()

@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.vision.LimelightHelpers; // Using Limelight's helper class
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem17 extends SubsystemBase {
     private final String limelightName;
     private final CommandSwerveDrivetrain drivetrain;
 
-    public VisionSubsystem(String limelightName, CommandSwerveDrivetrain drivetrain) {
+    public VisionSubsystem17(String limelightName, CommandSwerveDrivetrain drivetrain) {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
     }

@@ -8,13 +8,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
 
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem16 extends SubsystemBase {
     private final NetworkTable limelightTable;
     private final LEDSubsystem ledSubsystem;
     private final CommandSwerveDrivetrain drivetrain;
     private String limelightName;
 
-    public VisionSubsystem(String limelightName, CommandSwerveDrivetrain drivetrain, LEDSubsystem ledSubsystem) {
+    public VisionSubsystem16(String limelightName, CommandSwerveDrivetrain drivetrain, LEDSubsystem ledSubsystem) {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
         this.ledSubsystem = ledSubsystem;

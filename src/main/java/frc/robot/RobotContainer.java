@@ -25,12 +25,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.auto.AutoRoutines;
-import frc.robot.commands.VisionCenterCommand_v5;
 import frc.robot.commands.VisionOffsetCommand;
 import frc.robot.commands.AlignFrontBackCommand;
 import frc.robot.commands.AlignStrafeCommand;
-import frc.robot.commands.VisionCenterCommand_v10;
-import frc.robot.commands.VisionCenterCommand_v11;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.TOFSubsystem;
@@ -38,10 +35,15 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.visionV15.AlignToAprilTagCommandV15;
-import frc.robot.visionV15.VisionConstantsV15;
-import frc.robot.visionV15.VisionSubsystemV15;
 
+import frc.robot.visionV15.AlignToAprilTagCommandV15;
+import frc.robot.visionV15.VisionSubsystemV15;
+import frc.robot.visionV16.VisionSubsystem16;
+import frc.robot.visionV17.AlignToTargetCommand17;
+import frc.robot.visionV17.VisionSubsystem17;
+
+import frc.robot.visionV16.AlignToTargetCommand;
+// import frc.robot.visionV17.AlignToTargetCommand;
 
 public class RobotContainer {
     private final Pose2d targetPose;
@@ -63,11 +65,13 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final LEDSubsystem leds = new LEDSubsystem();
     private final VisionSubsystem vision = new VisionSubsystem("limelight", leds);
+
+    private final VisionSubsystemV15 visionV15 = new VisionSubsystemV15("limelight", drivetrain);
+    private final VisionSubsystem16 vision16 = new VisionSubsystem16("limelight", drivetrain, leds);
+    private final VisionSubsystem17 vision17 = new VisionSubsystem17("limelight", drivetrain);
+
     private final TOFSubsystem tof = new TOFSubsystem(); // TODO Run configuration for TOF sensor to confirm
     
-    private final VisionSubsystemV15 visionV15 = new VisionSubsystemV15("limelight", drivetrain);
-
-
   // TODO Emergency stop trigger based on TOF distance
     // private final Trigger emergencyStop = new Trigger(() -> 
         // tof.isRangeValid() && tof.getDistanceMeters() < 100.0); // 30cm minimum
@@ -156,8 +160,12 @@ public class RobotContainer {
         // I think it really is an issue of tuning now!
         // Vision alignment
 
+        // version 16
         driver.rightBumper().whileTrue(
-            new AlignToAprilTagCommandV15(drivetrain, visionV15));
+            new AlignToTargetCommand(drivetrain, vision16));
+
+        driver.rightBumper().whileTrue(
+            new AlignToTargetCommand17(vision17, drivetrain));
 
         /* 
         driver.leftBumper().whileTrue(

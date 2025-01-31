@@ -2,7 +2,7 @@ package frc.robot.visionV16;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.visionV16.VisionSubsystem;
+import frc.robot.visionV16.VisionSubsystem16;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -12,7 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 
 public class AlignToTargetCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem vision;
+    private final VisionSubsystem16 vision;
     
     private final PIDController xController;
     private final PIDController yController;
@@ -20,7 +20,7 @@ public class AlignToTargetCommand extends Command {
     
     private static final double TARGET_DISTANCE = 1.0; // meters
     
-    public AlignToTargetCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public AlignToTargetCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         
