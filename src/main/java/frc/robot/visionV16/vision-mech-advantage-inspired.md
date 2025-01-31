@@ -1,4 +1,11 @@
+# Mechanical Advantage Approach
+
+This approach is based on the Mechanical Advantage demo code for AprilTag tracking
+
 // https://claude.ai/chat/e14926f1-c61b-4794-bee9-0068f59fc565
+
+Show you a simplified version that would be more appropriate for a mid-level team while still using modern approaches? Keep in mind our hardware and software specifics: using CTRE TalonFX with Kraken motors and Tuner X generated swerve drivetrain. We are using a Limelight 3 for vision
+
 
 public class RobotContainer {
     // Subsystems
@@ -26,8 +33,3 @@ public class RobotContainer {
         operator.b().whileTrue(new AlignToTargetCommand(drivetrain, vision));
     }
 }
-
-
-show you a simplified version that would be more appropriate for a mid-level team while still using modern approaches? Keep in mind our hardware and software specifics: using CTRE TalonFX with Kraken motors and Tuner X generated swerve drivetrain. We are using a Limelight 3 for vision
-
-

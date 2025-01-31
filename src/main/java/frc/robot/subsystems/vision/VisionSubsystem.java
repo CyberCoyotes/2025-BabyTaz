@@ -49,7 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Add to VisionSubsystem periodic():
         boolean targetValid = LimelightHelpers.getTV(limelightName);
         // System.out.println("Target Valid: " + targetValid);
-        System.out.println("Current State: " + getState());
+        System.out.println("V15 Current State: " + getState());
     }
 
     private void updateLEDs() {
