@@ -6,6 +6,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.math.util.Units;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class VisionIOLimelight implements VisionIO {
     // NetworkTable entries for Limelight data
     private final NetworkTable limelightTable;

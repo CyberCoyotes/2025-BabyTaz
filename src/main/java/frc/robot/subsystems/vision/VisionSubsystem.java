@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class VisionSubsystem extends SubsystemBase {
     private final String limelightName;
     private final LEDSubsystem leds;

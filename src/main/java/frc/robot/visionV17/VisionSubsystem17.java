@@ -8,6 +8,8 @@ import frc.robot.subsystems.vision.LimelightHelpers; // Using Limelight's helper
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class VisionSubsystem17 extends SubsystemBase {
     private final String limelightName;
     private final CommandSwerveDrivetrain drivetrain;
@@ -31,7 +33,7 @@ public class VisionSubsystem17 extends SubsystemBase {
     }
 
     public double getTX() {
-        return LimelightHelpers.getTX(limelightName) * (VisionConstants.LIMELIGHT_DIRECTION); // TODO Test this for the Limelight direction
+        return LimelightHelpers.getTX(limelightName) * (VisionConstants.LIMELIGHT_DIRECTION); // Test this for the Limelight direction
     }
 
     public double getTY() {
@@ -48,7 +50,7 @@ public class VisionSubsystem17 extends SubsystemBase {
 
     // Gets robot pose from Limelight
     public Pose2d getBotPose() {
-        double[] botpose = LimelightHelpers.getBotpose(limelightName);
+        double[] botpose = LimelightHelpers.getBotPose(limelightName);
         if (botpose.length > 0) {
             return new Pose2d(botpose[0], botpose[1], Rotation2d.fromDegrees(botpose[5]));
         }

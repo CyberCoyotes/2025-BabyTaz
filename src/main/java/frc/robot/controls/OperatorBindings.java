@@ -2,6 +2,8 @@ package frc.robot.controls;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class OperatorBindings {
     private final CommandXboxController operator;
     

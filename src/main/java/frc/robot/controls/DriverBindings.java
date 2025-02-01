@@ -1,10 +1,10 @@
 package frc.robot.controls;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
+
+@SuppressWarnings("unused") // Suppresses unused variable warning
 
 public class DriverBindings {
     private final CommandXboxController driver;

@@ -5,6 +5,8 @@ import com.ctre.phoenix.led.*;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class LEDHardware {
     // Hardware state tracking
     private final CANdle candle;

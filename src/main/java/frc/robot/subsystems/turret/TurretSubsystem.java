@@ -11,8 +11,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import static edu.wpi.first.wpilibj2.command.Commands.print;
 
-import java.io.ObjectInputFilter.Config;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
