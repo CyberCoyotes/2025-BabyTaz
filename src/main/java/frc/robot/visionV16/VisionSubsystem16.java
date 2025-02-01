@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.util.FieldElementLocation;
+// import frc.robot.util.FieldElementLocation;
 
 public class VisionSubsystem16 extends SubsystemBase {
     private final NetworkTable limelightTable;
@@ -38,7 +38,7 @@ public class VisionSubsystem16 extends SubsystemBase {
         SmartDashboard.putNumber("V16 TA", getTA());
         SmartDashboard.putNumber("V16 Distance (m)", getDistanceToTargetMeters());
         // Send the Reef Element to SmartDashboard
-        SmartDashboard.getString("V16 Tag Type", FieldElementLocation.getElementType(0));
+        // SmartDashboard.getString("V16 Tag Type", FieldElementLocation.getElementType(0));
 
         // SmartDashboard.putString("Reef Type", elementType);
         // System.out.println("Reef Type", ()->elementType());
