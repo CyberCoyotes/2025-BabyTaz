@@ -42,8 +42,9 @@ import frc.robot.visionV16.VisionSubsystem16;
 import frc.robot.visionV17.AlignToTargetCommand17;
 import frc.robot.visionV17.VisionSubsystem17;
 
-import frc.robot.visionV16.AlignToTargetCommand;
+import frc.robot.visionV16.AlignToTargetCommand16a;
 // import frc.robot.visionV17.AlignToTargetCommand;
+import frc.robot.visionV16.AlignToTargetCommand16b;
 
 public class RobotContainer {
     private final Pose2d targetPose;
@@ -54,8 +55,8 @@ public class RobotContainer {
     private final double DEADBAND = 0.1; // 10% deadband
 
     // Add these speed factor variables
-    private double driveSpeedFactor = 1.0; // 25% speed for rookie drivers
-    private double rotationSpeedFactor = 1.0; // 25% rotation speed
+    private double driveSpeedFactor = 0.35; // 25% speed for rookie drivers
+    private double rotationSpeedFactor = 0.35; // 25% rotation speed
 
         // Controller setup
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -162,10 +163,10 @@ public class RobotContainer {
 
         // version 16
         driver.rightBumper().whileTrue(
-            new AlignToTargetCommand(drivetrain, vision16));
+            new AlignToTargetCommand16b(drivetrain, vision16));
 
         driver.leftBumper().whileTrue(
-            new AlignToTargetCommand17(vision17, drivetrain));
+            new AlignToTargetCommand16a(drivetrain, vision16));
 
         /* 
         driver.leftBumper().whileTrue(

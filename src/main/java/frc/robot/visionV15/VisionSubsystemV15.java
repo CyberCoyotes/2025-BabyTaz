@@ -24,12 +24,14 @@ public class VisionSubsystemV15 extends SubsystemBase {
     @Override
     public void periodic() {
         // Update dashboard with vision data
+        /*
         SmartDashboard.putBoolean("V15/HasTarget", hasTarget());
         SmartDashboard.putNumber("V15/TagID", getTagId());
         SmartDashboard.putNumber("V15/TX", getTX());
         SmartDashboard.putNumber("V15/TY", getTY());
         SmartDashboard.putNumber("V15/TargetArea", getTA());
-
+        */
+        
         if (hasTarget()) {
             lastValidTargetPose = getTargetPose();
             lastValidTimestamp = Timer.getFPGATimestamp() - 

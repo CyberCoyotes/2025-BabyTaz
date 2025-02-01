@@ -41,7 +41,7 @@ public class AlignToTargetCommand16b extends Command {
     }
 
     // Define your target distance based on game requirements
-    private static final double TARGET_DISTANCE_METERS = 1.0; // Adjust based on your strategy
+    private static final double TARGET_DISTANCE_METERS = 0.3; // Adjust based on your strategy
     
     @Override
     public void execute() {

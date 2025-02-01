@@ -16,7 +16,7 @@ Here's how to calculate the actual distance to a target using the Limelight's ve
 
 
  */
-public class AlignToTargetCommand extends Command {
+public class AlignToTargetCommand16a extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem16 vision;
     
@@ -26,7 +26,7 @@ public class AlignToTargetCommand extends Command {
     
     private static final double TARGET_DISTANCE = 1.0; // meters
     
-    public AlignToTargetCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
+    public AlignToTargetCommand16a(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         

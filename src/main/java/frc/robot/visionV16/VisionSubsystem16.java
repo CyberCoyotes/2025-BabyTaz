@@ -26,7 +26,7 @@ public class VisionSubsystem16 extends SubsystemBase {
     }
 
     // TODO Move to VisionConstants
-    String elementType = FieldElementLocation.getElementType(0);
+    // String elementType = FieldElementLocation.getElementType(0);
 
     @Override
     public void periodic() {
@@ -37,7 +37,12 @@ public class VisionSubsystem16 extends SubsystemBase {
         SmartDashboard.putNumber("V16 TY", getTY());
         SmartDashboard.putNumber("V16 TA", getTA());
         SmartDashboard.putNumber("V16 Distance (m)", getDistanceToTargetMeters());
-        SmartDashboard.putString("Reef Type", elementType);
+        // Send the Reef Element to SmartDashboard
+        SmartDashboard.getString("V16 Tag Type", FieldElementLocation.getElementType(0));
+
+        // SmartDashboard.putString("Reef Type", elementType);
+        // System.out.println("Reef Type", ()->elementType());
+
     }
 
     // Basic target detection
