@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.vision.LimelightHelpers; // Using Limelight's helper class
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class VisionSubsystem17 extends SubsystemBase {
@@ -30,7 +31,7 @@ public class VisionSubsystem17 extends SubsystemBase {
     }
 
     public double getTX() {
-        return LimelightHelpers.getTX(limelightName);
+        return LimelightHelpers.getTX(limelightName) * (VisionConstants.LIMELIGHT_DIRECTION); // TODO Test this for the Limelight direction
     }
 
     public double getTY() {

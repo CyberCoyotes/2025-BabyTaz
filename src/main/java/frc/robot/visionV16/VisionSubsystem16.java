@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.visionV16.FieldElementLocation;
 
 public class VisionSubsystem16 extends SubsystemBase {
     private final NetworkTable limelightTable;
@@ -24,13 +26,19 @@ public class VisionSubsystem16 extends SubsystemBase {
         setLeds(false);
     }
 
+    // TODO Move to VisionConstants
+    String elementType = FieldElementLocation.getElementType(0);
+
     @Override
     public void periodic() {
         // Log vision data to SmartDashboard
-        SmartDashboard.putBoolean("Has Target", hasTarget());
-        SmartDashboard.putNumber("Target ID", getTagId());
-        SmartDashboard.putNumber("TX", getTX());
-        SmartDashboard.putNumber("TY", getTY());
+        SmartDashboard.putBoolean("V16 Has Target", hasTarget());
+        SmartDashboard.putNumber("V16 Target ID", getTagId());
+        SmartDashboard.putNumber("V16 TX", getTX());
+        SmartDashboard.putNumber("V16 TY", getTY());
+        SmartDashboard.putNumber("V16 TA", getTA());
+        SmartDashboard.putNumber("V16 Distance (m)", getDistanceToTargetMeters());
+        SmartDashboard.putString("Reef Type", elementType);
     }
 
     // Basic target detection
@@ -45,7 +53,9 @@ public class VisionSubsystem16 extends SubsystemBase {
 
     // Horizontal offset from crosshair to target (-29.8 to 29.8 degrees)
     public double getTX() {
-        return limelightTable.getEntry("tx").getDouble(0.0);
+        // TODO added LIMELIGHT DIRECTION to test the mounting pose as front facing or back facing.
+        return limelightTable.getEntry("tx").getDouble(0.0) * (VisionConstants.LIMELIGHT_DIRECTION);
+
     }
 
     // Vertical offset from crosshair to target (-24.85 to 24.85 degrees)
@@ -67,4 +77,22 @@ public class VisionSubsystem16 extends SubsystemBase {
     public boolean isAlignedToTarget() {
         return hasTarget() && Math.abs(getTX()) < 2.0; // Within 2 degrees
     }
-}
+
+        // Add this method to calculate distance
+        public double getDistanceToTargetMeters() {
+            if (!hasTarget()) {
+                return 0.0;
+            }
+    
+            // Get the vertical angle to target from Limelight
+            double targetAngleVertical = getTY();
+    
+            // Calculate distance using trigonometry
+            double angleToTargetRadians = Math.toRadians(VisionConstants16.LIMELIGHT_MOUNT_ANGLE_DEGREES + targetAngleVertical);
+            double distanceMeters = (VisionConstants16.REEF_TARGET_HEIGHT - VisionConstants16.LIMELIGHT_MOUNT_HEIGHT_METERS) 
+                                   / Math.tan(angleToTargetRadians);
+    
+            return distanceMeters;
+        }
+
+    }

@@ -96,19 +96,12 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void logTelemetry() {
-        SmartDashboard.putString("Vision/State", currentState.toString());
-        SmartDashboard.putNumber("Vision/TagID", getTagId());
-        SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
-        SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
-        SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
-        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
+        // SmartDashboard.putString("Vision/State", currentState.toString());
+        // SmartDashboard.putNumber("Vision/TagID", getTagId());
+        // SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
+        // SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
+        // SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
+        // SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
     }
-
-    /*
-    public enum VisionState {
-        NO_TARGET,
-        TARGET_VISIBLE,
-        TARGET_LOCKED
-    } 
-    */
+    
 }

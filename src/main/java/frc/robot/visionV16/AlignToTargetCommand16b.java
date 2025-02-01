@@ -7,16 +7,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.math.controller.PIDController;
 
-/*
- * The code as shown is using the Target Area (ta) value from the Limelight to approximate distance, but this isn't the most accurate method. Let me explain a better approach using Limelight's ty value and some trigonometry.
-Here's how to calculate the actual distance to a target using the Limelight's vertical angle (ty):
 
-
- */
-public class AlignToTargetCommand extends Command {
+public class AlignToTargetCommand16b extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem16 vision;
     
@@ -26,7 +20,7 @@ public class AlignToTargetCommand extends Command {
     
     private static final double TARGET_DISTANCE = 1.0; // meters
     
-    public AlignToTargetCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
+    public AlignToTargetCommand16b(CommandSwerveDrivetrain drivetrain, VisionSubsystem16 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         
@@ -46,17 +40,18 @@ public class AlignToTargetCommand extends Command {
         vision.setLeds(true);
     }
 
+    // Define your target distance based on game requirements
+    private static final double TARGET_DISTANCE_METERS = 1.0; // Adjust based on your strategy
+    
     @Override
     public void execute() {
         if (vision.hasTarget()) {
-            // Calculate distance and angles
-            double tx = vision.getTX();
-            double ty = vision.getTY();
+            double currentDistance = vision.getDistanceToTargetMeters();
             
-            // Calculate control outputs
-            double xSpeed = -xController.calculate(vision.getTA(), TARGET_DISTANCE);
-            double ySpeed = -yController.calculate(tx, 0);
-            double rotationSpeed = -rotationController.calculate(tx * Math.PI / 180.0, 0);
+            // Calculate control outputs using real distance
+            double xSpeed = -xController.calculate(currentDistance, TARGET_DISTANCE_METERS);
+            double ySpeed = -yController.calculate(vision.getTX(), 0);
+            double rotationSpeed = -rotationController.calculate(vision.getTX() * Math.PI / 180.0, 0);
             
             // Apply to drivetrain
             drivetrain.setControl(new SwerveRequest.FieldCentric()
@@ -67,17 +62,8 @@ public class AlignToTargetCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        vision.setLeds(false);
-        drivetrain.setControl(new SwerveRequest.FieldCentric()
-            .withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(0));
-    }
-
-    @Override
     public boolean isFinished() {
-        return vision.isAlignedToTarget() && Math.abs(vision.getTA() - TARGET_DISTANCE) < 0.1;
+        return vision.isAlignedToTarget() && 
+               Math.abs(vision.getDistanceToTargetMeters() - TARGET_DISTANCE_METERS) < 0.1;
     }
 }
-
