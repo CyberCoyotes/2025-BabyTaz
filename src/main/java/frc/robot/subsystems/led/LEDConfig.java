@@ -23,7 +23,7 @@ public class LEDConfig {
     
     public static LEDConfig defaultConfig() {
         LEDConfig config = new LEDConfig();
-        config.ledCount = Constants.LED_COUNT; // TODO: Determine actual LED count
+        config.ledCount = Constants.LED_COUNT; // TODO Count the LEDs for a strip
         config.brightness = Constants.DEFAULT_BRIGHTNESS; // 0.0 to 1.0
         config.stripType = LEDStripType.GRB; // TODO Determine actual strip type
         config.statusLedOffWhenActive = true;
