@@ -20,10 +20,10 @@ public class VisionSubsystem17 extends SubsystemBase {
     @Override
     public void periodic() {
         // Update dashboard with vision data
-        SmartDashboard.putBoolean("Has Target", hasTarget());
-        SmartDashboard.putNumber("Target ID", getTagId());
-        SmartDashboard.putNumber("TX", getTX());
-        SmartDashboard.putNumber("TY", getTY());
+        SmartDashboard.putBoolean(" V17 Has Target", hasTarget());
+        SmartDashboard.putNumber("V17 Target ID", getTagId());
+        SmartDashboard.putNumber("V17 TX", getTX());
+        SmartDashboard.putNumber("V17 TY", getTY());
     }
 
     public boolean hasTarget() {
