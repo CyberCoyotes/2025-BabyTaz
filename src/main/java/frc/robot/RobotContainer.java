@@ -25,7 +25,7 @@ import frc.robot.vision18.AlignToAprilTagCommand18;
 public class RobotContainer {
 
 
-    private double slowMo = 0.25;
+    private double slowMo = 0.5;
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)* slowMo; // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * slowMo; // 3/4 of a rotation per second max angular velocity
 
