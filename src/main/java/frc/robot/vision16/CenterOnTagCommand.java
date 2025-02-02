@@ -1,4 +1,4 @@
-package frc.robot.visionV16;
+package frc.robot.vision16;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;

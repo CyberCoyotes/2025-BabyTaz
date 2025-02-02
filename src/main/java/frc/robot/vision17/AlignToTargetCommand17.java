@@ -1,12 +1,11 @@
-package frc.robot.visionV17;
-
-import frc.robot.visionV17.VisionSubsystem17;
+package frc.robot.vision17;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.vision17.VisionSubsystem17;
 
 @SuppressWarnings("unused") // Suppresses unused variable warning
 

@@ -1,4 +1,4 @@
-package frc.robot.visionV16;
+package frc.robot.vision16;
 
 public class VisionConstants16 {
     // Constants for distance calculation
