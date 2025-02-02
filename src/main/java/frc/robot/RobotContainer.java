@@ -19,8 +19,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 // TODO Import vision related code
-import frc.robot.vision19.VisionSubsystem;
-import frc.robot.vision19.AlignToTagCommand19;
+import frc.robot.vision20.VisionSubsystem;
+import frc.robot.vision20.AlignToTargetCommand20;
 
 public class RobotContainer {
 
@@ -43,7 +43,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // TODO Create a VisionSubsystem18 object
-    private final VisionSubsystem vision19 = new VisionSubsystem(drivetrain);
+    private final VisionSubsystem vision20 = new VisionSubsystem();
 
     public RobotContainer() {
         configureBindings();
@@ -78,7 +78,7 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new AlignToTagCommand19(vision19, drivetrain, 4));
+        driver.a().whileTrue(new AlignToTargetCommand20(vision20, drivetrain));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

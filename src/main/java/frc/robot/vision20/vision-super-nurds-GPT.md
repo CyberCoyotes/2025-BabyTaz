@@ -140,16 +140,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.vision20.VisionConstants;
 import edu.wpi.first.math.controller.PIDController;
 
-public class TagAlignCommand extends CommandBase {
+public class AlignToTargetCommand20 extends CommandBase {
     private final VisionSubsystem vision;
     private final DrivetrainSubsystem drivetrain;
     private final PIDController rotationController;
 
-    public TagAlignCommand(VisionSubsystem vision, DrivetrainSubsystem drivetrain) {
+    public AlignToTargetCommand20(VisionSubsystem vision, DrivetrainSubsystem drivetrain) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         addRequirements(vision, drivetrain);
