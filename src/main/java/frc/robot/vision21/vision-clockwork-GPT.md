@@ -42,7 +42,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.controller.PIDController;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.vision21.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
     private final NetworkTable limelightTable;

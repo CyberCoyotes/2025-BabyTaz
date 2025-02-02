@@ -17,10 +17,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.vision17.VisionSubsystem17;
+
 // TODO Import vision related code
-import frc.robot.vision18.VisionSubsystem18;
-import frc.robot.vision18.AlignToAprilTagCommand18;
+import frc.robot.vision19.VisionSubsystem;
+import frc.robot.vision19.AlignToTagCommand19;
 
 public class RobotContainer {
 
@@ -43,7 +43,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // TODO Create a VisionSubsystem18 object
-    private final VisionSubsystem18 vision18 = new VisionSubsystem18("limelight", drivetrain);
+    private final VisionSubsystem vision19 = new VisionSubsystem(drivetrain);
 
     public RobotContainer() {
         configureBindings();
@@ -78,7 +78,7 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new AlignToAprilTagCommand18(drivetrain, vision18));
+        driver.a().whileTrue(new AlignToTagCommand19(vision19, drivetrain, 4));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

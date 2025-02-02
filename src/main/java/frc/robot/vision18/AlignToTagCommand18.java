@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightHelpers;
 
-public class AlignToAprilTagCommand18 extends Command {
+public class AlignToTagCommand18 extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem18 vision;
     private final PIDController xController;
@@ -17,7 +17,7 @@ public class AlignToAprilTagCommand18 extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
     
-    public AlignToAprilTagCommand18(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         
