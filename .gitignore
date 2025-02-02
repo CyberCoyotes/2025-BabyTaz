@@ -188,3 +188,6 @@ compile_commands.json
 
 # Keep examples directory in git but exclude from compilation
 !reference-code/
+*.pdb
+*.bin
+*.MF
