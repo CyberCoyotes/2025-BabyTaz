@@ -37,7 +37,7 @@ public class AlignToAprilTagCommand18 extends Command {
         
         if (LimelightHelpers.getTV(vision.getName())) {
             // Calculate drive outputs
-            double xSpeed = -xController.calculate(ty, 0);
+            double xSpeed = xController.calculate(ty, 0); // Changed for back mounted limelight
             double ySpeed = -yController.calculate(tx, 0);
             double rotationSpeed = -rotationController.calculate(
                 drivetrain.getState().Pose.getRotation().getRadians(), 0);
