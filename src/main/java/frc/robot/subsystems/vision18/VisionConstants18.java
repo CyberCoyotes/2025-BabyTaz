@@ -1,4 +1,4 @@
-package frc.robot.vision18;
+package frc.robot.subsystems.vision18;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -24,4 +24,10 @@ public final class VisionConstants18 {
     // Distance-based standard deviation scaling
     public static final double MIN_RANGE = 0.5; // Minimum range for full confidence (meters)
     public static final double MAX_RANGE = 4.0; // Maximum range before rejecting (meters)
+
+        // Constants
+    // TODO Adjust this value to see if robot actually moves farther or closer
+    public static final double TARGET_DISTANCE_METERS = 1.0; // Adjust this value 
+    public static final double DEADBAND_METERS = 0.02; // 2cm deadband
+    public static final double ROTATION_DEADBAND_DEGREES = 1.0;
 }

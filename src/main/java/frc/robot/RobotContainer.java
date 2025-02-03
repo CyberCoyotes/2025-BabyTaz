@@ -17,10 +17,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.vision17.VisionSubsystem17;
-// TODO Import vision related code
-import frc.robot.vision18.VisionSubsystem18;
-import frc.robot.vision18.AlignToAprilTagCommand18;
+import frc.robot.subsystems.vision18.AlignToAprilTagCommand18;
+import frc.robot.subsystems.vision18.VisionSubsystem18;
+
 
 public class RobotContainer {
 

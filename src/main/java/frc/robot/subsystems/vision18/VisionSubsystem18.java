@@ -1,4 +1,4 @@
-package frc.robot.vision18;
+package frc.robot.subsystems.vision18;
 
 /*  
  * Super Nurds + Clockwork blended approach

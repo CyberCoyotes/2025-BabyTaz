@@ -1,9 +1,9 @@
-package frc.robot.vision18;
+package frc.robot.subsystems.vision18;
 
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.vision18.VisionConstants18;
+import frc.robot.subsystems.vision18.VisionConstants18;
 
 public class VisionMeasurement {
     private final Pose2d pose;
