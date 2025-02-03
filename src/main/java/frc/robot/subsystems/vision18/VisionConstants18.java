@@ -11,6 +11,19 @@ public static final Transform3d ROBOT_TO_CAM = new Transform3d(
     new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)) // No rotation needed
 );
 
+    // Vision processing constants
+    public static final double MIN_TARGET_AREA = 0.1; // Minimum target area to be considered valid
+    public static final double MAX_POSE_AMBIGUITY = 0.15; // Maximum ambiguity score to accept pose
+    public static final double MAX_POSE_LATENCY = 0.5; // Maximum latency to accept pose (seconds)
+    
+    // Standard deviation coefficients for vision measurements
+    public static final double XY_STD_DEV_COEFFICIENT = 0.01; 
+    public static final double THETA_STD_DEV_COEFFICIENT = 0.01;
+
+    // Distance-based standard deviation scaling
+    public static final double MIN_RANGE = 0.5; // Minimum range for full confidence (meters)
+    public static final double MAX_RANGE = 4.0; // Maximum range before rejecting (meters)
+    
 // Adjusted constants
 public static final double TARGET_DISTANCE_METERS = 1.0; // Verify this is your desired distance
 public static final double DEADBAND_METERS = 0.05; // 5cm deadband
