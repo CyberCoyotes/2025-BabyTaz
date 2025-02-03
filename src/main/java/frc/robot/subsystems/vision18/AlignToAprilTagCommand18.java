@@ -29,9 +29,9 @@ public class AlignToAprilTagCommand18 extends Command {
         this.vision = vision;
 
         // Reduce gains and add integral term for steady-state error
-        xController = new PIDController(0.3, 0.01, 0.01);
-        yController = new PIDController(0.3, 0.01, 0.01);
-        rotationController = new PIDController(0.7, 0.01, 0.02);
+        xController = new PIDController(0.2, 0.00, 0.00);
+        yController = new PIDController(0.2, 0.00, 0.00);
+        rotationController = new PIDController(0.3, 0.00, 0.00);
         // PhoenixPIDController(0.7, 0.01, 0.02);
 
 
@@ -39,38 +39,54 @@ public class AlignToAprilTagCommand18 extends Command {
         xController.setTolerance(VisionConstants18.DEADBAND_METERS);
         yController.setTolerance(VisionConstants18.DEADBAND_METERS);
         rotationController.setTolerance(VisionConstants18.ROTATION_DEADBAND_DEGREES);
-        rotationController.enableContinuousInput(-180, 180);
+
+        // Keep rotation between -pi and pi
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+
         
         addRequirements(drivetrain);
     }
 
     @Override 
     public void execute() {
+        if (!LimelightHelpers.getTV(vision.getName())) {
+            drivetrain.stopDrive();
+            return;
+        }
+
+        // Get Limelight measurements
         double tx = LimelightHelpers.getTX(vision.getName());
         double ty = LimelightHelpers.getTY(vision.getName());
-        double ta = LimelightHelpers.getTA(vision.getName());
         
-        if (LimelightHelpers.getTV(vision.getName())) {
-            // Get distance from target (approximate)
+        // Calculate distance (using your existing method)
+        double currentDistance = calculateDistance(ty);
+        
+        // Calculate drive outputs with signs adjusted for back-mounted camera
+        double xSpeed = xController.calculate(currentDistance, VisionConstants18.TARGET_DISTANCE_METERS);
+        double ySpeed = yController.calculate(tx, 0);
+        
+        // Calculate rotation to face the target
+        // Note: Adjust sign if rotation direction is incorrect
+        double rotationSpeed = rotationController.calculate(
+            drivetrain.getState().Pose.getRotation().getRadians(), 0);
 
-            double distanceMeters = calculateDistance(ty);
-            
-            // Calculate drive outputs based on error from desired distance
-            double xSpeed = -xController.calculate(distanceMeters, VisionConstants18.TARGET_DISTANCE_METERS);
-            double ySpeed = -yController.calculate(tx, 0);
-            double rotationSpeed = -rotationController.calculate(
-                drivetrain.getState().Pose.getRotation().getDegrees(), 0);
-            
-            // Apply speed limits
-            xSpeed = MathUtil.clamp(xSpeed, -0.5, 0.5);
-            ySpeed = MathUtil.clamp(ySpeed, -0.5, 0.5);
-            rotationSpeed = MathUtil.clamp(rotationSpeed, -0.5, 0.5);
+        // Apply stricter speed limits
+        double maxSpeed = 0.3; // 30% max speed
+        xSpeed = MathUtil.clamp(xSpeed, -maxSpeed, maxSpeed);
+        ySpeed = MathUtil.clamp(ySpeed, -maxSpeed, maxSpeed);
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
+
+        // Since camera is rear-mounted, we need to invert some controls
+        drivetrain.setControl(robotCentric
+            .withVelocityX(xSpeed)  // Invert X because camera is on back
+            .withVelocityY(ySpeed)  // Invert Y to match camera perspective
+            .withRotationalRate(rotationSpeed));
             
             // Log values for debugging
-            SmartDashboard.putNumber("V18/Distance", distanceMeters);
+            SmartDashboard.putNumber("V18/Distance", currentDistance);
             SmartDashboard.putNumber("V18/TX", tx);
             SmartDashboard.putNumber("V18/TY", ty);
-            SmartDashboard.putNumber("V18/TA", ta);
+            // SmartDashboard.putNumber("V18/TA", ta);
             SmartDashboard.putNumber("V18/XSpeed", xSpeed);
             SmartDashboard.putNumber("V18/YSpeed", ySpeed);
             SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
@@ -80,9 +96,11 @@ public class AlignToAprilTagCommand18 extends Command {
                 .withVelocityX(xSpeed)
                 .withVelocityY(ySpeed)
                 .withRotationalRate(rotationSpeed));
+        /*
         } else {
             drivetrain.stopDrive();
         }
+        */
     }
 
     // Helper method to calculate distance using ty
