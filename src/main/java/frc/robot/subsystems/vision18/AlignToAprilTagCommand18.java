@@ -28,21 +28,16 @@ public class AlignToAprilTagCommand18 extends Command {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
-        // Reduce gains and add integral term for steady-state error
-        xController = new PIDController(0.2, 0.00, 0.00);
-        yController = new PIDController(0.2, 0.00, 0.00);
-        rotationController = new PIDController(0.3, 0.00, 0.00);
-        // PhoenixPIDController(0.7, 0.01, 0.02);
+        // Adjust gains - Y controller needs to be more aggressive to correct the arcing
+        xController = new PIDController(0.3, 0.0, 0.0);  // Distance control
+        yController = new PIDController(0.4, 0.0, 0.0);  // Lateral control 
+        rotationController = new PIDController(0.3, 0.0, 0.0); // Rotation control
 
-
-        // Configure controllers
-        xController.setTolerance(VisionConstants18.DEADBAND_METERS);
-        yController.setTolerance(VisionConstants18.DEADBAND_METERS);
-        rotationController.setTolerance(VisionConstants18.ROTATION_DEADBAND_DEGREES);
-
-        // Keep rotation between -pi and pi
+        // Increase tolerance for testing
+        xController.setTolerance(0.05);  // 5cm
+        yController.setTolerance(0.05);  // 5cm
+        rotationController.setTolerance(Math.toRadians(2.0));
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
-
         
         addRequirements(drivetrain);
     }
@@ -58,62 +53,54 @@ public class AlignToAprilTagCommand18 extends Command {
         double tx = LimelightHelpers.getTX(vision.getName());
         double ty = LimelightHelpers.getTY(vision.getName());
         
-        // Calculate distance (using your existing method)
+        // Calculate current distance
         double currentDistance = calculateDistance(ty);
         
-        // Calculate drive outputs with signs adjusted for back-mounted camera
-        double xSpeed = xController.calculate(currentDistance, VisionConstants18.TARGET_DISTANCE_METERS);
-        double ySpeed = yController.calculate(tx, 0);
+        // Calculate drive outputs
+        // For distance control: if we're too far, xSpeed will be positive to move forward
+        double xSpeed = -xController.calculate(currentDistance, VisionConstants18.TARGET_DISTANCE_METERS);
         
-        // Calculate rotation to face the target
-        // Note: Adjust sign if rotation direction is incorrect
+        // For lateral control: if target is to the right (positive tx), move right
+        double ySpeed = -yController.calculate(tx, 0);
+        
+        // For rotation: try to face the target
         double rotationSpeed = rotationController.calculate(
             drivetrain.getState().Pose.getRotation().getRadians(), 0);
 
-        // Apply stricter speed limits
-        double maxSpeed = 0.3; // 30% max speed
+        // Apply speed limits
+        double maxSpeed = 0.3;
         xSpeed = MathUtil.clamp(xSpeed, -maxSpeed, maxSpeed);
         ySpeed = MathUtil.clamp(ySpeed, -maxSpeed, maxSpeed);
         rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
 
-        // Since camera is rear-mounted, we need to invert some controls
+        // Debug values
+        SmartDashboard.putNumber("V18/Distance_Current", currentDistance);
+        SmartDashboard.putNumber("V18/Distance_Target", VisionConstants18.TARGET_DISTANCE_METERS);
+        SmartDashboard.putNumber("V18/Distance_Error", VisionConstants18.TARGET_DISTANCE_METERS - currentDistance);
+        SmartDashboard.putNumber("V18/TX", tx);
+        SmartDashboard.putNumber("V18/TY", ty);
+        SmartDashboard.putNumber("V18/XSpeed", xSpeed);
+        SmartDashboard.putNumber("V18/YSpeed", ySpeed);
+        SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
+        
+        // Single control request - front mounted camera
         drivetrain.setControl(robotCentric
-            .withVelocityX(xSpeed)  // Invert X because camera is on back
-            .withVelocityY(ySpeed)  // Invert Y to match camera perspective
+            .withVelocityX(xSpeed)
+            .withVelocityY(ySpeed)
             .withRotationalRate(rotationSpeed));
-            
-            // Log values for debugging
-            SmartDashboard.putNumber("V18/Distance", currentDistance);
-            SmartDashboard.putNumber("V18/TX", tx);
-            SmartDashboard.putNumber("V18/TY", ty);
-            // SmartDashboard.putNumber("V18/TA", ta);
-            SmartDashboard.putNumber("V18/XSpeed", xSpeed);
-            SmartDashboard.putNumber("V18/YSpeed", ySpeed);
-            SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
-            
-            // Command drivetrain using robot-centric request
-            drivetrain.setControl(robotCentric
-                .withVelocityX(xSpeed)
-                .withVelocityY(ySpeed)
-                .withRotationalRate(rotationSpeed));
-        /*
-        } else {
-            drivetrain.stopDrive();
-        }
-        */
     }
 
-    // Helper method to calculate distance using ty
+    // Modified distance calculation for accuracy
     private double calculateDistance(double ty) {
-        // Use your Limelight mounting height and angle to calculate distance
-        double limelightHeightMeters = 0.5; // Adjust to your mounting height
-        double limelightMountAngleDegrees = 30.0; // Adjust to your mount angle
-        double targetHeightMeters = 0.6; // Adjust to AprilTag height
+        double limelightHeightMeters = 0.5; // Verify this height
+        double limelightMountAngleDegrees = 0.0; // Updated for front mount
+        double targetHeightMeters = 0.6; // Verify this target height
         
         double angleToGoalRadians = Math.toRadians(limelightMountAngleDegrees + ty);
         return (targetHeightMeters - limelightHeightMeters) / Math.tan(angleToGoalRadians);
     }
 
+    //
     @Override
     public boolean isFinished() {
         if (!LimelightHelpers.getTV(vision.getName())) {
@@ -130,3 +117,13 @@ public class AlignToAprilTagCommand18 extends Command {
         drivetrain.stopDrive();
     }
 }
+
+/*
+Monday night adjustments
+https://claude.ai/chat/cbf2369b-de90-4674-8839-5b0d91dab2a2
+
+Based on your description and the code shown, there are several issues to address:
+
+First, there's a duplicate control call in AlignToAprilTagCommand18.execute() - you're setting the control twice which could cause issues.
+The robot maintaining a steady TY while TX becomes more negative suggests the distance control (X axis) isn't responding properly and the robot is moving in an arc pattern instead of correcting its distance.
+ */
