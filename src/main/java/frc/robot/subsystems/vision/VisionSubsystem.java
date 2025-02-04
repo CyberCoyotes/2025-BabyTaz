@@ -2,9 +2,9 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.vision18.LimelightHelpers;
 
 @SuppressWarnings("unused") // Suppresses unused variable warning
 
