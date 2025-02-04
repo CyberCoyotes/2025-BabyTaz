@@ -13,12 +13,19 @@ public class ForwardDistanceTest extends Command {
     private final VisionSubsystem18 vision;
     private final PIDController distanceController;
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
-    private static final double TARGET_DISTANCE = 1.0; // meters
+    
+    // Increased target distance based on testing
+    private static final double TARGET_DISTANCE = 2.0; // meters
 
     public ForwardDistanceTest(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
+        
+        // Remove the negative since we want:
+        // positive error (too far) = positive speed (move forward)
+        // negative error (too close) = negative speed (move back)
         distanceController = new PIDController(0.15, 0, 0);
+        distanceController.setTolerance(0.1); // 10cm tolerance
         addRequirements(drivetrain);
     }
 
@@ -29,24 +36,43 @@ public class ForwardDistanceTest extends Command {
             return;
         }
 
-        double distance = calculateDistance(LimelightHelpers.getTY(vision.getName()));
-        double forwardSpeed = -distanceController.calculate(distance, TARGET_DISTANCE); // Note negative
+        // Get current distance
+        double currentDistance = calculateDistance(LimelightHelpers.getTY(vision.getName()));
         
-        SmartDashboard.putNumber("FwdTest/Distance", distance);
-        SmartDashboard.putNumber("FwdTest/Speed", forwardSpeed);
+        // Calculate error (positive means we need to move forward)
+        double distanceError = TARGET_DISTANCE - currentDistance;
+        
+        // Calculate speed (removed negative)
+        double forwardSpeed = distanceController.calculate(currentDistance, TARGET_DISTANCE);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -0.2, 0.2); // Limit speed for testing
+
+        // Debug values
+        SmartDashboard.putNumber("FwdTest/CurrentDistance", currentDistance);
+        SmartDashboard.putNumber("FwdTest/TargetDistance", TARGET_DISTANCE);
+        SmartDashboard.putNumber("FwdTest/DistanceError", distanceError);
+        SmartDashboard.putNumber("FwdTest/ForwardSpeed", forwardSpeed);
+        SmartDashboard.putNumber("FwdTest/TY", LimelightHelpers.getTY(vision.getName()));
 
         drivetrain.setControl(drive
-            .withVelocityX(forwardSpeed)
+            .withVelocityX(forwardSpeed) // Positive = forward
             .withVelocityY(0)
             .withRotationalRate(0));
     }
 
     private double calculateDistance(double ty) {
-        double cameraHeight = 0.5;  // Update these measurements!
-        double targetHeight = 1.45; // 2024 AprilTag height
-        double cameraAngle = 0;     // Update camera angle!
+        // 2024 AprilTag mounting heights
+        double cameraHeight = 0.5;      // FIXME: Measure on robot
+        double targetHeight = 1.45;     // Center of AprilTag
+        double cameraAngle = 0;         // FIXME: Measure on robot
         
-        return (targetHeight - cameraHeight) / 
-               Math.tan(Math.toRadians(cameraAngle + ty));
+        double angleToTarget = cameraAngle + ty;
+        SmartDashboard.putNumber("FwdTest/AngleToTarget", angleToTarget);
+        
+        return (targetHeight - cameraHeight) / Math.tan(Math.toRadians(angleToTarget));
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        drivetrain.stopDrive();
     }
 }
