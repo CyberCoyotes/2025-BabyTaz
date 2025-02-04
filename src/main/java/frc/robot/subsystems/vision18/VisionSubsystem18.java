@@ -33,6 +33,7 @@ public class VisionSubsystem18 extends SubsystemBase {
     private final CommandSwerveDrivetrain drivetrain;
 
     private VisionMeasurement lastMeasurement;
+
     private boolean visionEnabled = true;
     // private final Alert visionAlert = new Alert("Vision system disabled",
     // AlertType.WARNING);
@@ -41,6 +42,9 @@ public class VisionSubsystem18 extends SubsystemBase {
     public VisionSubsystem18(String limelightName, CommandSwerveDrivetrain drivetrain) {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
+
+        // Initialize with empty measurement
+        this.lastMeasurement = createEmptyMeasurement();
 
         // Configure Limelight
         configureLimelight();
@@ -178,32 +182,7 @@ public class VisionSubsystem18 extends SubsystemBase {
         return limelightName;
     }
 
-    private void logVisionData() {
-        double txNT = NetworkTableInstance.getDefault()
-        .getTable(limelightName)
-        .getEntry("tx")
-        .getDouble(0.0);
-
-        // Basic target detection
-        Logger.recordOutput("Vsub/HasTarget", LimelightHelpers.getTV(limelightName));
-        Logger.recordOutput("Vsub/AprilTagID", LimelightHelpers.getFiducialID(limelightName));
-
-        // Raw targeting data
-        Logger.recordOutput("Vsub/TX", LimelightHelpers.getTX(limelightName));
-        Logger.recordOutput("Vsub/TX_NetTables", txNT);
-        Logger.recordOutput("Vsub/TY", LimelightHelpers.getTY(limelightName));
-        Logger.recordOutput("Vsub/TA", LimelightHelpers.getTA(limelightName));
-
-        // 3D pose data
-        Logger.recordOutput("Vsub/BotPose", getCurrentPose());
-        Logger.recordOutput("Vsub/TargetPose", getTargetPose());
-        Logger.recordOutput("Vsub/TargetDistance", getTargetDistance());
-
-        // System status
-        Logger.recordOutput("Vsub/Pipeline", LimelightHelpers.getCurrentPipelineIndex(limelightName));
-        Logger.recordOutput("Vsub/Latency", LimelightHelpers.getLatency_Pipeline(limelightName));
-        // Logger.recordOutput("Vision/FPS", LimelightHelpers.get (limelightName));
-    }
+   
 
     // Helper method for pose logging
     private Pose2d getCurrentPose() {
@@ -234,6 +213,19 @@ public class VisionSubsystem18 extends SubsystemBase {
         }
         return 0.0;
     }
+
+    private VisionMeasurement createEmptyMeasurement() {
+        return new VisionMeasurement(
+            new Pose2d(), // Empty pose
+            Timer.getFPGATimestamp(), // Current time
+            0.0, // No latency
+            0.0, // No ambiguity
+            0, // No tags
+            0.0, // No distance
+            new ArrayList<>() // Empty tag list
+        );
+    }
+    
 
     public void logDiagnostics() {
         // Connection status
@@ -282,5 +274,32 @@ public class VisionSubsystem18 extends SubsystemBase {
         // Logger.recordMetadata("Vsub/HasTarget", "Boolean");
         // Logger.recordMetadata("Vsub/Connected", "Boolean");
         // Logger.recordMetadata("Vsub/IsAligning", "Boolean");
+    }
+
+    private void logVisionData() {
+        double txNT = NetworkTableInstance.getDefault()
+        .getTable(limelightName)
+        .getEntry("tx")
+        .getDouble(0.0);
+
+        // Basic target detection
+        Logger.recordOutput("Vsub/HasTarget", LimelightHelpers.getTV(limelightName));
+        Logger.recordOutput("Vsub/AprilTagID", LimelightHelpers.getFiducialID(limelightName));
+
+        // Raw targeting data
+        Logger.recordOutput("Vsub/TX", LimelightHelpers.getTX(limelightName));
+        Logger.recordOutput("Vsub/TX_NetTables", txNT);
+        Logger.recordOutput("Vsub/TY", LimelightHelpers.getTY(limelightName));
+        Logger.recordOutput("Vsub/TA", LimelightHelpers.getTA(limelightName));
+
+        // 3D pose data
+        Logger.recordOutput("Vsub/BotPose", getCurrentPose());
+        Logger.recordOutput("Vsub/TargetPose", getTargetPose());
+        Logger.recordOutput("Vsub/TargetDistance", getTargetDistance());
+
+        // System status
+        Logger.recordOutput("Vsub/Pipeline", LimelightHelpers.getCurrentPipelineIndex(limelightName));
+        Logger.recordOutput("Vsub/Latency", LimelightHelpers.getLatency_Pipeline(limelightName));
+        // Logger.recordOutput("Vision/FPS", LimelightHelpers.get (limelightName));
     }
 }
