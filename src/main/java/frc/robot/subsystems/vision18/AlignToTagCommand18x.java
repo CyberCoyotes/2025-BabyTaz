@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision18;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
@@ -13,91 +14,84 @@ public class AlignToTagCommand18x extends Command {
     private final VisionSubsystem18 vision;
     
     // Only using X controller for distance testing
-    private final PIDController xController;
+    private final PIDController forwardController;
     
     // Robot-centric drive for testing
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
+
+    // Constants for distance calculation
+    private final double TARGET_DISTANCE = 1.0; // meters - adjust as needed
+    private final double MAX_SPEED = 0.15; // Start with slow speed for testing
 
     public AlignToTagCommand18x(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
-        // Start with lower gain for testing
-        xController = new PIDController(0.2, 0.0, 0.0);  // Reduced from 0.3
-        
-        // Larger tolerance for initial testing
-        xController.setTolerance(0.10);  // 10cm tolerance
+        // PID for forward/back motion
+        forwardController = new PIDController(0.15, 0.0, 0.0);  // Lower P gain for testing
+        forwardController.setTolerance(0.10);  // 10cm tolerance
         
         addRequirements(drivetrain);
     }
 
     @Override 
     public void execute() {
-        // Verify we have a target
-        if (!LimelightHelpers.getTV(vision.getName())) {
-            SmartDashboard.putBoolean("XTest/HasTarget", false);
+        // Debug if we see target
+        boolean hasTarget = LimelightHelpers.getTV(vision.getName());
+        SmartDashboard.putBoolean("FwdTest/HasTarget", hasTarget);
+        
+        if (!hasTarget) {
             drivetrain.stopDrive();
             return;
         }
-        SmartDashboard.putBoolean("XTest/HasTarget", true);
 
-        // Get Limelight measurements
-        double ty = LimelightHelpers.getTY(vision.getName());
+        // Get vertical angle to target (ty)
+        double targetY = LimelightHelpers.getTY(vision.getName());
+        SmartDashboard.putNumber("FwdTest/TargetY", targetY);
         
-        // Calculate and log current distance
-        double currentDistance = calculateDistance(ty);
-        double targetDistance = VisionConstants18.TARGET_DISTANCE_METERS;
-        double distanceError = targetDistance - currentDistance;
+        // Calculate current distance using ty
+        double currentDistance = calculateDistance(targetY);
+        double distanceError = TARGET_DISTANCE - currentDistance;
         
-        // Calculate X speed for forward/back movement
-        double xSpeed = xController.calculate(currentDistance, targetDistance);
-        
-        // Apply speed limit
-        double maxSpeed = 0.2; // Reduced for testing
-        xSpeed = MathUtil.clamp(xSpeed, -maxSpeed, maxSpeed);
+        // Calculate forward/back speed
+        double forwardSpeed = forwardController.calculate(currentDistance, TARGET_DISTANCE);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -MAX_SPEED, MAX_SPEED);
 
-        // Log all values for tuning
-        SmartDashboard.putNumber("XTest/TY", ty);
-        SmartDashboard.putNumber("XTest/CurrentDistance", currentDistance);
-        SmartDashboard.putNumber("XTest/TargetDistance", targetDistance);
-        SmartDashboard.putNumber("XTest/DistanceError", distanceError);
-        SmartDashboard.putNumber("XTest/XSpeed", xSpeed);
-        SmartDashboard.putBoolean("XTest/AtSetpoint", xController.atSetpoint());
+        // Log everything for debugging
+        SmartDashboard.putNumber("FwdTest/CurrentDistance", currentDistance);
+        SmartDashboard.putNumber("FwdTest/TargetDistance", TARGET_DISTANCE);
+        SmartDashboard.putNumber("FwdTest/DistanceError", distanceError);
+        SmartDashboard.putNumber("FwdTest/ForwardSpeed", forwardSpeed);
+        SmartDashboard.putBoolean("FwdTest/AtSetpoint", forwardController.atSetpoint());
         
-        // Send control - only X movement, no Y or rotation
+        // ONLY move forward/back - explicitly set other axes to 0
         drivetrain.setControl(robotCentric
-            .withVelocityX(xSpeed)  // Forward/back only
-            .withVelocityY(0)       // No left/right
-            .withRotationalRate(0)); // No rotation
+            .withVelocityX(forwardSpeed)  // Forward/back movement
+            .withVelocityY(0.0)           // Force no left/right
+            .withRotationalRate(0.0));     // Force no rotation
     }
-    
+
     @Override
     public boolean isFinished() {
-        if (!LimelightHelpers.getTV(vision.getName())) {
-            return false;
-        }
-        
-        return xController.atSetpoint();
+        return false; // Run until button is released for testing
     }
 
     @Override
     public void end(boolean interrupted) {
         drivetrain.stopDrive();
-        SmartDashboard.putBoolean("XTest/CommandActive", false);
     }
 
-    // Distance calculation with detailed comments
     private double calculateDistance(double ty) {
-        // FIXME: Update these measurements for your robot!
-        double limelightHeightMeters = 0.5;  // Height of Limelight lens from floor
-        double limelightMountAngleDegrees = 0.0; // Angle of Limelight from horizontal
-        double targetHeightMeters = 0.6; // Height of AprilTag center from floor
+        // TODO: Update these with your actual measured values!
+        double limelightHeightMeters = Units.inchesToMeters(12);  // Example: LL is 24" off ground
+        double tagHeightMeters = Units.inchesToMeters(11); // 2024 AprilTag center height
+        double mountAngleDegrees = 0.0; // Limelight mount angle from horizontal
         
-        // Convert ty (vertical angle to target) to radians and add mount angle
-        double angleToGoalRadians = Math.toRadians(limelightMountAngleDegrees + ty);
+        // Convert angles to radians
+        double angleToTargetRad = Math.toRadians(mountAngleDegrees + ty);
         
         // Calculate distance using trigonometry
-        // distance = opposite / tan(angle)
-        return (targetHeightMeters - limelightHeightMeters) / Math.tan(angleToGoalRadians);
+        double heightDifference = tagHeightMeters - limelightHeightMeters;
+        return heightDifference / Math.tan(angleToTargetRad);
     }
 }
