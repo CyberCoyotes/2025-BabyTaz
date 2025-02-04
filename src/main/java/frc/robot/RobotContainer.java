@@ -20,6 +20,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision18.AlignToTagCommand18a;
 import frc.robot.subsystems.vision18.AlignToTagCommand18b;
 import frc.robot.subsystems.vision18.AlignToTagCommand18x;
+import frc.robot.subsystems.vision18.AlignToTagCommand18y;
+
 import frc.robot.subsystems.vision18.VisionSubsystem18;
 
 
@@ -88,6 +90,7 @@ public class RobotContainer {
         driver.a().whileTrue(new AlignToTagCommand18a(drivetrain, vision18));
         driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
         driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
+        driver.y().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
