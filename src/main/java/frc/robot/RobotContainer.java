@@ -21,7 +21,7 @@ import frc.robot.subsystems.vision18.AlignToTagCommand18a;
 import frc.robot.subsystems.vision18.AlignToTagCommand18b;
 import frc.robot.subsystems.vision18.AlignToTagCommand18x;
 import frc.robot.subsystems.vision18.AlignToTagCommand18y;
-
+import frc.robot.subsystems.vision18.ForwardDistanceTest;
 import frc.robot.subsystems.vision18.VisionSubsystem18;
 
 
@@ -87,7 +87,7 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new AlignToTagCommand18a(drivetrain, vision18));
+        driver.a().whileTrue(new ForwardDistanceTest(drivetrain, vision18));
         driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
         driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
         driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
