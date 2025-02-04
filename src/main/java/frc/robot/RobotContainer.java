@@ -90,7 +90,7 @@ public class RobotContainer {
         driver.a().whileTrue(new AlignToTagCommand18a(drivetrain, vision18));
         driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
         driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
-        driver.y().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
+        driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
