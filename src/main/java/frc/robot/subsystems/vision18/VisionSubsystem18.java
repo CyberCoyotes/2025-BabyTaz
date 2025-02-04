@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightHelpers;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,7 +19,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.littletonrobotics.junction.Logger;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,24 @@ public class VisionSubsystem18 extends SubsystemBase {
         );
     }
 
+    // TODO Debugging method
+    @Override
+    public void periodic() {
+        if (!visionEnabled) {
+            visionAlert.set(true);
+            return;
+        }
+        visionAlert.set(false);
+
+        // Add this debug logging
+        logRawValues();
+
+        // Existing code...
+        processVisionData();
+        updateTelemetry();
+    }
+
+    /* ORIGINAL before debugging
     @Override
     public void periodic() {
         if (!visionEnabled) {
@@ -72,6 +92,7 @@ public class VisionSubsystem18 extends SubsystemBase {
         // Log telemetry
         updateTelemetry();
     }
+        */
 
     private void processVisionData() {
         if (!LimelightHelpers.getTV(limelightName)) {
@@ -142,7 +163,12 @@ public class VisionSubsystem18 extends SubsystemBase {
         // Log basic vision data
         Logger.recordOutput("V18/Enabled", visionEnabled);
         Logger.recordOutput("V18/HasTarget", LimelightHelpers.getTV(limelightName));
-        
+        Logger.recordOutput("V18/TX", LimelightHelpers.getTX(limelightName));
+        Logger.recordOutput("V18/TY", LimelightHelpers.getTY(limelightName));
+        Logger.recordOutput("V18/TA", LimelightHelpers.getTA(limelightName));
+        Logger.recordOutput("V18/AvgDistance", lastMeasurement.getAvgDistance());
+        Logger.recordOutput("V18/TagIDs", lastMeasurement.getTagIds().toString());
+
         if (lastMeasurement != null) {
             Logger.recordOutput("V18/LastPose", lastMeasurement.getPose());
             Logger.recordOutput("V18/NumTags", lastMeasurement.getNumTags());
@@ -165,4 +191,27 @@ public class VisionSubsystem18 extends SubsystemBase {
     public String getName() {
         return limelightName;
     }
+
+    // TODO
+    // Add debug method
+    public void logRawValues() {
+        // Get values multiple ways to compare
+        double tx1 = LimelightHelpers.getTX(limelightName);
+        double tx2 = NetworkTableInstance.getDefault()
+            .getTable(limelightName)
+            .getEntry("tx")
+            .getDouble(0.0);
+            
+        SmartDashboard.putString("V18/LimelightName", limelightName);
+        SmartDashboard.putNumber("V18/TX_Helper", tx1);
+        SmartDashboard.putNumber("V18/TX_Direct", tx2);
+        
+        // Log if we can actually see the Limelight
+        SmartDashboard.putBoolean("V18/LimelightConnected", 
+            NetworkTableInstance.getDefault()
+                .getTable(limelightName)
+                .containsKey("tx"));
+    }
+
+
 }

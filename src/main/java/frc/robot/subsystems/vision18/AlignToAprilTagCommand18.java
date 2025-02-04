@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightHelpers;
 
 public class AlignToAprilTagCommand18 extends Command {
     private final CommandSwerveDrivetrain drivetrain;
@@ -82,6 +81,8 @@ public class AlignToAprilTagCommand18 extends Command {
         SmartDashboard.putNumber("V18/XSpeed", xSpeed);
         SmartDashboard.putNumber("V18/YSpeed", ySpeed);
         SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
+        // Also log Network Tables path for verification
+        SmartDashboard.putString("V18/LimelightName", vision.getName());
         
         // Single control request - front mounted camera
         drivetrain.setControl(robotCentric
