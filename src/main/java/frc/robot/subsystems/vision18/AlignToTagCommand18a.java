@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class AlignToAprilTagCommand18 extends Command {
+public class AlignToTagCommand18a extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem18 vision;
     
@@ -24,7 +24,7 @@ public class AlignToAprilTagCommand18 extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
 
-    public AlignToAprilTagCommand18(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18a(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
@@ -82,7 +82,6 @@ public class AlignToAprilTagCommand18 extends Command {
         SmartDashboard.putNumber("V18/XSpeed", xSpeed);
         SmartDashboard.putNumber("V18/YSpeed", ySpeed);
         SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
-        // Also log Network Tables path for verification
         SmartDashboard.putString("V18/LimelightName", vision.getName());
         
         // Single control request - front mounted camera
@@ -90,16 +89,6 @@ public class AlignToAprilTagCommand18 extends Command {
             .withVelocityX(xSpeed)
             .withVelocityY(ySpeed)
             .withRotationalRate(rotationSpeed));
-    }
-
-    // Modified distance calculation for accuracy
-    private double calculateDistance(double ty) {
-        double limelightHeightMeters = 0.5; // Verify this height
-        double limelightMountAngleDegrees = 0.0; // Updated for front mount
-        double targetHeightMeters = 0.6; // Verify this target height
-        
-        double angleToGoalRadians = Math.toRadians(limelightMountAngleDegrees + ty);
-        return (targetHeightMeters - limelightHeightMeters) / Math.tan(angleToGoalRadians);
     }
 
     //
@@ -118,6 +107,18 @@ public class AlignToAprilTagCommand18 extends Command {
     public void end(boolean interrupted) {
         drivetrain.stopDrive();
     }
+
+
+    // Modified distance calculation for accuracy
+    private double calculateDistance(double ty) {
+        double limelightHeightMeters = 0.5; // Verify this height
+        double limelightMountAngleDegrees = 0.0; // Updated for front mount
+        double targetHeightMeters = 0.6; // Verify this target height
+        
+        double angleToGoalRadians = Math.toRadians(limelightMountAngleDegrees + ty);
+        return (targetHeightMeters - limelightHeightMeters) / Math.tan(angleToGoalRadians);
+    }
+
 }
 
 /*

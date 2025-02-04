@@ -1,17 +1,21 @@
 package frc.robot.subsystems.vision18;
 
+/* 
+ * Value Testing 
+ */
+
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class AlignValueTest extends Command {
+public class AlignToTagCommand18x extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem18 vision;
 
@@ -23,14 +27,13 @@ public class AlignValueTest extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
 
-    public AlignValueTest(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18x(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
-        // Adjust gains - Y controller needs to be more aggressive to correct the arcing
-        xController = new PIDController(0.3, 0.0, 0.0); // Distance control
-        yController = new PIDController(0.4, 0.0, 0.0); // Lateral control
-        rotationController = new PIDController(0.3, 0.0, 0.0); // Rotation control
+        xController = new PIDController(0.0, 0.0, 0.0); // Distance control
+        yController = new PIDController(0.0, 0.0, 0.0); // Lateral control
+        rotationController = new PIDController(0.0, 0.0, 0.0); // Rotation control
 
         // Increase tolerance for testing
         xController.setTolerance(0.05); // 5cm
@@ -102,24 +105,9 @@ public class AlignValueTest extends Command {
 
     // Modified distance calculation for accuracy
     private double calculateDistance(double ty) {
-        /*
-         * | Inches | Meters |
-         *  -------------------
-         * | 0"     | 0 m |
-         * | 3"     | 0.0762 m |
-         * | 6"     | 0.1524 m |
-         * | 7"     | 0.1778 m |
-         * | 9"     | 0.2286 m |
-         * | 12"    | 0.3048 m |
-         * | 15"    | 0.381 m |
-         * | 18"    | 0.4572 m |
-         * | 21"    | 0.5334 m |
-         * | 24"    | 0.6096 m |
-         */
-
-        double limelightHeightMeters = 0.5; // FIXME Verify this height
+        double limelightHeightMeters = Units.inchesToMeters(12.0); // FIXME Verify this height
         double limelightMountAngleDegrees = 0.0; // Updated for front mount
-        double targetHeightMeters = 0.6; // FIXME Verify this target height
+        double targetHeightMeters = Units.inchesToMeters(7); // FIXME Verify this target height
         // | 7" is 0.1778 meters |
 
         double angleToGoalRadians = Math.toRadians(limelightMountAngleDegrees + ty);

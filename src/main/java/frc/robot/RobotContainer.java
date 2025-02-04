@@ -17,12 +17,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision18.AlignToAprilTagCommand18;
+import frc.robot.subsystems.vision18.AlignToTagCommand18a;
+import frc.robot.subsystems.vision18.AlignToTagCommand18b;
+import frc.robot.subsystems.vision18.AlignToTagCommand18x;
 import frc.robot.subsystems.vision18.VisionSubsystem18;
 
 
 public class RobotContainer {
-
 
     private double slowMo = 0.30;
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)* slowMo; // kSpeedAt12Volts desired top speed
@@ -44,9 +45,16 @@ public class RobotContainer {
     // TODO Create a VisionSubsystem18 object
     private final VisionSubsystem18 vision18 = new VisionSubsystem18("limelight", drivetrain);
 
+    
     public RobotContainer() {
         configureBindings();
-    }
+            // Setup vision logging
+        VisionSubsystem18.setupAdvantagescopeLayout();
+       // Configure telemetry updates
+    //    vision18.setLoggingEnabled(true);
+    
+     }
+
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
@@ -77,7 +85,10 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new AlignToAprilTagCommand18(drivetrain, vision18));
+        driver.a().whileTrue(new AlignToTagCommand18a(drivetrain, vision18));
+        driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
+        driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

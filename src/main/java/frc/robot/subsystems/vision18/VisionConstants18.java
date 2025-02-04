@@ -7,8 +7,15 @@ import edu.wpi.first.math.geometry.Translation3d;
 public final class VisionConstants18 {
 // Updated for front-mounted camera
 public static final Transform3d ROBOT_TO_CAM = new Transform3d(
-    new Translation3d(0.5, 0.0, 0.5), // Front mounted - positive X
-    new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)) // No rotation needed
+    new Translation3d(
+        0.2, // Camera is 20cm in front of robot or 20cm from center of robot?
+        0.0, // Camera is centered on robot "left-right"
+        0.2 // Camera is 20cm above robot center 
+      ),
+    new Rotation3d(
+        0, //
+        Math.toRadians(0), //
+        Math.toRadians(0)) //
 );
 
     // Vision processing constants
