@@ -29,7 +29,7 @@ public static final Transform3d ROBOT_TO_CAM = new Transform3d(
     public static final double THETA_STD_DEV_COEFFICIENT = 0.01;
 
     // Distance-based standard deviation scaling
-    public static final double MIN_RANGE = 0.5; // Minimum range for full confidence (meters)
+    public static final double MIN_RANGE = 0.25; // Minimum range for full confidence (meters)
     public static final double MAX_RANGE = 4.0; // Maximum range before rejecting (meters)
     
 // Adjusted constants

@@ -21,14 +21,14 @@ public class AlignToTagCommand18x extends Command {
 
     // Constants for distance calculation
     private final double TARGET_DISTANCE = 1.0; // meters - adjust as needed
-    private final double MAX_SPEED = 0.15; // Start with slow speed for testing
+    private final double MAX_SPEED = 0.4; // Start with slow speed for testing
 
     public AlignToTagCommand18x(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
         // PID for forward/back motion
-        forwardController = new PIDController(0.15, 0.0, 0.0);  // Lower P gain for testing
+        forwardController = new PIDController(0.0, 0.0, 0.0);  // Lower P gain for testing
         forwardController.setTolerance(0.10);  // 10cm tolerance
         
         addRequirements(drivetrain);

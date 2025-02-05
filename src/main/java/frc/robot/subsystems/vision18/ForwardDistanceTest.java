@@ -24,7 +24,10 @@ public class ForwardDistanceTest extends Command {
         this.vision = vision;
         
         // Configure PID
-        distanceController = new PIDController(0.15, 0, 0);
+        distanceController = new PIDController(
+            1.0, /* 0.5 was good, 0.75 good */ 
+            0, 
+            0);
         distanceController.setTolerance(0.1); // 10cm tolerance
         addRequirements(drivetrain);
 
@@ -52,7 +55,7 @@ public class ForwardDistanceTest extends Command {
         // Calculate error and speed
         double distanceError = currentDistance - TARGET_DISTANCE;
         double forwardSpeed = distanceController.calculate(currentDistance, TARGET_DISTANCE);
-        forwardSpeed = MathUtil.clamp(forwardSpeed, -0.15, 0.15);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -1, 1);
     
         // Debug info
         SmartDashboard.putNumber("FwdTest/TY", ty);

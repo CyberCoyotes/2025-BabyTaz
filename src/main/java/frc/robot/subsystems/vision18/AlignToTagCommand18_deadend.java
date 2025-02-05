@@ -74,7 +74,7 @@ public class AlignToTagCommand18_deadend extends Command {
         SmartDashboard.putNumber("V18/YController_Error", -tx_raw);
 
         // Apply speed limits and log
-        double maxSpeed = 0.3;
+        double maxSpeed = 0.5;
         ySpeed = MathUtil.clamp(ySpeed, -maxSpeed, maxSpeed);
         SmartDashboard.putNumber("V18/YSpeed_Clamped", ySpeed);
 
