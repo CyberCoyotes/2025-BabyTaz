@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision18.AlignToTagCommand18a;
+import frc.robot.subsystems.vision18.AlignToTagCommand18f;
 import frc.robot.subsystems.vision18.AlignToTagCommand18b;
 import frc.robot.subsystems.vision18.AlignToTagCommand18x;
 import frc.robot.subsystems.vision18.AlignToTagCommand18y;
@@ -87,7 +87,7 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new ForwardDistanceTest(drivetrain, vision18));
+        driver.a().whileTrue(new AlignToTagCommand18f(drivetrain, vision18));
         driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
         driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
         driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
