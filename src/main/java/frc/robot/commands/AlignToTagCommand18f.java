@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision18.VisionSubsystem;
+import frc.robot.subsystems.vision18.VisionConstants.PID;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -32,19 +33,19 @@ public class AlignToTagCommand18f extends Command {
 
         // Forward/back control - using tuned values from ForwardDistanceTest
         forwardController = new PIDController(
-            1.0, 
-            0.0, 
-            0.0
+            PID.FORWARD_P, 
+            PID.FORWARD_I, 
+            PID.FORWARD_D
             );
-        forwardController.setTolerance(0.1); // 10cm
+        forwardController.setTolerance(PID.FORWARD_TOLERANCE);
 
         // Left/right control - using tuned values from previous testing
         lateralController = new PIDController(
-            0.1, // 0.4, 0.3, 0.2 best, 0.1
-            0.0, 
-            0.00 // 0.05, 0.15
+            PID.LATERAL_P, // 0.4, 0.3, 0.2 best, 0.1
+            PID.LATERAL_I, 
+            PID.LATERAL_D // 0.05, 0.15
             );
-        lateralController.setTolerance(0.05); // 5cm
+        lateralController.setTolerance(PID.LATERAL_TOLERANCE);
 
         addRequirements(drivetrain);
         setupLogging();

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision18.VisionConstants;
+import frc.robot.subsystems.vision18.VisionConstants.PID;
 import frc.robot.subsystems.vision18.VisionSubsystem;
 
 import org.littletonrobotics.junction.Logger;
@@ -20,28 +21,33 @@ public class AlignToTagCommand18g extends Command {
     // PID Controllers for both axes
     private final PIDController forwardController;
     private final PIDController lateralController;
-    
+    private final PIDController rotationController;
+
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
-    
+
     public AlignToTagCommand18g(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
         // Forward/back control - using tuned values from ForwardDistanceTest
         forwardController = new PIDController(
-            1.0, 
-            0.0, 
-            0.0
-            );
-        forwardController.setTolerance(0.1); // 10cm
+                PID.FORWARD_P,
+                PID.FORWARD_I,
+                PID.FORWARD_D);
+        forwardController.setTolerance(PID.FORWARD_TOLERANCE);
 
         // Left/right control - using tuned values from previous testing
         lateralController = new PIDController(
-            0.1, // 0.4, 0.3, 0.2 best, 0.1
-            0.0, 
-            0.00 // 0.05, 0.15
-            );
-        lateralController.setTolerance(0.05); // 5cm
+                PID.LATERAL_P, // 0.4, 0.3, 0.2 best, 0.1
+                PID.LATERAL_I,
+                PID.LATERAL_D // 0.05, 0.15
+        );
+
+        rotationController = new PIDController(
+                PID.ROTATION_P,
+                PID.ROTATION_I,
+                PID.ROTATION_D);
+        rotationController.setTolerance(PID.ROTATION_TOLERANCE);
 
         addRequirements(drivetrain);
         setupLogging();
@@ -57,28 +63,27 @@ public class AlignToTagCommand18g extends Command {
         // Get Limelight measurements
         double tx = LimelightHelpers.getTX(vision.getName());
         double ty = LimelightHelpers.getTY(vision.getName());
-        
+        double targetSkew = LimelightHelpers.getTargetSkew(vision.getName()); // Get target skew
+
         // Calculate distances and speeds
         double currentDistance = calculateDistance(ty);
-        
-        // Calculate controls for both axes
+
+        // Calculate controls for all axes
         double forwardSpeed = forwardController.calculate(currentDistance, VisionConstants.TARGET_DISTANCE);
         double lateralSpeed = lateralController.calculate(tx, 0);
-        double rotationalSpeed = 1.0; // No rotation
-        
+        double rotationSpeed = rotationController.calculate(targetSkew, 0); // Target 0 skew for perpendicular
+
         // Apply speed limits
         forwardSpeed = MathUtil.clamp(forwardSpeed, -VisionConstants.MAX_SPEED, VisionConstants.MAX_SPEED);
         lateralSpeed = MathUtil.clamp(lateralSpeed, -VisionConstants.MAX_SPEED, VisionConstants.MAX_SPEED);
-        rotationalSpeed = MathUtil.clamp(rotationalSpeed, -VisionConstants.MAX_SPEED, VisionConstants.MAX_SPEED);
-
-        // Log data
-        logData(tx, ty, currentDistance, forwardSpeed, lateralSpeed);
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -VisionConstants.MAX_ANGULAR_SPEED,
+                VisionConstants.MAX_ANGULAR_SPEED);
 
         // Apply combined control
         drivetrain.setControl(drive
-            .withVelocityX(forwardSpeed)  // Forward/back
-            .withVelocityY(lateralSpeed)  // Left/right
-            .withRotationalRate(rotationalSpeed));      // No rotation
+                .withVelocityX(forwardSpeed) // Forward/back
+                .withVelocityY(lateralSpeed) // Left/right
+                .withRotationalRate(rotationSpeed)); // Add rotation control
     }
 
     private void handleNoTarget() {
@@ -91,9 +96,10 @@ public class AlignToTagCommand18g extends Command {
         double cameraHeight = Units.inchesToMeters(12.5);
         double targetHeight = Units.inchesToMeters(25.5);
         double cameraAngle = 0;
-        
+
         double angleToTarget = cameraAngle + ty;
-        return Math.abs((targetHeight - cameraHeight) / Math.tan(Math.toRadians(angleToTarget))); // Ty is negative, needed to add abs.
+        return Math.abs((targetHeight - cameraHeight) / Math.tan(Math.toRadians(angleToTarget))); // Ty is negative,
+                                                                                                  // needed to add abs.
     }
 
     private void logData(double tx, double ty, double distance, double PIDforwardSpeed, double lateralSpeed) {
@@ -112,28 +118,41 @@ public class AlignToTagCommand18g extends Command {
         Logger.recordOutput("AlignCombo/Distance", distance);
         // Logger.recordOutput("AlignCombo/ForwardSpeed", forwardSpeed);
         Logger.recordOutput("AlignCombo/LateralSpeed", lateralSpeed);
-        Logger.recordOutput("AlignCombo/AtSetpoint", 
-            forwardController.atSetpoint() && lateralController.atSetpoint());
+        Logger.recordOutput("AlignCombo/AtSetpoint",
+                forwardController.atSetpoint() && lateralController.atSetpoint());
+
+        // SmartDashboard.putNumber("AlignTag/TargetSkew",
+        // LimelightHelpers.getTargetSkew(vision.getName()));
+        SmartDashboard.putNumber("AlignTag/RotationSpeed", rotationSpeed);
+        SmartDashboard.putBoolean("AlignTag/AtRotationSetpoint", rotationController.atSetpoint());
+
+        // Logger.recordOutput("AlignCombo/TargetSkew",
+        // LimelightHelpers.getTargetSkew(vision.getName()));
+        Logger.recordOutput("AlignCombo/RotationSpeed", rotationSpeed);
+
     }
 
     private void setupLogging() {
         Logger.recordMetadata("AlignCombo/Description", "Combined alignment to AprilTag");
-        Logger.recordMetadata("AlignCombo/TargetDistance", String.format("%.2f meters", VisionConstants.TARGET_DISTANCE));
-        Logger.recordMetadata("AlignCombo/ForwardPID", 
-            String.format("kP: %.3f, kI: %.3f, kD: %.3f", 
-                forwardController.getP(),
-                forwardController.getI(),
-                forwardController.getD()));
+        Logger.recordMetadata("AlignCombo/TargetDistance",
+                String.format("%.2f meters", VisionConstants.TARGET_DISTANCE));
+        Logger.recordMetadata("AlignCombo/ForwardPID",
+                String.format("kP: %.3f, kI: %.3f, kD: %.3f",
+                        forwardController.getP(),
+                        forwardController.getI(),
+                        forwardController.getD()));
         Logger.recordMetadata("AlignCombo/LateralPID",
-            String.format("kP: %.3f, kI: %.3f, kD: %.3f",
-                lateralController.getP(),
-                lateralController.getI(),
-                lateralController.getD()));
+                String.format("kP: %.3f, kI: %.3f, kD: %.3f",
+                        lateralController.getP(),
+                        lateralController.getI(),
+                        lateralController.getD()));
     }
 
     @Override
     public boolean isFinished() {
-        return forwardController.atSetpoint() && lateralController.atSetpoint();
+        return forwardController.atSetpoint() &&
+                lateralController.atSetpoint() &&
+                rotationController.atSetpoint();
     }
 
     @Override
