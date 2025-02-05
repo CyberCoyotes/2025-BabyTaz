@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.reference;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
 public class AlignToTagCommand18x extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
     
     // Only using X controller for distance testing
     private final PIDController forwardController;
@@ -23,7 +24,7 @@ public class AlignToTagCommand18x extends Command {
     private final double TARGET_DISTANCE = 1.0; // meters - adjust as needed
     private final double MAX_SPEED = 0.4; // Start with slow speed for testing
 
-    public AlignToTagCommand18x(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18x(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 

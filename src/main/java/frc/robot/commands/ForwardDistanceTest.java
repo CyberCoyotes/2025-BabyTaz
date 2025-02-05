@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil; 
@@ -8,18 +8,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionSubsystem;
+
 import org.littletonrobotics.junction.Logger;
 
 public class ForwardDistanceTest extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
     private final PIDController distanceController;
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
     
     // Target distance - adjust as needed
     private static final double TARGET_DISTANCE = 1.0; // Needs to be 0.5 to 1.5 meters because space constraints
 
-    public ForwardDistanceTest(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public ForwardDistanceTest(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         

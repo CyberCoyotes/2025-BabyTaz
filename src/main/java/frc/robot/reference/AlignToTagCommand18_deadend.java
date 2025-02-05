@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.reference;
 
 /* 
  * Value Testing 
@@ -14,10 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
 public class AlignToTagCommand18_deadend extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
 
     // Adjust PID controllers with lower gains and deadbands
     private final PIDController xController; // Controls forward/backward
@@ -27,7 +28,7 @@ public class AlignToTagCommand18_deadend extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
 
-    public AlignToTagCommand18_deadend(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18_deadend(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 

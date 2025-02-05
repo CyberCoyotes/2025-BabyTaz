@@ -14,15 +14,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.AlignToTagCommand18f;
 import frc.robot.generated.TunerConstants;
+import frc.robot.reference.AlignToTagCommand18b;
+import frc.robot.reference.AlignToTagCommand18x;
+import frc.robot.reference.AlignToTagCommand18y;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision18.AlignToTagCommand18f;
-import frc.robot.subsystems.vision18.AlignToTagCommand18b;
-import frc.robot.subsystems.vision18.AlignToTagCommand18x;
-import frc.robot.subsystems.vision18.AlignToTagCommand18y;
-import frc.robot.subsystems.vision18.ForwardDistanceTest;
-import frc.robot.subsystems.vision18.VisionSubsystem18;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
 
 public class RobotContainer {
@@ -45,13 +43,13 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // TODO Create a VisionSubsystem18 object
-    private final VisionSubsystem18 vision18 = new VisionSubsystem18("limelight", drivetrain);
+    private final VisionSubsystem vision18 = new VisionSubsystem("limelight", drivetrain);
 
     
     public RobotContainer() {
         configureBindings();
             // Setup vision logging
-        VisionSubsystem18.setupAdvantagescopeLayout();
+        VisionSubsystem.setupAdvantagescopeLayout();
        // Configure telemetry updates
     //    vision18.setLoggingEnabled(true);
     

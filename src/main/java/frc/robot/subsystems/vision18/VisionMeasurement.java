@@ -3,7 +3,7 @@ package frc.robot.subsystems.vision18;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.subsystems.vision18.VisionConstants18;
+import frc.robot.subsystems.vision18.VisionConstants;
 
 public class VisionMeasurement {
     private final Pose2d pose;
@@ -30,9 +30,9 @@ public class VisionMeasurement {
     
     public boolean isValid() {
         return numTags > 0 && 
-               latency < VisionConstants18.MAX_POSE_LATENCY &&
-               ambiguity < VisionConstants18.MAX_POSE_AMBIGUITY &&
-               avgDistance < VisionConstants18.MAX_RANGE;
+               latency < VisionConstants.MAX_POSE_LATENCY &&
+               ambiguity < VisionConstants.MAX_POSE_AMBIGUITY &&
+               avgDistance < VisionConstants.MAX_RANGE;
     }
 
     public Pose2d getPose() {

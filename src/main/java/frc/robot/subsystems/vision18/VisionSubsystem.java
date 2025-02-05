@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisionSubsystem18 extends SubsystemBase {
+public class VisionSubsystem extends SubsystemBase {
     private final String limelightName;
     private final CommandSwerveDrivetrain drivetrain;
 
@@ -39,7 +39,7 @@ public class VisionSubsystem18 extends SubsystemBase {
     // AlertType.WARNING);
     private final Alert visionAlert = new Alert("Vision system disabled", AlertType.kWarning);
 
-    public VisionSubsystem18(String limelightName, CommandSwerveDrivetrain drivetrain) {
+    public VisionSubsystem(String limelightName, CommandSwerveDrivetrain drivetrain) {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
 
@@ -57,12 +57,12 @@ public class VisionSubsystem18 extends SubsystemBase {
         // Set camera pose
         LimelightHelpers.setCameraPose_RobotSpace(
                 limelightName,
-                VisionConstants18.ROBOT_TO_CAM.getX(),
-                VisionConstants18.ROBOT_TO_CAM.getY(),
-                VisionConstants18.ROBOT_TO_CAM.getZ(),
-                VisionConstants18.ROBOT_TO_CAM.getRotation().getX(),
-                VisionConstants18.ROBOT_TO_CAM.getRotation().getY(),
-                VisionConstants18.ROBOT_TO_CAM.getRotation().getZ());
+                VisionConstants.ROBOT_TO_CAM.getX(),
+                VisionConstants.ROBOT_TO_CAM.getY(),
+                VisionConstants.ROBOT_TO_CAM.getZ(),
+                VisionConstants.ROBOT_TO_CAM.getRotation().getX(),
+                VisionConstants.ROBOT_TO_CAM.getRotation().getY(),
+                VisionConstants.ROBOT_TO_CAM.getRotation().getZ());
     }
 
     // Debugging method
@@ -91,7 +91,7 @@ public class VisionSubsystem18 extends SubsystemBase {
 
         // Get basic target info
         double ta = LimelightHelpers.getTA(limelightName);
-        if (ta < VisionConstants18.MIN_TARGET_AREA) {
+        if (ta < VisionConstants.MIN_TARGET_AREA) {
             return;
         }
 
@@ -141,8 +141,8 @@ public class VisionSubsystem18 extends SubsystemBase {
 
     private Matrix<N3, N1> calculateStdDevs(double distance) {
         // Calculate standard deviations based on distance
-        double xyStdDev = VisionConstants18.XY_STD_DEV_COEFFICIENT * Math.pow(distance, 2.0);
-        double thetaStdDev = VisionConstants18.THETA_STD_DEV_COEFFICIENT * Math.pow(distance, 2.0);
+        double xyStdDev = VisionConstants.XY_STD_DEV_COEFFICIENT * Math.pow(distance, 2.0);
+        double thetaStdDev = VisionConstants.THETA_STD_DEV_COEFFICIENT * Math.pow(distance, 2.0);
 
         return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
     }
@@ -247,7 +247,7 @@ public class VisionSubsystem18 extends SubsystemBase {
     public void logAlignmentData() {
         // Record alignment errors
         if (lastMeasurement != null) {
-            Logger.recordOutput("Vision/AlignX_Error", lastMeasurement.getPose().getX() - VisionConstants18.TARGET_DISTANCE_METERS);
+            Logger.recordOutput("Vision/AlignX_Error", lastMeasurement.getPose().getX() - VisionConstants.TARGET_DISTANCE_METERS);
             Logger.recordOutput("Vision/AlignY_Error", lastMeasurement.getPose().getY());
             Logger.recordOutput("Vision/AlignRotation_Error", lastMeasurement.getPose().getRotation().getDegrees());
         }

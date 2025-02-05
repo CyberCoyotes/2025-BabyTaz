@@ -1,8 +1,8 @@
-package frc.robot.commands;
+package frc.robot.reference;
 
 /*
  * Reference
- * https://claude.ai/chat/73d30e8e-1c9a-4a0e-9f04-0eca780cae63 
+ * https://claude.ai/chat/1ca7b94d-e659-4ac5-8f29-01629b1543ce 
  */
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -21,36 +21,40 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class VisionOffsetDriveForwardCommand extends Command {
+public class VisionCenterCommand11 extends Command {
     private final VisionSubsystem vision;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
-    private final double targetOffset; // Added offset parameter
 
-    // CTRE Swerve request remains the same
+    // Updated for CTRE Swerve
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
+    // Shuffleboard tuning entries
+    /* 
+    private final GenericEntry pGainEntry = Shuffleboard.getTab("Vision")
+            .add("Translation P", Constraints.TRANSLATION_P).getEntry();
+    private final GenericEntry rotPGainEntry = Shuffleboard.getTab("Vision")
+            .add("Rotation P", Constraints.ROTATION_P).getEntry();
+    */
+    
     private final ProfiledPIDController strafeController;
     private final ProfiledPIDController rotationController;
 
-    // Modified constructor to accept offset
-    public VisionOffsetDriveForwardCommand(
-            VisionSubsystem vision,
-            CommandSwerveDrivetrain drivetrain,
-            CommandXboxController driverController,
-            double targetOffset) { // Added parameter
+    // public VisionImprovedCenterCommand_v5(VisionSubsystem vision,
+    // CommandSwerveDrivetrain drivetrain) {
+
+    public VisionCenterCommand11(VisionSubsystem vision, CommandSwerveDrivetrain drivetrain,
+            CommandXboxController driverController) {
         this.vision = vision;
         this.drivetrain = drivetrain;
         this.driverController = driverController;
-        this.targetOffset = targetOffset; // Store the offset
 
         // Only require vision subsystem since we want to blend driver input
         addRequirements(vision);
 
-        TrapezoidProfile.Constraints translationConstraints = new TrapezoidProfile.Constraints(
-                VisionConstants.MAX_TRANSLATIONAL_VELOCITY,
+        TrapezoidProfile.Constraints translationConstraints = new TrapezoidProfile.Constraints(VisionConstants.MAX_TRANSLATIONAL_VELOCITY,
                 VisionConstants.MAX_TRANSLATIONAL_ACCELERATION);
         TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(
                 VisionConstants.MAX_ANGULAR_VELOCITY, VisionConstants.MAX_ANGULAR_ACCELERATION);
@@ -63,15 +67,65 @@ public class VisionOffsetDriveForwardCommand extends Command {
                 0.02);
 
         rotationController = new ProfiledPIDController(
-                VisionConstants.ANGULAR_kP,
-                VisionConstants.ANGULAR_kI,
-                VisionConstants.ANGULAR_kD,
+            VisionConstants.ANGULAR_kP,
+            VisionConstants.ANGULAR_kI,
+            VisionConstants.ANGULAR_kD,
                 rotationConstraints,
                 0.02);
 
+        /*
+         * // Create Shuffleboard tab for tuning
+         * ShuffleboardTab tab = Shuffleboard.getTab("Vision Tuning");
+         * // Constraints
+         * tab.addNumber("Max Velocity", () -> Constraints.MAX_VELOCITY)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 2.0));
+         * 
+         * tab.addNumber("Max Accel", () -> Constraints.MAX_ACCELERATION)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 3.0));
+         * 
+         * tab.addNumber("Max Rotation Velocity", () ->
+         * Constraints.MAX_ROTATION_VELOCITY)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 3.0));
+         * 
+         * tab.addNumber("Max Rotation Accel", () ->
+         * Constraints.MAX_ROTATION_ACCELERATION)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 3.0));
+         * // Tolerances
+         * tab.addNumber("Position Tolerance", () -> Constraints.POSITION_TOLERANCE)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.01, "max", 0.2));
+         * tab.addNumber("Rotation Tolerance", () -> Constraints.ROTATION_TOLERANCE)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.01, "max", 0.2));
+         * 
+         * // Gains
+         * tab.addNumber("Translation P", () -> Constraints.TRANSLATION_P)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 0.5));
+         * tab.addNumber("Translation I", () -> Constraints.TRANSLATION_I)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 0.5));
+         * tab.addNumber("Translation D", () -> Constraints.TRANSLATION_D)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 0.5));
+         * tab.addNumber("Rotation P", () -> Constraints.ROTATION_P)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 2.0));
+         * tab.addNumber("Rotation I", () -> Constraints.ROTATION_I)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 2.0));
+         * tab.addNumber("Rotation D", () -> Constraints.ROTATION_D)
+         * .withWidget(BuiltInWidgets.kNumberSlider)
+         * .withProperties(Map.of("min", 0.0, "max", 2.0));
+         * 
+         */
+
         configurePIDControllers();
         addRequirements(vision, drivetrain);
-
     }
 
     private void configurePIDControllers() {
@@ -86,16 +140,24 @@ public class VisionOffsetDriveForwardCommand extends Command {
         rotationController.reset(0, 0);
     }
 
-
     @Override
     public void execute() {
         if (!vision.hasTarget()) {
+            // handleDriverInput(); // TODO Test, but should NOT be needed
             return;
         }
 
-        // Calculate vision alignment velocities with offset
-        double horizontalOffset = vision.getHorizontalOffset() - targetOffset; // Apply offset
-        double strafeSpeed = strafeController.calculate(horizontalOffset, 0);
+        /* 
+        TODO Find out the tagId for the vision targets this season.
+        */ 
+        int tagId = (int) vision.getTagId();
+        if (tagId < 1 || tagId > 22) {
+            stopMovement();
+            return;
+        }
+
+        // Calculate vision alignment velocities
+        double strafeSpeed = calculateStrafeSpeed();
         double rotationRate = calculateRotationRate();
 
         // Blend with driver input
@@ -108,10 +170,40 @@ public class VisionOffsetDriveForwardCommand extends Command {
                 .withVelocityX(driverForward)
                 .withVelocityY(strafeSpeed + driverStrafe)
                 .withRotationalRate(rotationRate + driverRotation));
+        double horizontalOffset = vision.getHorizontalOffset();
+
+        // Scale gains based on distance
+        double distanceScale = Math.abs(horizontalOffset) / 10.0;
+        distanceScale = Math.max(0.3, distanceScale);
+
+        // Update PID gains from dashboard and scale them
+        // strafeController.setP(pGainEntry.getDouble(Constraints.TRANSLATION_P) *
+        // distanceScale);
+        // rotationController.setP(rotPGainEntry.getDouble(Constraints.ROTATION_P) *
+        // distanceScale);
+
+        drivetrain.setControl(drive
+                .withVelocityX(0)
+                .withVelocityY(strafeSpeed)
+                .withRotationalRate(rotationRate));
 
         updateTelemetry(horizontalOffset, strafeSpeed, rotationRate);
+
+        
     }
 
+/* Not Sure why this would even be needed...
+    private void handleDriverInput() {
+        double forward = -driverController.getLeftY() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double strafe = -driverController.getLeftX() * VisionConstants.MAX_TRANSLATIONAL_VELOCITY;
+        double rotation = -driverController.getRightX() * VisionConstants.MAX_ANGULAR_VELOCITY;
+
+        drivetrain.setControl(drive
+            .withVelocityX(forward)
+            .withVelocityY(strafe)
+            .withANGULARRate(rotation));
+    }
+*/
     private double calculateStrafeSpeed() {
         double horizontalOffset = vision.getHorizontalOffset();
         return strafeController.calculate(horizontalOffset, 0);

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.reference;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionConstants;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
-public class AlignToTagCommand18b extends Command {
+public class AlignToTagCommand18y extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
     
     // Adjust PID controllers with lower gains and deadbands
     private final PIDController xController; // Controls forward/backward
@@ -24,7 +26,7 @@ public class AlignToTagCommand18b extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
 
-    public AlignToTagCommand18b(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18y(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
@@ -52,35 +54,29 @@ public class AlignToTagCommand18b extends Command {
         double tx = LimelightHelpers.getTX(vision.getName());
         double ty = LimelightHelpers.getTY(vision.getName());
         
-        // Calculate current distance and use it for X control
+        // Calculate current distance 
         double currentDistance = calculateDistance(ty);
-        double xSpeed = xController.calculate(currentDistance, VisionConstants18.TARGET_DISTANCE_METERS);
-        double ySpeed = yController.calculate(tx, 0);
-        double rotationSpeed = rotationController.calculate(
-            drivetrain.getState().Pose.getRotation().getRadians(), 0);
     
+        // For X control (forward/back):
+        // If we're too far, we need to move forward (positive X)
+        double xSpeed = xController.calculate(currentDistance, VisionConstants.TARGET_DISTANCE_METERS);
+    
+        // For Y control (left/right):
+        // If target is to the right (positive tx), we need to move right (positive Y)
+        double ySpeed = yController.calculate(tx, 0);
+        
         // Apply speed limits
         double maxSpeed = 0.3;
         xSpeed = MathUtil.clamp(xSpeed, -maxSpeed, maxSpeed);
         ySpeed = MathUtil.clamp(ySpeed, -maxSpeed, maxSpeed);
-        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
     
-        // Log debugging values including distance
-        SmartDashboard.putNumber("V18/CurrentDistance", currentDistance);
-        SmartDashboard.putNumber("V18/TargetDistance", VisionConstants18.TARGET_DISTANCE_METERS);
-        SmartDashboard.putNumber("V18/DistanceError", VisionConstants18.TARGET_DISTANCE_METERS - currentDistance);
-        SmartDashboard.putNumber("V18/TX", tx);
-        SmartDashboard.putNumber("V18/TY", ty);
-        SmartDashboard.putNumber("V18/XSpeed", xSpeed);
-        SmartDashboard.putNumber("V18/YSpeed", ySpeed);
-        SmartDashboard.putNumber("V18/RotSpeed", rotationSpeed);
-    
-        // Send controls to drivetrain
+        // Send controls to drivetrain - note the correct mapping:
         drivetrain.setControl(robotCentric
-            .withVelocityX(xSpeed)
-            .withVelocityY(ySpeed)
-            .withRotationalRate(rotationSpeed));
+            .withVelocityX(xSpeed)  // Forward/back based on distance error
+            .withVelocityY(ySpeed)  // Left/right based on tx
+            .withRotationalRate(0)); // Keep rotation fixed for now
     }
+    
     //
     @Override
     public boolean isFinished() {

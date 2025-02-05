@@ -1,11 +1,13 @@
 package frc.robot.subsystems.vision18;
 
+import com.pathplanner.lib.config.PIDConstants;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
-public final class VisionConstants18 {
+public final class VisionConstants {
 // Updated for front-mounted camera
 public static final Transform3d ROBOT_TO_CAM = new Transform3d(
     new Translation3d(
@@ -30,10 +32,17 @@ public static final Transform3d ROBOT_TO_CAM = new Transform3d(
 
     // Distance-based standard deviation scaling
     public static final double MIN_RANGE = 0.25; // Minimum range for full confidence (meters)
-    public static final double MAX_RANGE = 4.0; // Maximum range before rejecting (meters)
+    public static final double MAX_RANGE = 3.0; // Maximum range before rejecting (meters)
     
 // Adjusted constants
 public static final double TARGET_DISTANCE_METERS = 1.0; // Verify this is your desired distance
 public static final double DEADBAND_METERS = 0.05; // 5cm deadband
 public static final double ROTATION_DEADBAND_DEGREES = Math.toRadians(2.0);
+
+    // Constants from 18f
+    public static final double TARGET_DISTANCE = 1.0; // meters
+    public static final double MAX_SPEED = 1.0; // 50% max speed
+
+    // Constants from 18f
+    
 }

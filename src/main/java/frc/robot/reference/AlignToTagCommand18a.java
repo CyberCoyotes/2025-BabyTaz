@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.reference;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionConstants;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
 public class AlignToTagCommand18a extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
     
     // Adjust PID controllers with lower gains and deadbands
     private final PIDController xController; // Controls forward/backward
@@ -24,7 +26,7 @@ public class AlignToTagCommand18a extends Command {
     // Add SwerveRequest for robot-centric drive
     private final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
 
-    public AlignToTagCommand18a(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18a(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
@@ -58,7 +60,7 @@ public class AlignToTagCommand18a extends Command {
         
         // Calculate drive outputs
         // For distance control: if we're too far, xSpeed will be positive to move forward
-        double xSpeed = -xController.calculate(currentDistance, VisionConstants18.TARGET_DISTANCE_METERS);
+        double xSpeed = -xController.calculate(currentDistance, VisionConstants.TARGET_DISTANCE_METERS);
         
         // For lateral control: if target is to the right (positive tx), move right
         double ySpeed = -yController.calculate(tx, 0);
@@ -75,8 +77,8 @@ public class AlignToTagCommand18a extends Command {
 
         // Debug values
         SmartDashboard.putNumber("V18/Distance_Current", currentDistance);
-        SmartDashboard.putNumber("V18/Distance_Target", VisionConstants18.TARGET_DISTANCE_METERS);
-        SmartDashboard.putNumber("V18/Distance_Error", VisionConstants18.TARGET_DISTANCE_METERS - currentDistance);
+        SmartDashboard.putNumber("V18/Distance_Target", VisionConstants.TARGET_DISTANCE_METERS);
+        SmartDashboard.putNumber("V18/Distance_Error", VisionConstants.TARGET_DISTANCE_METERS - currentDistance);
         SmartDashboard.putNumber("V18/TX", tx);
         SmartDashboard.putNumber("V18/TY", ty);
         SmartDashboard.putNumber("V18/XSpeed", xSpeed);

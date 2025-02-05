@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision18;
+package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
@@ -8,12 +8,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision18.VisionSubsystem;
 
 import org.littletonrobotics.junction.Logger;
 
 public class AlignToTagCommand18f extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem18 vision;
+    private final VisionSubsystem vision;
 
     // PID Controllers for both axes
     private final PIDController forwardController;
@@ -25,7 +26,7 @@ public class AlignToTagCommand18f extends Command {
     private static final double TARGET_DISTANCE = 1.0; // meters
     private static final double MAX_SPEED = 1.0; // 50% max speed
 
-    public AlignToTagCommand18f(CommandSwerveDrivetrain drivetrain, VisionSubsystem18 vision) {
+    public AlignToTagCommand18f(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
