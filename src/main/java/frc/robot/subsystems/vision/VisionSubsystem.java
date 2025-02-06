@@ -2,8 +2,11 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
+
+@SuppressWarnings("unused") // Suppresses unused variable warning
 
 public class VisionSubsystem extends SubsystemBase {
     private final String limelightName;
@@ -49,7 +52,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Add to VisionSubsystem periodic():
         boolean targetValid = LimelightHelpers.getTV(limelightName);
         // System.out.println("Target Valid: " + targetValid);
-        System.out.println("Current State: " + getState());
+        // System.out.println("V15 Current State: " + getState());
     }
 
     private void updateLEDs() {
@@ -96,19 +99,12 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void logTelemetry() {
-        SmartDashboard.putString("Vision/State", currentState.toString());
-        SmartDashboard.putNumber("Vision/TagID", getTagId());
-        SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
-        SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
-        SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
-        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
+        // SmartDashboard.putString("Vision/State", currentState.toString());
+        // SmartDashboard.putNumber("Vision/TagID", getTagId());
+        // SmartDashboard.putNumber("Vision/HorizontalOffset", getHorizontalOffset());
+        // SmartDashboard.putNumber("Vision/VerticalOffset", getVerticalOffset());
+        // SmartDashboard.putNumber("Vision/TargetArea", LimelightHelpers.getTA(limelightName));
+        // SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
     }
-
-    /*
-    public enum VisionState {
-        NO_TARGET,
-        TARGET_VISIBLE,
-        TARGET_LOCKED
-    } 
-    */
+    
 }

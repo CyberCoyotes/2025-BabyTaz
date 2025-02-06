@@ -10,6 +10,8 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
+@SuppressWarnings("unused") // Suppresses unused variable warning
+
 public class AutoRoutines {
     private final AutoFactory m_factory;
     private CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
@@ -102,7 +104,7 @@ public class AutoRoutines {
                 // Start to Score K
                 topK.cmd(),
                 // Stop and Score
-                m_drivetrain.stop().withTimeout(scoreDelay),
+                // FIXME m_drivetrain.stop().withTimeout(scoreDelay),
                 // Drive to Load station from K
                 loadK.cmd()
             ));
@@ -119,7 +121,7 @@ public class AutoRoutines {
         routine.active().onTrue(
                  topK.resetOdometry()
                 .andThen(topK.cmd())
-                .andThen(m_drivetrain.stop().withTimeout(scoreDelay))
+                // FIXME .andThen(m_drivetrain.stop().withTimeout(scoreDelay))
             );
 
         

@@ -185,3 +185,10 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# Keep examples directory in git but exclude from compilation
+!reference-code/
+
+*.pdb
+*.MF
+*.bin

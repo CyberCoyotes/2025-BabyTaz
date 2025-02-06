@@ -145,7 +145,7 @@ public LEDSubsystem() {
             currentState = state;
             lastStateChangeTime = currentTime;
             hardware.setRGB(state.r, state.g, state.b);
-            DataLogManager.log("LEDSubsystem: State changed to " + state.toString());
+            // DataLogManager.log("LEDSubsystem: State changed to " + state.toString());
         }
     }
     
