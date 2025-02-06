@@ -63,7 +63,7 @@ public class AlignToTagCommand18g extends Command {
         // Get Limelight measurements
         double tx = LimelightHelpers.getTX(vision.getName());
         double ty = LimelightHelpers.getTY(vision.getName());
-        double targetSkew = LimelightHelpers.getTargetSkew(vision.getName()); // Get target skew
+        // double targetSkew = LimelightHelpers.getTargetSkew(vision.getName()); // TODO Get target skew
 
         // Calculate distances and speeds
         double currentDistance = calculateDistance(ty);
@@ -71,19 +71,20 @@ public class AlignToTagCommand18g extends Command {
         // Calculate controls for all axes
         double forwardSpeed = forwardController.calculate(currentDistance, VisionConstants.TARGET_DISTANCE);
         double lateralSpeed = lateralController.calculate(tx, 0);
-        double rotationSpeed = rotationController.calculate(targetSkew, 0); // Target 0 skew for perpendicular
+        // double rotationSpeed = rotationController.calculate(targetSkew, 0); // Target 0 skew for perpendicular //
 
         // Apply speed limits
         forwardSpeed = MathUtil.clamp(forwardSpeed, -VisionConstants.MAX_SPEED, VisionConstants.MAX_SPEED);
         lateralSpeed = MathUtil.clamp(lateralSpeed, -VisionConstants.MAX_SPEED, VisionConstants.MAX_SPEED);
-        rotationSpeed = MathUtil.clamp(rotationSpeed, -VisionConstants.MAX_ANGULAR_SPEED,
-                VisionConstants.MAX_ANGULAR_SPEED);
+        // rotationSpeed = MathUtil.clamp(rotationSpeed, -VisionConstants.MAX_ANGULAR_SPEED,
+                // VisionConstants.MAX_ANGULAR_SPEED);
 
         // Apply combined control
         drivetrain.setControl(drive
                 .withVelocityX(forwardSpeed) // Forward/back
                 .withVelocityY(lateralSpeed) // Left/right
-                .withRotationalRate(rotationSpeed)); // Add rotation control
+                // .withRotationalRate(rotationSpeed)
+        );
     }
 
     private void handleNoTarget() {
@@ -123,12 +124,12 @@ public class AlignToTagCommand18g extends Command {
 
         // SmartDashboard.putNumber("AlignTag/TargetSkew",
         // LimelightHelpers.getTargetSkew(vision.getName()));
-        SmartDashboard.putNumber("AlignTag/RotationSpeed", rotationSpeed);
+        // SmartDashboard.putNumber("AlignTag/RotationSpeed", rotationSpeed); // FIXME rotationSpeed is not defined
         SmartDashboard.putBoolean("AlignTag/AtRotationSetpoint", rotationController.atSetpoint());
 
         // Logger.recordOutput("AlignCombo/TargetSkew",
         // LimelightHelpers.getTargetSkew(vision.getName()));
-        Logger.recordOutput("AlignCombo/RotationSpeed", rotationSpeed);
+        // Logger.recordOutput("AlignCombo/RotationSpeed", rotationSpeed); // FIXME rotationSpeed is not defined
 
     }
 
