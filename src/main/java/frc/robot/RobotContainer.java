@@ -48,10 +48,6 @@ public class RobotContainer {
     
     public RobotContainer() {
         configureBindings();
-            // Setup vision logging
-        VisionSubsystem.setupAdvantagescopeLayout();
-       // Configure telemetry updates
-    //    vision18.setLoggingEnabled(true);
     
      }
 
@@ -74,21 +70,14 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         )); */
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        driver.back().and(driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driver.back().and(driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driver.start().and(driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // TODO Add a command to align to the AprilTag when the A button is pressed
-        driver.a().whileTrue(new AlignToTagCommand18f(drivetrain, vision18));
-        driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
-        driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
-        driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
+        // driver.a().whileTrue(new AlignToTagCommand18f(drivetrain, vision18));
+        // driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
+        // driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
+        // driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
