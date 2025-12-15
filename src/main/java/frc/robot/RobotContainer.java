@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignToTagCommand18f;
+import frc.robot.commands.AlignToAprilTagCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.reference.AlignToTagCommand18b;
 import frc.robot.reference.AlignToTagCommand18x;
@@ -74,6 +75,18 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        // AprilTag alignment controls
+        // A Button: Start alignment to AprilTag (full 3-axis: forward/back, left/right, rotation)
+        // B Button: Stop/cancel alignment (interrupts the command)
+        driver.a().whileTrue(new AlignToAprilTagCommand(drivetrain, vision18));
+        driver.b().onTrue(Commands.runOnce(() -> {
+            // Cancel any running alignment command
+            if (drivetrain.getCurrentCommand() != null) {
+                drivetrain.getCurrentCommand().cancel();
+            }
+        }, drivetrain));
+
+        // Legacy alignment commands (commented out - keeping for reference)
         // driver.a().whileTrue(new AlignToTagCommand18f(drivetrain, vision18));
         // driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
         // driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
