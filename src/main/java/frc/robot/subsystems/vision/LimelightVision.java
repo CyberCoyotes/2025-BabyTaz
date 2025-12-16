@@ -15,11 +15,6 @@ public class LimelightVision extends SubsystemBase {
     private final String limelightName;
     private final NetworkTable limelightTable;
 
-    // Camera configuration for distance calculation
-    private static final double CAMERA_HEIGHT_METERS = 0.49784;  // 49.784 cm (19.6") from floor
-    private static final double CAMERA_ANGLE_DEGREES = 0.0;   // Mounted flat (level)
-    private static final double TAG_HEIGHT_METERS = 0.923925;  // 92.3925 cm (36.375") - tag center measured from floor
-
     public LimelightVision(String limelightName) {
         this.limelightName = limelightName;
         this.limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
@@ -45,9 +40,10 @@ public class LimelightVision extends SubsystemBase {
     /**
      * Get horizontal offset to target in degrees.
      * Positive means target is to the right.
+     * Adjusted based on camera mounting direction (front/back).
      */
     public double getTX() {
-        return LimelightHelpers.getTX(limelightName);
+        return LimelightHelpers.getTX(limelightName) * VisionConstants.LIMELIGHT_DIRECTION;
     }
 
     /**
@@ -82,8 +78,8 @@ public class LimelightVision extends SubsystemBase {
         }
 
         double ty = getTY();
-        double heightDiff = TAG_HEIGHT_METERS - CAMERA_HEIGHT_METERS;
-        double angleToTag = CAMERA_ANGLE_DEGREES + ty;
+        double heightDiff = VisionConstants.TAG_HEIGHT_METERS - VisionConstants.CAMERA_HEIGHT_METERS;
+        double angleToTag = VisionConstants.CAMERA_ANGLE_DEGREES + ty;
         double distanceMeters = Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTag)));
 
         return distanceMeters * 100.0;  // Convert meters to centimeters
@@ -139,6 +135,7 @@ public class LimelightVision extends SubsystemBase {
         SmartDashboard.putNumber("LL4/Distance_CM", distanceCM);
         SmartDashboard.putNumber("LL4/HorizontalOffset_CM", horizontalOffsetCM);
         SmartDashboard.putNumber("LL4/YawAngle_Deg", yawAngle);
+        SmartDashboard.putNumber("LL4/TX_Raw", getTX());  // Debug: direct TX value
 
         // Log basic vision data
         Logger.recordOutput("Vision/HasTarget", hasTarget());
