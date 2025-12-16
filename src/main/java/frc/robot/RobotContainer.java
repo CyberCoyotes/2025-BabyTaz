@@ -12,10 +12,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AlignToAprilTagCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.AlignToTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision18.VisionSubsystem;
+import frc.robot.subsystems.vision.LimelightVision;
 
 
 public class RobotContainer {
@@ -37,6 +38,9 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    // Vision subsystem for AprilTag detection
+    private final LimelightVision vision = new LimelightVision("limelight");
+
     
     public RobotContainer() {
         configureBindings();
@@ -45,6 +49,9 @@ public class RobotContainer {
 
 
     private void configureBindings() {
+        // Set vision subsystem to run continuously (just runs periodic for logging)
+        vision.setDefaultCommand(Commands.run(() -> {}, vision));
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -66,22 +73,8 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // AprilTag alignment controls
-        // A Button: Start alignment to AprilTag (full 3-axis: forward/back, left/right, rotation)
-        // B Button: Stop/cancel alignment (interrupts the command)
-        driver.a().whileTrue(new AlignToAprilTagCommand(drivetrain, vision18));
-        driver.b().onTrue(Commands.runOnce(() -> {
-            // Cancel any running alignment command
-            if (drivetrain.getCurrentCommand() != null) {
-                drivetrain.getCurrentCommand().cancel();
-            }
-        }, drivetrain));
-
-        // Legacy alignment commands (commented out - keeping for reference)
-        // driver.a().whileTrue(new AlignToTagCommand18f(drivetrain, vision18));
-        // driver.b().whileTrue(new AlignToTagCommand18b(drivetrain, vision18));
-        // driver.x().whileTrue(new AlignToTagCommand18x(drivetrain, vision18));
-        // driver.y().whileTrue(new AlignToTagCommand18y(drivetrain, vision18));
+        // AprilTag alignment: A button aligns to tag (X, Y, Rotation)
+        driver.a().whileTrue(new AlignToTag(drivetrain, vision));
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
