@@ -37,9 +37,6 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // TODO Create a VisionSubsystem18 object
-    private final VisionSubsystem vision18 = new VisionSubsystem("limelight", drivetrain);
-
     
     public RobotContainer() {
         configureBindings();
