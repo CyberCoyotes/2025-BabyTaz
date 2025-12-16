@@ -55,10 +55,10 @@ public class AlignToAprilTagCommand extends Command {
     private static final double ROTATION_TOLERANCE_DEGREES = 2.0;   // Rotation tolerance (2 degrees)
 
     // ====== SPEED LIMITS ======
-    // Modest speeds for safe initial operation
-    private static final double MAX_FORWARD_SPEED_MPS = 0.5;        // Max forward speed (meters/second)
-    private static final double MAX_LATERAL_SPEED_MPS = 0.5;        // Max lateral speed (meters/second)
-    private static final double MAX_ROTATION_SPEED_RADPS = 0.75;    // Max rotation speed (radians/second)
+    // Increased speeds for improved alignment performance (25% faster)
+    private static final double MAX_FORWARD_SPEED_MPS = 0.625;      // Max forward speed (meters/second)
+    private static final double MAX_LATERAL_SPEED_MPS = 0.625;      // Max lateral speed (meters/second)
+    private static final double MAX_ROTATION_SPEED_RADPS = 0.9375;  // Max rotation speed (radians/second)
 
     // ====== PID TUNING VALUES ======
     // Forward/Backward Control (X-axis)
