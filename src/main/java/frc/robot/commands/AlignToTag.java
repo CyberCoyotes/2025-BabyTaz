@@ -26,10 +26,10 @@ public class AlignToTag extends Command {
     private static final double TARGET_TX = 0.0;  // Centered horizontally
 
     // Camera configuration for distance calculation
-    private static final double CAMERA_HEIGHT_METERS = 0.50;  // 50 cm from floor to camera lens
+    private static final double CAMERA_HEIGHT_METERS = 0.49784;  // 49.784 cm (19.6") from floor to camera lens
     private static final double CAMERA_OFF_CENTER_METERS = 0.00;  // Camera centered on robot
-    private static final double CAMERA_ANGLE_DEGREES = 0.0; // Mounted flat (degrees from horizontal, positive = tilted up)
-    private static final double TAG_HEIGHT_METERS = 0.40;  // 40 cm - current test tag height from floor
+    private static final double CAMERA_ANGLE_DEGREES = 0.0; // Mounted flat (level, degrees from horizontal, positive = tilted up)
+    private static final double TAG_HEIGHT_METERS = 0.923925;  // 92.3925 cm (36.375") - tag center measured from floor
 
 
     // PID Controllers
@@ -111,8 +111,8 @@ public class AlignToTag extends Command {
         double currentDistance = Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTag)));
 
         // Calculate control outputs
-        // Forward: Use distance to maintain target distance
-        double forwardSpeed = -forwardPID.calculate(currentDistance, TARGET_DISTANCE_METERS);
+        // Forward: Use distance to maintain target distance (positive = move forward)
+        double forwardSpeed = forwardPID.calculate(currentDistance, TARGET_DISTANCE_METERS);
 
         // Lateral: Use tx to center on tag (strafe left/right)
         double lateralSpeed = -lateralPID.calculate(tx, TARGET_TX);

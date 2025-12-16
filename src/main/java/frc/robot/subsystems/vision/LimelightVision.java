@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
@@ -13,6 +14,11 @@ import org.littletonrobotics.junction.Logger;
 public class LimelightVision extends SubsystemBase {
     private final String limelightName;
     private final NetworkTable limelightTable;
+
+    // Camera configuration for distance calculation
+    private static final double CAMERA_HEIGHT_METERS = 0.49784;  // 49.784 cm (19.6") from floor
+    private static final double CAMERA_ANGLE_DEGREES = 0.0;   // Mounted flat (level)
+    private static final double TAG_HEIGHT_METERS = 0.923925;  // 92.3925 cm (36.375") - tag center measured from floor
 
     public LimelightVision(String limelightName) {
         this.limelightName = limelightName;
@@ -66,6 +72,53 @@ public class LimelightVision extends SubsystemBase {
         return limelightName;
     }
 
+    /**
+     * Calculate distance to AprilTag in centimeters using vertical angle.
+     * Returns 0 if no target is visible.
+     */
+    public double getDistanceToCM() {
+        if (!hasTarget()) {
+            return 0.0;
+        }
+
+        double ty = getTY();
+        double heightDiff = TAG_HEIGHT_METERS - CAMERA_HEIGHT_METERS;
+        double angleToTag = CAMERA_ANGLE_DEGREES + ty;
+        double distanceMeters = Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTag)));
+
+        return distanceMeters * 100.0;  // Convert meters to centimeters
+    }
+
+    /**
+     * Calculate horizontal offset from center in centimeters.
+     * Negative = target is left of center
+     * Positive = target is right of center
+     * Returns 0 if no target is visible.
+     */
+    public double getHorizontalOffsetCM() {
+        if (!hasTarget()) {
+            return 0.0;
+        }
+
+        double tx = getTX();  // Horizontal angle in degrees
+        double distance = getDistanceToCM() / 100.0;  // Back to meters for calculation
+
+        // Use tan to calculate horizontal offset: offset = distance * tan(angle)
+        double offsetMeters = distance * Math.tan(Math.toRadians(tx));
+
+        return offsetMeters * 100.0;  // Convert to centimeters
+    }
+
+    /**
+     * Get the yaw angle (horizontal angle) to the target.
+     * Same as getTX() but with clearer naming for user interface.
+     * Negative = target is left of center
+     * Positive = target is right of center
+     */
+    public double getYawAngle() {
+        return getTX();
+    }
+
     @Override
     public void periodic() {
         // Read directly from NetworkTables for diagnostics
@@ -75,12 +128,27 @@ public class LimelightVision extends SubsystemBase {
         double ta_direct = limelightTable.getEntry("ta").getDouble(0.0);
         double tid_direct = limelightTable.getEntry("tid").getDouble(0.0);
 
+        // Calculate telemetry values
+        double distanceCM = getDistanceToCM();
+        double horizontalOffsetCM = getHorizontalOffsetCM();
+        double yawAngle = getYawAngle();
+
+        // Put AprilTag telemetry data on SmartDashboard
+        SmartDashboard.putBoolean("LL4/HasTarget", hasTarget());
+        SmartDashboard.putNumber("LL4/TagID", getTagID());
+        SmartDashboard.putNumber("LL4/Distance_CM", distanceCM);
+        SmartDashboard.putNumber("LL4/HorizontalOffset_CM", horizontalOffsetCM);
+        SmartDashboard.putNumber("LL4/YawAngle_Deg", yawAngle);
+
         // Log basic vision data
         Logger.recordOutput("Vision/HasTarget", hasTarget());
         Logger.recordOutput("Vision/TagID", getTagID());
         Logger.recordOutput("Vision/TX", getTX());
         Logger.recordOutput("Vision/TY", getTY());
         Logger.recordOutput("Vision/TA", getTA());
+        Logger.recordOutput("Vision/Distance_CM", distanceCM);
+        Logger.recordOutput("Vision/HorizontalOffset_CM", horizontalOffsetCM);
+        Logger.recordOutput("Vision/YawAngle_Deg", yawAngle);
 
         // Log direct NetworkTables reads for comparison
         Logger.recordOutput("Vision/Direct/tv", tv_direct);
