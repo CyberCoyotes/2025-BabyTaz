@@ -3,15 +3,20 @@ package frc.robot.subsystems.vision;
 
 
 public final class VisionConstants {
+        // Camera configuration for distance calculation
+        public static final double CAMERA_HEIGHT_METERS = 0.49784;  // 49.784 cm (19.6") from floor to camera lens
+        public static final double CAMERA_ANGLE_DEGREES = 0.0;      // Mounted flat (level, degrees from horizontal, positive = tilted up)
+        public static final double TAG_HEIGHT_METERS = 0.923925;    // 92.3925 cm (36.375") - tag center measured from floor
+
         // Physical mount config
-        /* Value is determined using a ternary conditional operator (? :). 
+        /* Value is determined using a ternary conditional operator (? :).
         This operator evaluates the MOUNTED_ON_FRONT boolean.
-        If MOUNTED_ON_FRONT is true, LIMELIGHT_DIRECTION is assigned a value of 1.0. 
+        If MOUNTED_ON_FRONT is true, LIMELIGHT_DIRECTION is assigned a value of 1.0.
         If MOUNTED_ON_FRONT is false, LIMELIGHT_DIRECTION is assigned a value of -1.0.
         */
-        public static final boolean MOUNTED_ON_FRONT = false;
-        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? -1.0 : 1.0; // Originally, then I noticed it but upside down... 1.0 : -1.0
-        
+        public static final boolean MOUNTED_ON_FRONT = true;  // Camera is mounted on front of robot
+        public static final double LIMELIGHT_DIRECTION = MOUNTED_ON_FRONT ? -1.0 : 1.0; // -1.0 for front, 1.0 for back
+
         // AprilTag validation
         public static final int MIN_VALID_TAG = 1;
         public static final int MAX_VALID_TAG = 22;

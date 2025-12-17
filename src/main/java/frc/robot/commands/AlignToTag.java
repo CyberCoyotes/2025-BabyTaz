@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -22,14 +23,8 @@ public class AlignToTag extends Command {
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
-    private static final double TARGET_DISTANCE_METERS = 1.0;  // How far from tag to stop
+    private static final double TARGET_DISTANCE_METERS = 1.5;  // How far from tag to stop
     private static final double TARGET_TX = 0.0;  // Centered horizontally
-
-    // Camera configuration for distance calculation
-    private static final double CAMERA_HEIGHT_METERS = 0.50;  // 50 cm from floor to camera lens
-    private static final double CAMERA_OFF_CENTER_METERS = 0.00;  // Camera centered on robot
-    private static final double CAMERA_ANGLE_DEGREES = 0.0; // Mounted flat (degrees from horizontal, positive = tilted up)
-    private static final double TAG_HEIGHT_METERS = 0.40;  // 40 cm - current test tag height from floor
 
 
     // PID Controllers
@@ -48,6 +43,7 @@ public class AlignToTag extends Command {
     private static final double LATERAL_KI = 0.0;
     private static final double LATERAL_KD = 0.0;
     private static final double LATERAL_TOLERANCE = 2.0;  // 2 degrees
+    private static final double LATERAL_DEADBAND = 3.0;  // Don't strafe if within 3 degrees
 
     // PID Tuning - Rotation
     private static final double ROTATION_KP = 0.05;  // Start gentle
@@ -106,16 +102,20 @@ public class AlignToTag extends Command {
         int tagID = vision.getTagID();
 
         // Calculate distance to tag using trigonometry
-        double heightDiff = TAG_HEIGHT_METERS - CAMERA_HEIGHT_METERS;
-        double angleToTag = CAMERA_ANGLE_DEGREES + ty;
+        double heightDiff = VisionConstants.TAG_HEIGHT_METERS - VisionConstants.CAMERA_HEIGHT_METERS;
+        double angleToTag = VisionConstants.CAMERA_ANGLE_DEGREES + ty;
         double currentDistance = Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTag)));
 
         // Calculate control outputs
-        // Forward: Use distance to maintain target distance
-        double forwardSpeed = -forwardPID.calculate(currentDistance, TARGET_DISTANCE_METERS);
+        // Forward: Use distance to maintain target distance (positive = move forward)
+        double forwardSpeed = forwardPID.calculate(currentDistance, TARGET_DISTANCE_METERS);
 
         // Lateral: Use tx to center on tag (strafe left/right)
-        double lateralSpeed = -lateralPID.calculate(tx, TARGET_TX);
+        // Apply deadband to prevent small corrections from causing arc
+        double lateralSpeed = 0.0;
+        if (Math.abs(tx) > LATERAL_DEADBAND) {
+            lateralSpeed = lateralPID.calculate(tx, TARGET_TX);
+        }
 
         // Rotation: Use tx to rotate and face tag
         double rotationSpeed = -rotationPID.calculate(tx, TARGET_TX);
