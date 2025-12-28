@@ -21,7 +21,7 @@ public final class VisionTestConstants {
     // ============================================================================
 
     /** Default target distance from AprilTag in meters (X-axis) */
-    public static final double DEFAULT_TARGET_DISTANCE_METERS = 1.2;
+    public static final double DEFAULT_TARGET_DISTANCE_METERS = 0.75;
 
     /** Target horizontal offset - 0 means centered on robot Y-axis */
     public static final double TARGET_TX_CENTERED = 0.0;
@@ -52,7 +52,7 @@ public final class VisionTestConstants {
         public static final double ROTATION_KD = 0.0;
 
         // Speed limits
-        public static final double MAX_ROTATION_SPEED_RADPS = 1.0;
+        public static final double MAX_ROTATION_SPEED_RADPS = 2.0;
 
         // Tolerance
         public static final double ROTATION_TOLERANCE_DEGREES = 1.5;

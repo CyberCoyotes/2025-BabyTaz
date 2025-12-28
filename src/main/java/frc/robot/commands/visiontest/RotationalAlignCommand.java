@@ -104,7 +104,7 @@ public class RotationalAlignCommand extends Command {
         // Calculate rotation speed using proportional control
         // Limelight "Aiming with Servoing" approach:
         // rotationSpeed = kP * tx
-        double rotationSpeed = rotationPID.calculate(tx);
+        double rotationSpeed = -rotationPID.calculate(tx);
 
         // Add minimum speed to overcome static friction (servoing)
         // This prevents the robot from getting "stuck" near the target

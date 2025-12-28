@@ -158,7 +158,7 @@ public class RotationalRangeAlignCommand extends Command {
         }
 
         // Calculate rotation speed
-        double rotationSpeed = rotationPID.calculate(tx);
+        double rotationSpeed = -rotationPID.calculate(tx);
 
         // Calculate forward speed (positive = move forward toward tag)
         // Note: If current distance > target, we need to move forward (positive)

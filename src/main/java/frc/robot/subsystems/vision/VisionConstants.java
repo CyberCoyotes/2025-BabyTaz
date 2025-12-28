@@ -6,7 +6,7 @@ public final class VisionConstants {
         // Camera configuration for distance calculation
         public static final double CAMERA_HEIGHT_METERS = 0.49784;  // 49.784 cm (19.6") from floor to camera lens
         public static final double CAMERA_ANGLE_DEGREES = 0.0;      // Mounted flat (level, degrees from horizontal, positive = tilted up)
-        public static final double TAG_HEIGHT_METERS = 0.923925;    // 92.3925 cm (36.375") - tag center measured from floor
+        public static final double TAG_HEIGHT_METERS = 0.243;    // tag center measured from floor
 
         // Physical mount config
         /* Value is determined using a ternary conditional operator (? :).
@@ -21,9 +21,9 @@ public final class VisionConstants {
         public static final int MIN_VALID_TAG = 1;
         public static final int MAX_VALID_TAG = 22;
 
-        public static final double LEFT_TARGET_OFFSET = -16.5; // 10 cm left offset
+        public static final double LEFT_TARGET_OFFSET = -15.8; // TODO Change back when printed properly 10 cm left offset
         public static final double CENTER_TARGET_OFFSET = 0.0;  // No offset
-        public static final double RIGHT_TARGET_OFFSET = 16.5; // 10 cm right offset
+        public static final double RIGHT_TARGET_OFFSET = 15.8; // TODO 10 cm right offset
     
         // Motion constraints
         public static final double MAX_TRANSLATIONAL_VELOCITY = 0.1; 
