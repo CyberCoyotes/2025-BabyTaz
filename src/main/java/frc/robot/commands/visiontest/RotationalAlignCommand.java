@@ -8,7 +8,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
-import frc.robot.subsystems.vision.VisionTestConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -64,19 +64,19 @@ public class RotationalAlignCommand extends Command {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
-        // Initialize PID controller with constants from VisionTestConstants
+        // Initialize PID controller with constants from VisionConstants
         rotationPID = new PIDController(
-            VisionTestConstants.ModelA.ROTATION_KP,
-            VisionTestConstants.ModelA.ROTATION_KI,
-            VisionTestConstants.ModelA.ROTATION_KD
+            VisionConstants.ModelA.ROTATION_KP,
+            VisionConstants.ModelA.ROTATION_KI,
+            VisionConstants.ModelA.ROTATION_KD
         );
-        rotationPID.setTolerance(VisionTestConstants.ModelA.ROTATION_TOLERANCE_DEGREES);
-        rotationPID.setSetpoint(VisionTestConstants.TARGET_TX_CENTERED);
+        rotationPID.setTolerance(VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES);
+        rotationPID.setSetpoint(VisionConstants.TARGET_TX_CENTERED);
         rotationPID.enableContinuousInput(-180, 180);
 
         // Setup NetworkTables for telemetry
         telemetryTable = NetworkTableInstance.getDefault()
-            .getTable(VisionTestConstants.NTKeys.MODEL_A_PREFIX.replace("/", ""));
+            .getTable(VisionConstants.NTKeys.MODEL_A_PREFIX.replace("/", ""));
 
         addRequirements(drivetrain);
     }
@@ -104,19 +104,19 @@ public class RotationalAlignCommand extends Command {
         // Calculate rotation speed using proportional control
         // Limelight "Aiming with Servoing" approach:
         // rotationSpeed = kP * tx
-        double rotationSpeed = -rotationPID.calculate(tx);
+        double rotationSpeed = VisionConstants.ROTATION_DIRECTION_MULTIPLIER * rotationPID.calculate(tx);
 
         // Add minimum speed to overcome static friction (servoing)
         // This prevents the robot from getting "stuck" near the target
-        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < VisionTestConstants.ModelA.MIN_ROTATION_SPEED_RADPS) {
-            rotationSpeed = Math.copySign(VisionTestConstants.ModelA.MIN_ROTATION_SPEED_RADPS, rotationSpeed);
+        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS) {
+            rotationSpeed = Math.copySign(VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS, rotationSpeed);
         }
 
         // Apply speed limits
         rotationSpeed = MathUtil.clamp(
             rotationSpeed,
-            -VisionTestConstants.ModelA.MAX_ROTATION_SPEED_RADPS,
-            VisionTestConstants.ModelA.MAX_ROTATION_SPEED_RADPS
+            -VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS,
+            VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS
         );
 
         // Check if aligned

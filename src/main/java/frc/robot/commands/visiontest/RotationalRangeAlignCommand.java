@@ -8,7 +8,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
-import frc.robot.subsystems.vision.VisionTestConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -74,10 +74,10 @@ public class RotationalRangeAlignCommand extends Command {
     private AlignmentStatus currentStatus = AlignmentStatus.SEARCHING;
 
     /**
-     * Creates a RotationalRangeAlignCommand with default target distance (1.2m).
+     * Creates a RotationalRangeAlignCommand with default target distance (0.75m).
      */
     public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
-        this(drivetrain, vision, VisionTestConstants.DEFAULT_TARGET_DISTANCE_METERS);
+        this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
     /**
@@ -94,26 +94,26 @@ public class RotationalRangeAlignCommand extends Command {
 
         // Initialize rotation PID
         rotationPID = new PIDController(
-            VisionTestConstants.ModelB.ROTATION_KP,
-            VisionTestConstants.ModelB.ROTATION_KI,
-            VisionTestConstants.ModelB.ROTATION_KD
+            VisionConstants.ModelB.ROTATION_KP,
+            VisionConstants.ModelB.ROTATION_KI,
+            VisionConstants.ModelB.ROTATION_KD
         );
-        rotationPID.setTolerance(VisionTestConstants.ModelB.ROTATION_TOLERANCE_DEGREES);
-        rotationPID.setSetpoint(VisionTestConstants.TARGET_TX_CENTERED);
+        rotationPID.setTolerance(VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES);
+        rotationPID.setSetpoint(VisionConstants.TARGET_TX_CENTERED);
         rotationPID.enableContinuousInput(-180, 180);
 
         // Initialize range/distance PID
         rangePID = new PIDController(
-            VisionTestConstants.ModelB.RANGE_KP,
-            VisionTestConstants.ModelB.RANGE_KI,
-            VisionTestConstants.ModelB.RANGE_KD
+            VisionConstants.ModelB.RANGE_KP,
+            VisionConstants.ModelB.RANGE_KI,
+            VisionConstants.ModelB.RANGE_KD
         );
-        rangePID.setTolerance(VisionTestConstants.ModelB.DISTANCE_TOLERANCE_METERS);
+        rangePID.setTolerance(VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS);
         rangePID.setSetpoint(targetDistanceMeters);
 
         // Setup NetworkTables
         telemetryTable = NetworkTableInstance.getDefault()
-            .getTable(VisionTestConstants.NTKeys.MODEL_B_PREFIX.replace("/", ""));
+            .getTable(VisionConstants.NTKeys.MODEL_B_PREFIX.replace("/", ""));
 
         addRequirements(drivetrain);
     }
@@ -146,8 +146,8 @@ public class RotationalRangeAlignCommand extends Command {
 
         // Calculate distance to tag using trigonometry
         // distance = (tagHeight - cameraHeight) / tan(cameraAngle + ty)
-        double heightDiff = VisionTestConstants.TAG_HEIGHT_METERS - VisionTestConstants.CAMERA_HEIGHT_METERS;
-        double angleToTag = VisionTestConstants.CAMERA_ANGLE_DEGREES + ty;
+        double heightDiff = VisionConstants.TAG_HEIGHT_METERS - VisionConstants.CAMERA_HEIGHT_METERS;
+        double angleToTag = VisionConstants.CAMERA_ANGLE_DEGREES + ty;
 
         // Prevent division by zero or near-zero
         double currentDistance;
@@ -158,7 +158,7 @@ public class RotationalRangeAlignCommand extends Command {
         }
 
         // Calculate rotation speed
-        double rotationSpeed = -rotationPID.calculate(tx);
+        double rotationSpeed = VisionConstants.ROTATION_DIRECTION_MULTIPLIER * rotationPID.calculate(tx);
 
         // Calculate forward speed (positive = move forward toward tag)
         // Note: If current distance > target, we need to move forward (positive)
@@ -168,13 +168,13 @@ public class RotationalRangeAlignCommand extends Command {
         // Apply speed limits
         rotationSpeed = MathUtil.clamp(
             rotationSpeed,
-            -VisionTestConstants.ModelB.MAX_ROTATION_SPEED_RADPS,
-            VisionTestConstants.ModelB.MAX_ROTATION_SPEED_RADPS
+            -VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS,
+            VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS
         );
         forwardSpeed = MathUtil.clamp(
             forwardSpeed,
-            -VisionTestConstants.ModelB.MAX_FORWARD_SPEED_MPS,
-            VisionTestConstants.ModelB.MAX_FORWARD_SPEED_MPS
+            -VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS,
+            VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS
         );
 
         // Check alignment status

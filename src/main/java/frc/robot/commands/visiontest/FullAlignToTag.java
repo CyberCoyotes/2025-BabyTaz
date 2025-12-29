@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
 import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionTestConstants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -25,8 +24,8 @@ public class FullAlignToTag extends Command {
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
-    private static final double TARGET_DISTANCE_METERS = VisionTestConstants.DEFAULT_TARGET_DISTANCE_METERS;  // How far from tag to stop
-    private static final double TARGET_TX = 0.0;  // Centered horizontally
+    private static final double TARGET_DISTANCE_METERS = VisionConstants.DEFAULT_TARGET_DISTANCE_METERS;  // How far from tag to stop
+    private static final double TARGET_TX = VisionConstants.TARGET_TX_CENTERED;
 
 
     // PID Controllers
@@ -120,7 +119,7 @@ public class FullAlignToTag extends Command {
         }
 
         // Rotation: Use tx to rotate and face tag
-        double rotationSpeed = -rotationPID.calculate(tx, TARGET_TX);
+        double rotationSpeed = VisionConstants.ROTATION_DIRECTION_MULTIPLIER * rotationPID.calculate(tx, TARGET_TX);
 
         // Apply speed limits
         forwardSpeed = MathUtil.clamp(forwardSpeed, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);

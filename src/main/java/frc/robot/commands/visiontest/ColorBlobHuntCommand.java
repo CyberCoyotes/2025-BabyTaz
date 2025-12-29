@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
-import frc.robot.subsystems.vision.VisionTestConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -101,7 +101,7 @@ public class ColorBlobHuntCommand extends Command {
      * Creates a ColorBlobHuntCommand with default target distance (1.2m).
      */
     public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
-        this(drivetrain, vision, VisionTestConstants.DEFAULT_TARGET_DISTANCE_METERS);
+        this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
     /**
@@ -118,33 +118,33 @@ public class ColorBlobHuntCommand extends Command {
 
         // Initialize hunt mode rotation PID (slower, gentler search)
         huntRotationPID = new PIDController(
-            VisionTestConstants.ModelD.HUNT_ROTATION_KP,
-            VisionTestConstants.ModelD.HUNT_ROTATION_KI,
-            VisionTestConstants.ModelD.HUNT_ROTATION_KD
+            VisionConstants.ModelD.HUNT_ROTATION_KP,
+            VisionConstants.ModelD.HUNT_ROTATION_KI,
+            VisionConstants.ModelD.HUNT_ROTATION_KD
         );
 
         // Initialize seek mode rotation PID
         seekRotationPID = new PIDController(
-            VisionTestConstants.ModelD.SEEK_ROTATION_KP,
-            VisionTestConstants.ModelD.SEEK_ROTATION_KI,
-            VisionTestConstants.ModelD.SEEK_ROTATION_KD
+            VisionConstants.ModelD.SEEK_ROTATION_KP,
+            VisionConstants.ModelD.SEEK_ROTATION_KI,
+            VisionConstants.ModelD.SEEK_ROTATION_KD
         );
-        seekRotationPID.setTolerance(VisionTestConstants.ModelD.ROTATION_TOLERANCE_DEGREES);
-        seekRotationPID.setSetpoint(VisionTestConstants.TARGET_TX_CENTERED);
+        seekRotationPID.setTolerance(VisionConstants.ModelD.ROTATION_TOLERANCE_DEGREES);
+        seekRotationPID.setSetpoint(VisionConstants.TARGET_TX_CENTERED);
         seekRotationPID.enableContinuousInput(-180, 180);
 
         // Initialize range PID
         rangePID = new PIDController(
-            VisionTestConstants.ModelD.RANGE_KP,
-            VisionTestConstants.ModelD.RANGE_KI,
-            VisionTestConstants.ModelD.RANGE_KD
+            VisionConstants.ModelD.RANGE_KP,
+            VisionConstants.ModelD.RANGE_KI,
+            VisionConstants.ModelD.RANGE_KD
         );
-        rangePID.setTolerance(VisionTestConstants.ModelD.DISTANCE_TOLERANCE_METERS);
+        rangePID.setTolerance(VisionConstants.ModelD.DISTANCE_TOLERANCE_METERS);
         rangePID.setSetpoint(targetDistanceMeters);
 
         // Setup NetworkTables
         telemetryTable = NetworkTableInstance.getDefault()
-            .getTable(VisionTestConstants.NTKeys.MODEL_D_PREFIX.replace("/", ""));
+            .getTable(VisionConstants.NTKeys.MODEL_D_PREFIX.replace("/", ""));
 
         addRequirements(drivetrain);
     }
@@ -161,13 +161,13 @@ public class ColorBlobHuntCommand extends Command {
 
         // Switch to color pipeline (pipeline 1)
         // IMPORTANT: Pipeline 1 must be configured in Limelight web interface for teal color detection!
-        LimelightHelpers.setPipelineIndex(vision.getName(), VisionTestConstants.ModelD.COLOR_PIPELINE_INDEX);
+        LimelightHelpers.setPipelineIndex(vision.getName(), VisionConstants.ModelD.COLOR_PIPELINE_INDEX);
 
         // Log configuration
         telemetryTable.getEntry("TargetDistance").setDouble(targetDistanceMeters);
-        telemetryTable.getEntry("ColorPipeline").setDouble(VisionTestConstants.ModelD.COLOR_PIPELINE_INDEX);
+        telemetryTable.getEntry("ColorPipeline").setDouble(VisionConstants.ModelD.COLOR_PIPELINE_INDEX);
         Logger.recordOutput("VisionTest/ModelD/TargetDistance", targetDistanceMeters);
-        Logger.recordOutput("VisionTest/ModelD/ColorPipeline", VisionTestConstants.ModelD.COLOR_PIPELINE_INDEX);
+        Logger.recordOutput("VisionTest/ModelD/ColorPipeline", VisionConstants.ModelD.COLOR_PIPELINE_INDEX);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ColorBlobHuntCommand extends Command {
         double tx = LimelightHelpers.getTX(vision.getName());
 
         // Validate target - must have minimum area
-        boolean validTarget = hasTarget && ta >= VisionTestConstants.ModelD.MIN_TARGET_AREA;
+        boolean validTarget = hasTarget && ta >= VisionConstants.ModelD.MIN_TARGET_AREA;
 
         if (!validTarget) {
             // HUNT MODE - No target, rotate to search
@@ -204,7 +204,7 @@ public class ColorBlobHuntCommand extends Command {
         }
 
         // Apply constant rotation speed in hunt direction
-        double rotationSpeed = VisionTestConstants.ModelD.HUNT_ROTATION_SPEED_RADPS * huntDirection;
+        double rotationSpeed = VisionConstants.ModelD.HUNT_ROTATION_SPEED_RADPS * huntDirection;
 
         // Apply to drivetrain - rotation only
         drivetrain.setControl(driveRequest
@@ -240,13 +240,13 @@ public class ColorBlobHuntCommand extends Command {
         // Apply speed limits
         rotationSpeed = MathUtil.clamp(
             rotationSpeed,
-            -VisionTestConstants.ModelD.MAX_ROTATION_SPEED_RADPS,
-            VisionTestConstants.ModelD.MAX_ROTATION_SPEED_RADPS
+            -VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS,
+            VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS
         );
         forwardSpeed = MathUtil.clamp(
             forwardSpeed,
-            -VisionTestConstants.ModelD.MAX_FORWARD_SPEED_MPS,
-            VisionTestConstants.ModelD.MAX_FORWARD_SPEED_MPS
+            -VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS,
+            VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS
         );
 
         // Check alignment
@@ -286,7 +286,7 @@ public class ColorBlobHuntCommand extends Command {
             return Double.MAX_VALUE;  // Avoid division by zero
         }
 
-        double calibrationArea = VisionTestConstants.ModelD.TARGET_AREA_FOR_DISTANCE;
+        double calibrationArea = VisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE;
 
         // distance = calibrationDistance * sqrt(calibrationArea / currentArea)
         double estimatedDistance = CALIBRATION_DISTANCE_METERS *
@@ -352,7 +352,7 @@ public class ColorBlobHuntCommand extends Command {
         huntTimer.stop();
 
         // Switch back to AprilTag pipeline
-        LimelightHelpers.setPipelineIndex(vision.getName(), VisionTestConstants.ModelD.APRILTAG_PIPELINE_INDEX);
+        LimelightHelpers.setPipelineIndex(vision.getName(), VisionConstants.ModelD.APRILTAG_PIPELINE_INDEX);
 
         logStatus(interrupted ? "INTERRUPTED" : "COMPLETED");
         Logger.recordOutput("VisionTest/ModelD/PipelineRestored", true);

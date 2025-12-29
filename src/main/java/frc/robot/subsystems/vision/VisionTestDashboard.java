@@ -109,7 +109,7 @@ public class VisionTestDashboard extends SubsystemBase {
             .finallyDo(interrupted -> clearActiveModel());
 
         // Create Shuffleboard tab
-        tab = Shuffleboard.getTab(VisionTestConstants.Dashboard.TAB_NAME);
+        tab = Shuffleboard.getTab(VisionConstants.Dashboard.TAB_NAME);
 
         // Create button entries - use toggle buttons for visual feedback
         // Row 0: Test buttons

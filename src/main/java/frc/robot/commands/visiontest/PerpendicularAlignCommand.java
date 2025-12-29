@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.LimelightVision;
-import frc.robot.subsystems.vision.VisionTestConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -85,7 +85,7 @@ public class PerpendicularAlignCommand extends Command {
      * Creates a PerpendicularAlignCommand with default target distance (1.2m).
      */
     public PerpendicularAlignCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
-        this(drivetrain, vision, VisionTestConstants.DEFAULT_TARGET_DISTANCE_METERS);
+        this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
     /**
@@ -102,35 +102,35 @@ public class PerpendicularAlignCommand extends Command {
 
         // Initialize rotation PID (perpendicular facing)
         rotationPID = new PIDController(
-            VisionTestConstants.ModelC.ROTATION_KP,
-            VisionTestConstants.ModelC.ROTATION_KI,
-            VisionTestConstants.ModelC.ROTATION_KD
+            VisionConstants.ModelC.ROTATION_KP,
+            VisionConstants.ModelC.ROTATION_KI,
+            VisionConstants.ModelC.ROTATION_KD
         );
-        rotationPID.setTolerance(VisionTestConstants.ModelC.ROTATION_TOLERANCE_DEGREES);
-        rotationPID.setSetpoint(VisionTestConstants.TARGET_TX_CENTERED);
+        rotationPID.setTolerance(VisionConstants.ModelC.ROTATION_TOLERANCE_DEGREES);
+        rotationPID.setSetpoint(VisionConstants.TARGET_TX_CENTERED);
         rotationPID.enableContinuousInput(-180, 180);
 
         // Initialize range PID (forward/backward distance)
         rangePID = new PIDController(
-            VisionTestConstants.ModelC.RANGE_KP,
-            VisionTestConstants.ModelC.RANGE_KI,
-            VisionTestConstants.ModelC.RANGE_KD
+            VisionConstants.ModelC.RANGE_KP,
+            VisionConstants.ModelC.RANGE_KI,
+            VisionConstants.ModelC.RANGE_KD
         );
-        rangePID.setTolerance(VisionTestConstants.ModelC.DISTANCE_TOLERANCE_METERS);
+        rangePID.setTolerance(VisionConstants.ModelC.DISTANCE_TOLERANCE_METERS);
         rangePID.setSetpoint(targetDistanceMeters);
 
         // Initialize lateral PID (left/right strafe)
         lateralPID = new PIDController(
-            VisionTestConstants.ModelC.LATERAL_KP,
-            VisionTestConstants.ModelC.LATERAL_KI,
-            VisionTestConstants.ModelC.LATERAL_KD
+            VisionConstants.ModelC.LATERAL_KP,
+            VisionConstants.ModelC.LATERAL_KI,
+            VisionConstants.ModelC.LATERAL_KD
         );
-        lateralPID.setTolerance(VisionTestConstants.ModelC.LATERAL_TOLERANCE_DEGREES);
-        lateralPID.setSetpoint(VisionTestConstants.TARGET_TX_CENTERED);
+        lateralPID.setTolerance(VisionConstants.ModelC.LATERAL_TOLERANCE_DEGREES);
+        lateralPID.setSetpoint(VisionConstants.TARGET_TX_CENTERED);
 
         // Setup NetworkTables
         telemetryTable = NetworkTableInstance.getDefault()
-            .getTable(VisionTestConstants.NTKeys.MODEL_C_PREFIX.replace("/", ""));
+            .getTable(VisionConstants.NTKeys.MODEL_C_PREFIX.replace("/", ""));
 
         addRequirements(drivetrain);
     }
@@ -170,8 +170,8 @@ public class PerpendicularAlignCommand extends Command {
         double ty = vision.getTY();
 
         // Calculate distance to tag using trigonometry
-        double heightDiff = VisionTestConstants.TAG_HEIGHT_METERS - VisionTestConstants.CAMERA_HEIGHT_METERS;
-        double angleToTag = VisionTestConstants.CAMERA_ANGLE_DEGREES + ty;
+        double heightDiff = VisionConstants.TAG_HEIGHT_METERS - VisionConstants.CAMERA_HEIGHT_METERS;
+        double angleToTag = VisionConstants.CAMERA_ANGLE_DEGREES + ty;
         double currentDistance;
         if (Math.abs(angleToTag) < 0.5) {
             currentDistance = targetDistanceMeters; // Fallback
@@ -189,31 +189,31 @@ public class PerpendicularAlignCommand extends Command {
         // Calculate lateral speed with deadband
         // Only strafe if TX is outside the deadband
         double lateralSpeed = 0.0;
-        if (Math.abs(tx) > VisionTestConstants.ModelC.LATERAL_DEADBAND_DEGREES) {
+        if (Math.abs(tx) > VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES) {
             lateralSpeed = lateralPID.calculate(tx);
         }
 
         // Apply speed limits
         rotationSpeed = MathUtil.clamp(
             rotationSpeed,
-            -VisionTestConstants.ModelC.MAX_ROTATION_SPEED_RADPS,
-            VisionTestConstants.ModelC.MAX_ROTATION_SPEED_RADPS
+            -VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS,
+            VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS
         );
         forwardSpeed = MathUtil.clamp(
             forwardSpeed,
-            -VisionTestConstants.ModelC.MAX_FORWARD_SPEED_MPS,
-            VisionTestConstants.ModelC.MAX_FORWARD_SPEED_MPS
+            -VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS,
+            VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS
         );
         lateralSpeed = MathUtil.clamp(
             lateralSpeed,
-            -VisionTestConstants.ModelC.MAX_LATERAL_SPEED_MPS,
-            VisionTestConstants.ModelC.MAX_LATERAL_SPEED_MPS
+            -VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS,
+            VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS
         );
 
         // Check alignment status for each axis
         boolean rotationAligned = rotationPID.atSetpoint();
         boolean distanceAligned = rangePID.atSetpoint();
-        boolean lateralAligned = lateralPID.atSetpoint() || Math.abs(tx) <= VisionTestConstants.ModelC.LATERAL_DEADBAND_DEGREES;
+        boolean lateralAligned = lateralPID.atSetpoint() || Math.abs(tx) <= VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES;
 
         currentStatus = (rotationAligned && distanceAligned && lateralAligned)
             ? AlignmentStatus.ALIGNED
