@@ -1,12 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.visiontest;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -17,14 +18,14 @@ import org.littletonrobotics.junction.Logger;
  *
  * Uses simple PID control with Limelight tx/ty values.
  */
-public class AlignToTag extends Command {
+public class FullAlignToTag extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
-    private static final double TARGET_DISTANCE_METERS = 1.5;  // How far from tag to stop
-    private static final double TARGET_TX = 0.0;  // Centered horizontally
+    private static final double TARGET_DISTANCE_METERS = VisionConstants.DEFAULT_TARGET_DISTANCE_METERS;  // How far from tag to stop
+    private static final double TARGET_TX = VisionConstants.TARGET_TX_CENTERED;
 
 
     // PID Controllers
@@ -56,7 +57,7 @@ public class AlignToTag extends Command {
     private static final double MAX_LATERAL_SPEED = 0.5;
     private static final double MAX_ROTATION_SPEED = 1.0;
 
-    public AlignToTag(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public FullAlignToTag(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
@@ -118,7 +119,7 @@ public class AlignToTag extends Command {
         }
 
         // Rotation: Use tx to rotate and face tag
-        double rotationSpeed = -rotationPID.calculate(tx, TARGET_TX);
+        double rotationSpeed = VisionConstants.ROTATION_DIRECTION_MULTIPLIER * rotationPID.calculate(tx, TARGET_TX);
 
         // Apply speed limits
         forwardSpeed = MathUtil.clamp(forwardSpeed, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);
