@@ -7,7 +7,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -52,7 +52,7 @@ import org.littletonrobotics.junction.Logger;
 public class RotationalRangeAlignCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // PID Controllers
@@ -76,7 +76,7 @@ public class RotationalRangeAlignCommand extends Command {
     /**
      * Creates a RotationalRangeAlignCommand with default target distance (0.75m).
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -87,7 +87,7 @@ public class RotationalRangeAlignCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from AprilTag in meters
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision, double targetDistanceMeters) {
+    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;

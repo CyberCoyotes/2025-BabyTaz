@@ -58,7 +58,7 @@ import java.util.Map;
 public class VisionTestDashboard extends SubsystemBase {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
 
     // Shuffleboard tab and entries
     private final ShuffleboardTab tab;
@@ -87,7 +87,7 @@ public class VisionTestDashboard extends SubsystemBase {
     private Command currentCommand = null;
     private String currentModelName = "NONE";
 
-    public VisionTestDashboard(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public VisionTestDashboard(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 

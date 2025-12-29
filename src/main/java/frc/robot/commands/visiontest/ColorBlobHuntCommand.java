@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -66,7 +66,7 @@ import org.littletonrobotics.junction.Logger;
 public class ColorBlobHuntCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // PID Controllers
@@ -100,7 +100,7 @@ public class ColorBlobHuntCommand extends Command {
     /**
      * Creates a ColorBlobHuntCommand with default target distance (1.2m).
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -111,7 +111,7 @@ public class ColorBlobHuntCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from color blob in meters
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision, double targetDistanceMeters) {
+    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;

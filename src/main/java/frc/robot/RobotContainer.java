@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.visiontest.FullAlignToTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionTestDashboard;
 
 
@@ -38,8 +38,9 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // Vision subsystem for AprilTag detection
-    private final LimelightVision vision = new LimelightVision("limelight");
+    // Vision subsystem for AprilTag detection with state tracking and LED feedback
+    // Phase 1: Merged from LimelightVision.java for unified vision subsystem
+    private final VisionSubsystem vision = new VisionSubsystem("limelight");
 
     // Vision Test Dashboard - provides Shuffleboard buttons for testing vision models
     // Access via Shuffleboard tab "Vision Tests"

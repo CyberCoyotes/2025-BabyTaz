@@ -7,7 +7,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -43,7 +43,7 @@ import org.littletonrobotics.junction.Logger;
 public class RotationalAlignCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // PID Controller for rotation
@@ -60,7 +60,7 @@ public class RotationalAlignCommand extends Command {
     }
     private AlignmentStatus currentStatus = AlignmentStatus.SEARCHING;
 
-    public RotationalAlignCommand(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public RotationalAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 

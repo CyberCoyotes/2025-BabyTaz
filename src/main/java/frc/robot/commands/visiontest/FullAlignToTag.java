@@ -5,7 +5,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.LimelightVision;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 
 import org.littletonrobotics.junction.Logger;
@@ -20,7 +20,7 @@ import org.littletonrobotics.junction.Logger;
  */
 public class FullAlignToTag extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final LimelightVision vision;
+    private final VisionSubsystem vision;
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
@@ -57,7 +57,7 @@ public class FullAlignToTag extends Command {
     private static final double MAX_LATERAL_SPEED = 0.5;
     private static final double MAX_ROTATION_SPEED = 1.0;
 
-    public FullAlignToTag(CommandSwerveDrivetrain drivetrain, LimelightVision vision) {
+    public FullAlignToTag(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
