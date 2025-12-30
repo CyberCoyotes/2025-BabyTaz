@@ -1,6 +1,9 @@
 package frc.robot.commands.visiontest;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
@@ -9,10 +12,30 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.vision.VisionSubsystem;
+/*
+ * Algae color
+ * H: 35 → 65
+ * S: 120 → 255
+ * V: 80 → 255
 
+ Limelight Setup Tips (this matters more than the numbers)
+
+Turn LEDs ON (force on during tuning)
+
+Tune Hue first, then Saturation, then Value
+
+Enable YUV or HSV view, not RGB
+
+Use Contour filtering:
+
+Min area: ~0.5–1.0%
+
+Aspect ratio: fairly loose (it’s spherical)
+
+Crop the image if algae is always below bumper height
+ */
 /**
  * ===========================================================================
  * MODEL D: COLOR BLOB HUNT AND SEEK
