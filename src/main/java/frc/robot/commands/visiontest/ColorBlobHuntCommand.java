@@ -85,14 +85,6 @@ public class ColorBlobHuntCommand extends Command {
     private final Timer huntTimer = new Timer();
     private static final double HUNT_DIRECTION_CHANGE_SECONDS = 3.0;  // Change direction every 3 seconds
 
-    // Operating modes
-    private enum OperatingMode {
-        HUNT,       // Searching for target
-        SEEK,       // Target found, aligning
-        ALIGNED     // Aligned to target
-    }
-    private OperatingMode currentMode = OperatingMode.HUNT;
-
     // Last known target area at calibration distance (tune this value!)
     // Measure target area when blob is at 1.2m distance and update this value
     private static final double CALIBRATION_DISTANCE_METERS = 1.2;
@@ -154,7 +146,9 @@ public class ColorBlobHuntCommand extends Command {
         huntRotationPID.reset();
         seekRotationPID.reset();
         rangePID.reset();
-        currentMode = OperatingMode.HUNT;
+        // Set vision mode in subsystem
+        vision.setVisionMode(VisionSubsystem.VisionMode.COLOR_BLOB_HUNT);
+        vision.setAlignmentState(VisionSubsystem.AlignmentState.HUNTING);
         huntDirection = 1.0;
         huntTimer.restart();
         logStatus("STARTED - HUNTING");
@@ -194,7 +188,8 @@ public class ColorBlobHuntCommand extends Command {
      * Alternates direction periodically to cover full field of view.
      */
     private void executeHuntMode() {
-        currentMode = OperatingMode.HUNT;
+        // Update state machine
+        vision.setAlignmentState(VisionSubsystem.AlignmentState.HUNTING);
 
         // Change hunt direction periodically
         if (huntTimer.hasElapsed(HUNT_DIRECTION_CHANGE_SECONDS)) {
@@ -252,7 +247,13 @@ public class ColorBlobHuntCommand extends Command {
         // Check alignment
         boolean rotationAligned = seekRotationPID.atSetpoint();
         boolean distanceAligned = rangePID.atSetpoint();
-        currentMode = (rotationAligned && distanceAligned) ? OperatingMode.ALIGNED : OperatingMode.SEEK;
+
+        // Update state machine based on alignment status
+        if (rotationAligned && distanceAligned) {
+            vision.setAlignmentState(VisionSubsystem.AlignmentState.ALIGNED);
+        } else {
+            vision.setAlignmentState(VisionSubsystem.AlignmentState.SEEKING);
+        }
 
         // Apply to drivetrain
         drivetrain.setControl(driveRequest
@@ -307,9 +308,11 @@ public class ColorBlobHuntCommand extends Command {
                                double rotationSpeed, double forwardSpeed,
                                boolean rotationAligned, boolean distanceAligned) {
         boolean fullyAligned = rotationAligned && distanceAligned;
+        // Get current state from subsystem
+        String status = vision.getAlignmentState().name();
 
         // NetworkTables output
-        telemetryTable.getEntry("Mode").setString(currentMode.name());
+        telemetryTable.getEntry("Mode").setString(status);
         telemetryTable.getEntry("TX").setDouble(tx);
         telemetryTable.getEntry("TargetArea").setDouble(ta);
         telemetryTable.getEntry("EstimatedDistance").setDouble(estimatedDistance);
@@ -322,7 +325,7 @@ public class ColorBlobHuntCommand extends Command {
         telemetryTable.getEntry("DistanceError").setDouble(estimatedDistance - targetDistanceMeters);
 
         // AdvantageKit logging
-        Logger.recordOutput("VisionTest/ModelD/Mode", currentMode.name());
+        Logger.recordOutput("VisionTest/ModelD/Mode", status);
         Logger.recordOutput("VisionTest/ModelD/TX", tx);
         Logger.recordOutput("VisionTest/ModelD/TargetArea", ta);
         Logger.recordOutput("VisionTest/ModelD/EstimatedDistance", estimatedDistance);
@@ -343,6 +346,8 @@ public class ColorBlobHuntCommand extends Command {
     @Override
     public boolean isFinished() {
         // Runs until manually stopped
+        // Or return true when aligned if you want auto-finish:
+        // return vision.isAligned();
         return false;
     }
 
@@ -353,6 +358,9 @@ public class ColorBlobHuntCommand extends Command {
 
         // Switch back to AprilTag pipeline
         LimelightHelpers.setPipelineIndex(vision.getName(), VisionConstants.ModelD.APRILTAG_PIPELINE_INDEX);
+
+        // Reset state machine when command ends
+        vision.resetStateMachine();
 
         logStatus(interrupted ? "INTERRUPTED" : "COMPLETED");
         Logger.recordOutput("VisionTest/ModelD/PipelineRestored", true);

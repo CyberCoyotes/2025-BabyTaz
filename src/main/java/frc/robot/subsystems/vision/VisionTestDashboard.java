@@ -334,6 +334,12 @@ public class VisionTestDashboard extends SubsystemBase {
         // Update active model display
         activeModelEntry.setString(currentModelName);
 
+        // Update status from state machine
+        statusEntry.setString(vision.getAlignmentState().name());
+
+        // Update aligned indicator from state machine
+        alignedEntry.setBoolean(vision.isAligned());
+
         // Update vision values
         if (vision.hasTarget()) {
             txEntry.setDouble(vision.getTX());
@@ -346,6 +352,8 @@ public class VisionTestDashboard extends SubsystemBase {
         // Log to AdvantageKit
         Logger.recordOutput("VisionTestDashboard/ActiveModel", currentModelName);
         Logger.recordOutput("VisionTestDashboard/IsRunning", currentCommand != null && currentCommand.isScheduled());
+        Logger.recordOutput("VisionTestDashboard/VisionMode", vision.getVisionMode().name());
+        Logger.recordOutput("VisionTestDashboard/AlignmentState", vision.getAlignmentState().name());
     }
 
     /**

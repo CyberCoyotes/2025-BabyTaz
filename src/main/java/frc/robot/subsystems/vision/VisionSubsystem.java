@@ -19,7 +19,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     /**
      * Vision state enumeration for tracking AprilTag detection and alignment status.
+     * @deprecated Use AlignmentState instead for more detailed state tracking
      */
+    @Deprecated
     public enum VisionState {
         NO_TARGET(0),
         TARGET_VISIBLE(1),
@@ -36,10 +38,41 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Vision alignment modes - which type of alignment is being performed.
+     */
+    public enum VisionMode {
+        IDLE,                    // No active vision command
+        ROTATION_ONLY,           // Model A: Rotation alignment only
+        ROTATION_RANGE,          // Model B: Rotation + range/distance
+        PERPENDICULAR,           // Model C: Full 3-axis perpendicular alignment
+        COLOR_BLOB_HUNT          // Model D: Color blob hunting
+    }
+
+    /**
+     * Alignment state - current status of vision alignment.
+     */
+    public enum AlignmentState {
+        IDLE,                    // No active alignment
+        SEARCHING,               // Looking for target (no target visible)
+        HUNTING,                 // Actively searching (rotating to find)
+        SEEKING,                 // Target acquired, moving to align
+        ALIGNING,                // Target visible, actively aligning
+        ALIGNED,                 // Successfully aligned within tolerances
+        LOST_TARGET              // Had target but lost it
+    }
+
     private final String limelightName;
     private final LEDSubsystem leds;
     private final NetworkTable limelightTable;
+
+    // Legacy state (deprecated)
     private VisionState currentState = VisionState.NO_TARGET;
+
+    // New state machine
+    private VisionMode currentMode = VisionMode.IDLE;
+    private AlignmentState alignmentState = AlignmentState.IDLE;
+    private AlignmentState previousAlignmentState = AlignmentState.IDLE;
 
     // Vision processing constants
     private static final double TARGET_LOCK_THRESHOLD = 2.0; // Degrees
@@ -118,8 +151,130 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Update LEDs based on the state machine (new method).
+     */
+    private void updateLEDsFromStateMachine() {
+        if (leds == null) return;
+
+        switch (alignmentState) {
+            case ALIGNED:
+                leds.setState(LEDState.TARGET_LOCKED);
+                break;
+            case ALIGNING:
+            case SEEKING:
+                leds.setState(LEDState.TARGET_VISIBLE);
+                break;
+            case SEARCHING:
+            case HUNTING:
+            case LOST_TARGET:
+            case IDLE:
+            default:
+                leds.setState(LEDState.NO_TARGET);
+                break;
+        }
+    }
+
+    /**
+     * @deprecated Use getAlignmentState() instead
+     */
+    @Deprecated
     public VisionState getState() {
         return currentState;
+    }
+
+    // ============================================================================
+    // STATE MACHINE METHODS
+    // ============================================================================
+
+    /**
+     * Set the current vision mode. This should be called by commands when they start.
+     * @param mode The vision mode to activate
+     */
+    public void setVisionMode(VisionMode mode) {
+        if (currentMode != mode) {
+            currentMode = mode;
+            // Reset alignment state when changing modes
+            if (mode == VisionMode.IDLE) {
+                setAlignmentState(AlignmentState.IDLE);
+            } else {
+                setAlignmentState(AlignmentState.SEARCHING);
+            }
+        }
+    }
+
+    /**
+     * Get the current vision mode.
+     * @return Current vision mode
+     */
+    public VisionMode getVisionMode() {
+        return currentMode;
+    }
+
+    /**
+     * Set the alignment state. This should be called by commands to update their status.
+     * @param state The new alignment state
+     */
+    public void setAlignmentState(AlignmentState state) {
+        if (alignmentState != state) {
+            previousAlignmentState = alignmentState;
+            alignmentState = state;
+            onAlignmentStateChanged();
+        }
+    }
+
+    /**
+     * Get the current alignment state.
+     * @return Current alignment state
+     */
+    public AlignmentState getAlignmentState() {
+        return alignmentState;
+    }
+
+    /**
+     * Get the previous alignment state (useful for transition logic).
+     * @return Previous alignment state
+     */
+    public AlignmentState getPreviousAlignmentState() {
+        return previousAlignmentState;
+    }
+
+    /**
+     * Check if the subsystem is currently in an active alignment mode.
+     * @return true if not IDLE
+     */
+    public boolean isAligning() {
+        return currentMode != VisionMode.IDLE && alignmentState != AlignmentState.IDLE;
+    }
+
+    /**
+     * Check if alignment is complete and within tolerances.
+     * @return true if aligned
+     */
+    public boolean isAligned() {
+        return alignmentState == AlignmentState.ALIGNED;
+    }
+
+    /**
+     * Reset the state machine to IDLE.
+     * This should be called when commands end.
+     */
+    public void resetStateMachine() {
+        setVisionMode(VisionMode.IDLE);
+        setAlignmentState(AlignmentState.IDLE);
+    }
+
+    /**
+     * Called when alignment state changes.
+     * Can be used for logging, LED updates, etc.
+     */
+    private void onAlignmentStateChanged() {
+        // Update LEDs based on new state
+        updateLEDsFromStateMachine();
+
+        // Log state transition
+        Logger.recordOutput("Vision/StateMachine/StateTransition",
+            previousAlignmentState.name() + " -> " + alignmentState.name());
     }
 
     // ============================================================================
@@ -311,6 +466,14 @@ public class VisionSubsystem extends SubsystemBase {
         // AdvantageKit logging - connection status
         Logger.recordOutput("Vision/TableExists", limelightTable.containsKey("tx"));
         Logger.recordOutput("Vision/LimelightName", limelightName);
+
+        // State machine telemetry
+        Logger.recordOutput("Vision/StateMachine/Mode", currentMode.name());
+        Logger.recordOutput("Vision/StateMachine/AlignmentState", alignmentState.name());
+        Logger.recordOutput("Vision/StateMachine/IsAligning", isAligning());
+        Logger.recordOutput("Vision/StateMachine/IsAligned", isAligned());
+        SmartDashboard.putString("Vision/Mode", currentMode.name());
+        SmartDashboard.putString("Vision/AlignmentState", alignmentState.name());
     }
-    
+
 }
