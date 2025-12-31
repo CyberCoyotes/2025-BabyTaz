@@ -106,9 +106,9 @@ public final class VisionConstants {
 
     public static final class ModelA {
         // PID Tuning for rotation
-        public static final double ROTATION_KP = 0.035;
+        public static final double ROTATION_KP = 0.04;  // Increased from 0.035 to provide more power near target
         public static final double ROTATION_KI = 0.0;
-        public static final double ROTATION_KD = 0.0;
+        public static final double ROTATION_KD = 0.002;  // Added small D to help push through to target
 
         // Speed limits
         public static final double MAX_ROTATION_SPEED_RADPS = 2.0;
@@ -117,7 +117,7 @@ public final class VisionConstants {
         public static final double ROTATION_TOLERANCE_DEGREES = 1.5;
 
         // Minimum angular velocity to overcome friction (servoing)
-        public static final double MIN_ROTATION_SPEED_RADPS = 0.05;
+        public static final double MIN_ROTATION_SPEED_RADPS = 0.08;  // Increased from 0.05 to overcome static friction
     }
 
     // ============================================================================
