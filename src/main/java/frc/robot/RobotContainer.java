@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.visiontest.FullAlignToTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionTestDashboard;
 
@@ -48,8 +49,16 @@ public class RobotContainer {
 
 
     public RobotContainer() {
+        // Test SmartDashboard connectivity
+        edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putString("RobotContainer", "Initialized");
+        edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("TestNumber", 42.0);
+
         // Initialize vision test dashboard (creates Shuffleboard tab with buttons)
         visionTestDashboard = new VisionTestDashboard(drivetrain, vision);
+
+        // Force initialization of all TunableVisionConstants so they appear on dashboard
+        // This triggers static field initialization which publishes values to SmartDashboard
+        initializeTunableConstants();
 
         configureBindings();
 
@@ -110,6 +119,22 @@ public class RobotContainer {
         driver.rightBumper().onTrue(visionTestDashboard.getStopCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    /**
+     * Force initialization of all TunableVisionConstants classes.
+     * This ensures all tunable PID values are published to SmartDashboard/Shuffleboard
+     * on robot startup, even if their corresponding commands haven't been created yet.
+     */
+    private void initializeTunableConstants() {
+        // Access one field from each inner class to trigger static initialization
+        // The JVM will then initialize all static fields in that class
+        TunableVisionConstants.Main.ROTATION_KP.getKey();
+        TunableVisionConstants.ModelA.ROTATION_KP.getKey();
+        TunableVisionConstants.ModelB.ROTATION_KP.getKey();
+        TunableVisionConstants.ModelC.ROTATION_KP.getKey();
+        TunableVisionConstants.ModelD.SEEK_ROTATION_KP.getKey();
+        TunableVisionConstants.Camera.HEIGHT.getKey();
     }
 
     public Command getAutonomousCommand() {

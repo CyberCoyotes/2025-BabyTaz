@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew build:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(java:*)",
+      "Bash(echo:*)",
+      "Bash(if [ -d \"$USERPROFILE/Shuffleboard\" ])",
+      "Bash(then echo \"exists\")",
+      "Bash(else echo \"not found\")",
+      "Bash(fi)"
     ]
   }
 }

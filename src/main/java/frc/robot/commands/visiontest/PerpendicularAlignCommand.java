@@ -10,6 +10,7 @@ import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -148,6 +149,9 @@ public class PerpendicularAlignCommand extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Update MegaTag2 with robot orientation for better pose estimation
         updateMegaTagOrientation();
 
@@ -188,32 +192,24 @@ public class PerpendicularAlignCommand extends Command {
 
         // Calculate lateral speed with deadband
         // Only strafe if TX is outside the deadband
+        double lateralDeadband = TunableVisionConstants.ModelC.LATERAL_DEADBAND.get();
         double lateralSpeed = 0.0;
-        if (Math.abs(tx) > VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES) {
+        if (Math.abs(tx) > lateralDeadband) {
             lateralSpeed = lateralPID.calculate(tx);
         }
 
         // Apply speed limits
-        rotationSpeed = MathUtil.clamp(
-            rotationSpeed,
-            -VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS,
-            VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS
-        );
-        forwardSpeed = MathUtil.clamp(
-            forwardSpeed,
-            -VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS,
-            VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS
-        );
-        lateralSpeed = MathUtil.clamp(
-            lateralSpeed,
-            -VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS,
-            VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS
-        );
+        double maxRotation = TunableVisionConstants.ModelC.MAX_ROTATION_SPEED.get();
+        double maxForward = TunableVisionConstants.ModelC.MAX_FORWARD_SPEED.get();
+        double maxLateral = TunableVisionConstants.ModelC.MAX_LATERAL_SPEED.get();
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotation, maxRotation);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -maxForward, maxForward);
+        lateralSpeed = MathUtil.clamp(lateralSpeed, -maxLateral, maxLateral);
 
         // Check alignment status for each axis
         boolean rotationAligned = rotationPID.atSetpoint();
         boolean distanceAligned = rangePID.atSetpoint();
-        boolean lateralAligned = lateralPID.atSetpoint() || Math.abs(tx) <= VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES;
+        boolean lateralAligned = lateralPID.atSetpoint() || Math.abs(tx) <= lateralDeadband;
 
         // Update state machine based on alignment status
         vision.setAlignmentState((rotationAligned && distanceAligned && lateralAligned) ?
@@ -229,6 +225,64 @@ public class PerpendicularAlignCommand extends Command {
         // Log telemetry
         logTelemetry(tx, ty, currentDistance, rotationSpeed, forwardSpeed, lateralSpeed,
                      rotationAligned, distanceAligned, lateralAligned);
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        // Update rotation PID
+        if (TunableVisionConstants.ModelC.ROTATION_KP.hasChanged() ||
+            TunableVisionConstants.ModelC.ROTATION_KI.hasChanged() ||
+            TunableVisionConstants.ModelC.ROTATION_KD.hasChanged()) {
+
+            rotationPID.setPID(
+                TunableVisionConstants.ModelC.ROTATION_KP.get(),
+                TunableVisionConstants.ModelC.ROTATION_KI.get(),
+                TunableVisionConstants.ModelC.ROTATION_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelC.ROTATION_TOLERANCE.hasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelC.ROTATION_TOLERANCE.get());
+        }
+
+        // Update range PID
+        if (TunableVisionConstants.ModelC.RANGE_KP.hasChanged() ||
+            TunableVisionConstants.ModelC.RANGE_KI.hasChanged() ||
+            TunableVisionConstants.ModelC.RANGE_KD.hasChanged()) {
+
+            rangePID.setPID(
+                TunableVisionConstants.ModelC.RANGE_KP.get(),
+                TunableVisionConstants.ModelC.RANGE_KI.get(),
+                TunableVisionConstants.ModelC.RANGE_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelC.DISTANCE_TOLERANCE.hasChanged()) {
+            rangePID.setTolerance(TunableVisionConstants.ModelC.DISTANCE_TOLERANCE.get());
+        }
+
+        if (TunableVisionConstants.ModelC.TARGET_DISTANCE.hasChanged()) {
+            rangePID.setSetpoint(TunableVisionConstants.ModelC.TARGET_DISTANCE.get());
+        }
+
+        // Update lateral PID
+        if (TunableVisionConstants.ModelC.LATERAL_KP.hasChanged() ||
+            TunableVisionConstants.ModelC.LATERAL_KI.hasChanged() ||
+            TunableVisionConstants.ModelC.LATERAL_KD.hasChanged()) {
+
+            lateralPID.setPID(
+                TunableVisionConstants.ModelC.LATERAL_KP.get(),
+                TunableVisionConstants.ModelC.LATERAL_KI.get(),
+                TunableVisionConstants.ModelC.LATERAL_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelC.LATERAL_TOLERANCE.hasChanged()) {
+            lateralPID.setTolerance(TunableVisionConstants.ModelC.LATERAL_TOLERANCE.get());
+        }
     }
 
     /**
