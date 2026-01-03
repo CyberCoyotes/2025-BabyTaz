@@ -1,0 +1,232 @@
+{
+  "_type": "Layout",
+  "_title": "Vision Tuning Dashboard",
+  "_children": [
+    {
+      "_type": "Tab",
+      "_title": "Model A - Rotation",
+      "_children": [
+        {
+          "_type": "Layout",
+          "_title": "PID Gains",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation kP",
+              "_source0": "network_table:///Tuning/Vision/ModelA/Rotation_kP",
+              "Min": 0.0,
+              "Max": 0.2,
+              "Block increment": 0.001
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation kI",
+              "_source0": "network_table:///Tuning/Vision/ModelA/Rotation_kI",
+              "Min": 0.0,
+              "Max": 0.05,
+              "Block increment": 0.001
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation kD",
+              "_source0": "network_table:///Tuning/Vision/ModelA/Rotation_kD",
+              "Min": 0.0,
+              "Max": 0.05,
+              "Block increment": 0.001
+            }
+          ]
+        },
+        {
+          "_type": "Layout",
+          "_title": "Limits & Tolerances",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "Max Rotation Speed (rad/s)",
+              "_source0": "network_table:///Tuning/Vision/ModelA/MaxRotationSpeed",
+              "Min": 0.0,
+              "Max": 4.0,
+              "Block increment": 0.1
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Min Rotation Speed (rad/s)",
+              "_source0": "network_table:///Tuning/Vision/ModelA/MinRotationSpeed",
+              "Min": 0.0,
+              "Max": 0.5,
+              "Block increment": 0.01
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation Tolerance (deg)",
+              "_source0": "network_table:///Tuning/Vision/ModelA/RotationTolerance_deg",
+              "Min": 0.5,
+              "Max": 5.0,
+              "Block increment": 0.1
+            }
+          ]
+        },
+        {
+          "_type": "Layout",
+          "_title": "Telemetry",
+          "_children": [
+            {
+              "_type": "Text View",
+              "_title": "Status",
+              "_source0": "network_table:///VisionTest/ModelA/Status"
+            },
+            {
+              "_type": "Number Bar",
+              "_title": "TX (deg)",
+              "_source0": "network_table:///VisionTest/ModelA/TX",
+              "Min": -30.0,
+              "Max": 30.0
+            },
+            {
+              "_type": "Number Bar",
+              "_title": "Rotation Speed",
+              "_source0": "network_table:///VisionTest/ModelA/RotationSpeed",
+              "Min": -2.0,
+              "Max": 2.0
+            },
+            {
+              "_type": "Boolean Box",
+              "_title": "At Target",
+              "_source0": "network_table:///VisionTest/ModelA/AtTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_type": "Tab",
+      "_title": "Model B - Rot+Range",
+      "_children": [
+        {
+          "_type": "Layout",
+          "_title": "Rotation PID",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation kP",
+              "_source0": "network_table:///Tuning/Vision/ModelB/Rotation_kP",
+              "Min": 0.0,
+              "Max": 0.15,
+              "Block increment": 0.001
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Rotation kD",
+              "_source0": "network_table:///Tuning/Vision/ModelB/Rotation_kD",
+              "Min": 0.0,
+              "Max": 0.05,
+              "Block increment": 0.001
+            }
+          ]
+        },
+        {
+          "_type": "Layout",
+          "_title": "Range PID",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "Range kP",
+              "_source0": "network_table:///Tuning/Vision/ModelB/Range_kP",
+              "Min": 0.0,
+              "Max": 3.0,
+              "Block increment": 0.05
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Range kD",
+              "_source0": "network_table:///Tuning/Vision/ModelB/Range_kD",
+              "Min": 0.0,
+              "Max": 0.5,
+              "Block increment": 0.01
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Target Distance (m)",
+              "_source0": "network_table:///Tuning/Vision/ModelB/TargetDistance_m",
+              "Min": 0.3,
+              "Max": 2.0,
+              "Block increment": 0.05
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_type": "Tab",
+      "_title": "Model C - Full 3-Axis",
+      "_children": [
+        {
+          "_type": "Layout",
+          "_title": "Rotation PID",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "kP",
+              "_source0": "network_table:///Tuning/Vision/ModelC/Rotation_kP",
+              "Min": 0.0,
+              "Max": 0.15,
+              "Block increment": 0.001
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "kD",
+              "_source0": "network_table:///Tuning/Vision/ModelC/Rotation_kD",
+              "Min": 0.0,
+              "Max": 0.05,
+              "Block increment": 0.001
+            }
+          ]
+        },
+        {
+          "_type": "Layout",
+          "_title": "Range PID",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "kP",
+              "_source0": "network_table:///Tuning/Vision/ModelC/Range_kP",
+              "Min": 0.0,
+              "Max": 3.0,
+              "Block increment": 0.05
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "kD",
+              "_source0": "network_table:///Tuning/Vision/ModelC/Range_kD",
+              "Min": 0.0,
+              "Max": 0.5,
+              "Block increment": 0.01
+            }
+          ]
+        },
+        {
+          "_type": "Layout",
+          "_title": "Lateral PID",
+          "_children": [
+            {
+              "_type": "Number Slider",
+              "_title": "kP",
+              "_source0": "network_table:///Tuning/Vision/ModelC/Lateral_kP",
+              "Min": 0.0,
+              "Max": 0.15,
+              "Block increment": 0.005
+            },
+            {
+              "_type": "Number Slider",
+              "_title": "Deadband (deg)",
+              "_source0": "network_table:///Tuning/Vision/ModelC/LateralDeadband_deg",
+              "Min": 0.0,
+              "Max": 10.0,
+              "Block increment": 0.5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -84,6 +85,9 @@ public class RotationalAlignCommand extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Check for valid target
         if (!vision.hasTarget()) {
             // Update state machine
@@ -108,16 +112,14 @@ public class RotationalAlignCommand extends Command {
 
         // Add minimum speed to overcome static friction (servoing)
         // This prevents the robot from getting "stuck" near the target
-        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS) {
-            rotationSpeed = Math.copySign(VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS, rotationSpeed);
+        double minSpeed = TunableVisionConstants.ModelA.MIN_ROTATION_SPEED.get();
+        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < minSpeed) {
+            rotationSpeed = Math.copySign(minSpeed, rotationSpeed);
         }
 
         // Apply speed limits
-        rotationSpeed = MathUtil.clamp(
-            rotationSpeed,
-            -VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS,
-            VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS
-        );
+        double maxSpeed = TunableVisionConstants.ModelA.MAX_ROTATION_SPEED.get();
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
 
         // Check if aligned
         boolean atTarget = rotationPID.atSetpoint();
@@ -135,6 +137,27 @@ public class RotationalAlignCommand extends Command {
 
         // Log telemetry
         logTelemetry(tx, rotationSpeed, atTarget);
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        if (TunableVisionConstants.ModelA.ROTATION_KP.hasChanged() ||
+            TunableVisionConstants.ModelA.ROTATION_KI.hasChanged() ||
+            TunableVisionConstants.ModelA.ROTATION_KD.hasChanged()) {
+
+            rotationPID.setPID(
+                TunableVisionConstants.ModelA.ROTATION_KP.get(),
+                TunableVisionConstants.ModelA.ROTATION_KI.get(),
+                TunableVisionConstants.ModelA.ROTATION_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelA.ROTATION_TOLERANCE.hasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelA.ROTATION_TOLERANCE.get());
+        }
     }
 
     private void stopRobot() {
