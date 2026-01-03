@@ -21,9 +21,9 @@ import frc.robot.subsystems.vision.VisionTestDashboard;
 
 public class RobotContainer {
 
-    private double slowMo = 0.50;
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double slowMo = 0.30;
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)*slowMo;// kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond)*slowMo; // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -91,13 +91,13 @@ public class RobotContainer {
         // See VisionTestDashboard.java for Shuffleboard layout.
         // ============================================================================
 
-        // A button: Original AlignToTag (3-axis alignment) - KEEP FOR CONTINUED TESTING
+        // X button: Original AlignToTag (3-axis alignment) - KEEP FOR CONTINUED TESTING
         driver.x().whileTrue(new FullAlignToTag(drivetrain, vision));
 
-        // B button: Model A - Rotation only alignment
+        // A button: Model A - Rotation only alignment
         driver.a().whileTrue(visionTestDashboard.getModelACommand());
 
-        // X button: Model B - Rotation + Range alignment
+        // B button: Model B - Rotation + Range alignment
         driver.b().whileTrue(visionTestDashboard.getModelBCommand());
 
         // Y button: Model C - Perpendicular + Range alignment

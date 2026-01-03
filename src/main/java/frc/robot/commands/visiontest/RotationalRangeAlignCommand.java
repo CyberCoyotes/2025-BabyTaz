@@ -65,14 +65,6 @@ public class RotationalRangeAlignCommand extends Command {
     // NetworkTables for telemetry
     private final NetworkTable telemetryTable;
 
-    // Status tracking
-    private enum AlignmentStatus {
-        SEARCHING,      // No target visible
-        ALIGNING,       // Target visible, aligning
-        ALIGNED         // Both rotation and distance within tolerance
-    }
-    private AlignmentStatus currentStatus = AlignmentStatus.SEARCHING;
-
     /**
      * Creates a RotationalRangeAlignCommand with default target distance (0.75m).
      */
@@ -122,7 +114,9 @@ public class RotationalRangeAlignCommand extends Command {
     public void initialize() {
         rotationPID.reset();
         rangePID.reset();
-        currentStatus = AlignmentStatus.SEARCHING;
+        // Set vision mode in subsystem
+        vision.setVisionMode(VisionSubsystem.VisionMode.ROTATION_RANGE);
+        vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
         logStatus("STARTED");
 
         // Log target distance
@@ -134,7 +128,13 @@ public class RotationalRangeAlignCommand extends Command {
     public void execute() {
         // Check for valid target
         if (!vision.hasTarget()) {
-            currentStatus = AlignmentStatus.SEARCHING;
+            // Update state machine
+            if (vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNING ||
+                vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNED) {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.LOST_TARGET);
+            } else {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
+            }
             stopRobot();
             logTelemetry(0.0, 0.0, 0.0, 0.0, false, false);
             return;
@@ -180,7 +180,11 @@ public class RotationalRangeAlignCommand extends Command {
         // Check alignment status
         boolean rotationAligned = rotationPID.atSetpoint();
         boolean distanceAligned = rangePID.atSetpoint();
-        currentStatus = (rotationAligned && distanceAligned) ? AlignmentStatus.ALIGNED : AlignmentStatus.ALIGNING;
+
+        // Update state machine based on alignment status
+        vision.setAlignmentState((rotationAligned && distanceAligned) ?
+            VisionSubsystem.AlignmentState.ALIGNED :
+            VisionSubsystem.AlignmentState.ALIGNING);
 
         // Apply to drivetrain - rotation + forward, no lateral movement
         drivetrain.setControl(driveRequest
@@ -201,8 +205,11 @@ public class RotationalRangeAlignCommand extends Command {
 
     private void logTelemetry(double tx, double distance, double rotationSpeed,
                                double forwardSpeed, boolean rotationAligned, boolean distanceAligned) {
+        // Get current state from subsystem
+        String status = vision.getAlignmentState().name();
+
         // NetworkTables output
-        telemetryTable.getEntry("Status").setString(currentStatus.name());
+        telemetryTable.getEntry("Status").setString(status);
         telemetryTable.getEntry("TX").setDouble(tx);
         telemetryTable.getEntry("Distance").setDouble(distance);
         telemetryTable.getEntry("RotationSpeed").setDouble(rotationSpeed);
@@ -214,7 +221,7 @@ public class RotationalRangeAlignCommand extends Command {
         telemetryTable.getEntry("DistanceError").setDouble(distance - targetDistanceMeters);
 
         // AdvantageKit logging
-        Logger.recordOutput("VisionTest/ModelB/Status", currentStatus.name());
+        Logger.recordOutput("VisionTest/ModelB/Status", status);
         Logger.recordOutput("VisionTest/ModelB/TX", tx);
         Logger.recordOutput("VisionTest/ModelB/Distance", distance);
         Logger.recordOutput("VisionTest/ModelB/RotationSpeed", rotationSpeed);
@@ -234,12 +241,16 @@ public class RotationalRangeAlignCommand extends Command {
     @Override
     public boolean isFinished() {
         // Runs until manually stopped
+        // Or return true when aligned if you want auto-finish:
+        // return vision.isAligned();
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
         stopRobot();
+        // Reset state machine when command ends
+        vision.resetStateMachine();
         logStatus(interrupted ? "INTERRUPTED" : "COMPLETED");
     }
 }

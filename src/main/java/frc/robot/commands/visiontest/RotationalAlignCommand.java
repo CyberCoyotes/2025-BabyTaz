@@ -52,14 +52,6 @@ public class RotationalAlignCommand extends Command {
     // NetworkTables for fast telemetry output
     private final NetworkTable telemetryTable;
 
-    // Status tracking
-    private enum AlignmentStatus {
-        SEARCHING,  // No target visible
-        ALIGNING,   // Target visible, rotating to align
-        ALIGNED     // Within tolerance
-    }
-    private AlignmentStatus currentStatus = AlignmentStatus.SEARCHING;
-
     public RotationalAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
@@ -84,7 +76,9 @@ public class RotationalAlignCommand extends Command {
     @Override
     public void initialize() {
         rotationPID.reset();
-        currentStatus = AlignmentStatus.SEARCHING;
+        // Set vision mode in subsystem
+        vision.setVisionMode(VisionSubsystem.VisionMode.ROTATION_ONLY);
+        vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
         logStatus("STARTED");
     }
 
@@ -92,7 +86,13 @@ public class RotationalAlignCommand extends Command {
     public void execute() {
         // Check for valid target
         if (!vision.hasTarget()) {
-            currentStatus = AlignmentStatus.SEARCHING;
+            // Update state machine
+            if (vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNING ||
+                vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNED) {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.LOST_TARGET);
+            } else {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
+            }
             stopRobot();
             logTelemetry(0.0, 0.0, false);
             return;
@@ -121,7 +121,11 @@ public class RotationalAlignCommand extends Command {
 
         // Check if aligned
         boolean atTarget = rotationPID.atSetpoint();
-        currentStatus = atTarget ? AlignmentStatus.ALIGNED : AlignmentStatus.ALIGNING;
+
+        // Update state machine based on alignment status
+        vision.setAlignmentState(atTarget ?
+            VisionSubsystem.AlignmentState.ALIGNED :
+            VisionSubsystem.AlignmentState.ALIGNING);
 
         // Apply to drivetrain - rotation only, no translation
         drivetrain.setControl(driveRequest
@@ -141,15 +145,18 @@ public class RotationalAlignCommand extends Command {
     }
 
     private void logTelemetry(double tx, double rotationSpeed, boolean atTarget) {
+        // Get current state from subsystem
+        String status = vision.getAlignmentState().name();
+
         // NetworkTables output (fast, reliable)
-        telemetryTable.getEntry("Status").setString(currentStatus.name());
+        telemetryTable.getEntry("Status").setString(status);
         telemetryTable.getEntry("TX").setDouble(tx);
         telemetryTable.getEntry("RotationSpeed").setDouble(rotationSpeed);
         telemetryTable.getEntry("AtTarget").setBoolean(atTarget);
         telemetryTable.getEntry("TagID").setDouble(vision.getTagID());
 
         // AdvantageKit logging (for replay)
-        Logger.recordOutput("VisionTest/ModelA/Status", currentStatus.name());
+        Logger.recordOutput("VisionTest/ModelA/Status", status);
         Logger.recordOutput("VisionTest/ModelA/TX", tx);
         Logger.recordOutput("VisionTest/ModelA/RotationSpeed", rotationSpeed);
         Logger.recordOutput("VisionTest/ModelA/AtTarget", atTarget);
@@ -165,13 +172,15 @@ public class RotationalAlignCommand extends Command {
     public boolean isFinished() {
         // Command runs until manually stopped (whileTrue binding)
         // Or return true when aligned if you want auto-finish:
-        // return currentStatus == AlignmentStatus.ALIGNED;
+        // return vision.isAligned();
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
         stopRobot();
+        // Reset state machine when command ends
+        vision.resetStateMachine();
         logStatus(interrupted ? "INTERRUPTED" : "COMPLETED");
     }
 }

@@ -70,14 +70,6 @@ public class PerpendicularAlignCommand extends Command {
     // NetworkTables for telemetry
     private final NetworkTable telemetryTable;
 
-    // Status tracking
-    private enum AlignmentStatus {
-        SEARCHING,      // No target visible
-        ALIGNING,       // Target visible, aligning
-        ALIGNED         // All three axes within tolerance
-    }
-    private AlignmentStatus currentStatus = AlignmentStatus.SEARCHING;
-
     // Track if we've set MegaTag2 orientation this cycle
     private boolean megaTagOrientationSet = false;
 
@@ -140,7 +132,9 @@ public class PerpendicularAlignCommand extends Command {
         rotationPID.reset();
         rangePID.reset();
         lateralPID.reset();
-        currentStatus = AlignmentStatus.SEARCHING;
+        // Set vision mode in subsystem
+        vision.setVisionMode(VisionSubsystem.VisionMode.PERPENDICULAR);
+        vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
         megaTagOrientationSet = false;
         logStatus("STARTED");
 
@@ -159,7 +153,13 @@ public class PerpendicularAlignCommand extends Command {
 
         // Check for valid target
         if (!vision.hasTarget()) {
-            currentStatus = AlignmentStatus.SEARCHING;
+            // Update state machine
+            if (vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNING ||
+                vision.getAlignmentState() == VisionSubsystem.AlignmentState.ALIGNED) {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.LOST_TARGET);
+            } else {
+                vision.setAlignmentState(VisionSubsystem.AlignmentState.SEARCHING);
+            }
             stopRobot();
             logTelemetry(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, false, false);
             return;
@@ -215,9 +215,10 @@ public class PerpendicularAlignCommand extends Command {
         boolean distanceAligned = rangePID.atSetpoint();
         boolean lateralAligned = lateralPID.atSetpoint() || Math.abs(tx) <= VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES;
 
-        currentStatus = (rotationAligned && distanceAligned && lateralAligned)
-            ? AlignmentStatus.ALIGNED
-            : AlignmentStatus.ALIGNING;
+        // Update state machine based on alignment status
+        vision.setAlignmentState((rotationAligned && distanceAligned && lateralAligned) ?
+            VisionSubsystem.AlignmentState.ALIGNED :
+            VisionSubsystem.AlignmentState.ALIGNING);
 
         // Apply to drivetrain - full 3-axis control
         drivetrain.setControl(driveRequest
@@ -270,9 +271,11 @@ public class PerpendicularAlignCommand extends Command {
                                double rotationSpeed, double forwardSpeed, double lateralSpeed,
                                boolean rotationAligned, boolean distanceAligned, boolean lateralAligned) {
         boolean fullyAligned = rotationAligned && distanceAligned && lateralAligned;
+        // Get current state from subsystem
+        String status = vision.getAlignmentState().name();
 
         // NetworkTables output
-        telemetryTable.getEntry("Status").setString(currentStatus.name());
+        telemetryTable.getEntry("Status").setString(status);
         telemetryTable.getEntry("TX").setDouble(tx);
         telemetryTable.getEntry("TY").setDouble(ty);
         telemetryTable.getEntry("Distance").setDouble(distance);
@@ -287,7 +290,7 @@ public class PerpendicularAlignCommand extends Command {
         telemetryTable.getEntry("DistanceError").setDouble(distance - targetDistanceMeters);
 
         // AdvantageKit logging
-        Logger.recordOutput("VisionTest/ModelC/Status", currentStatus.name());
+        Logger.recordOutput("VisionTest/ModelC/Status", status);
         Logger.recordOutput("VisionTest/ModelC/TX", tx);
         Logger.recordOutput("VisionTest/ModelC/TY", ty);
         Logger.recordOutput("VisionTest/ModelC/Distance", distance);
@@ -310,6 +313,8 @@ public class PerpendicularAlignCommand extends Command {
     @Override
     public boolean isFinished() {
         // Runs until manually stopped
+        // Or return true when aligned if you want auto-finish:
+        // return vision.isAligned();
         return false;
     }
 
@@ -317,6 +322,8 @@ public class PerpendicularAlignCommand extends Command {
     public void end(boolean interrupted) {
         stopRobot();
         megaTagOrientationSet = false;
+        // Reset state machine when command ends
+        vision.resetStateMachine();
         logStatus(interrupted ? "INTERRUPTED" : "COMPLETED");
     }
 }
