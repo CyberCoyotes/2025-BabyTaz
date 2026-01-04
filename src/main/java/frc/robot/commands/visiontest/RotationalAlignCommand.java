@@ -112,13 +112,13 @@ public class RotationalAlignCommand extends Command {
 
         // Add minimum speed to overcome static friction (servoing)
         // This prevents the robot from getting "stuck" near the target
-        double minSpeed = TunableVisionConstants.ModelA.MIN_ROTATION_SPEED.get();
+        double minSpeed = TunableVisionConstants.ModelA.getMinRotationSpeed();
         if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < minSpeed) {
             rotationSpeed = Math.copySign(minSpeed, rotationSpeed);
         }
 
         // Apply speed limits
-        double maxSpeed = TunableVisionConstants.ModelA.MAX_ROTATION_SPEED.get();
+        double maxSpeed = TunableVisionConstants.ModelA.getMaxRotationSpeed();
         rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
 
         // Check if aligned
@@ -144,19 +144,16 @@ public class RotationalAlignCommand extends Command {
      * Called every execute() cycle to allow live tuning.
      */
     private void updatePIDGains() {
-        if (TunableVisionConstants.ModelA.ROTATION_KP.hasChanged() ||
-            TunableVisionConstants.ModelA.ROTATION_KI.hasChanged() ||
-            TunableVisionConstants.ModelA.ROTATION_KD.hasChanged()) {
-
+        if (TunableVisionConstants.ModelA.anyPIDHasChanged()) {
             rotationPID.setPID(
-                TunableVisionConstants.ModelA.ROTATION_KP.get(),
-                TunableVisionConstants.ModelA.ROTATION_KI.get(),
-                TunableVisionConstants.ModelA.ROTATION_KD.get()
+                TunableVisionConstants.ModelA.getRotationKp(),
+                TunableVisionConstants.ModelA.getRotationKi(),
+                TunableVisionConstants.ModelA.getRotationKd()
             );
         }
 
-        if (TunableVisionConstants.ModelA.ROTATION_TOLERANCE.hasChanged()) {
-            rotationPID.setTolerance(TunableVisionConstants.ModelA.ROTATION_TOLERANCE.get());
+        if (TunableVisionConstants.ModelA.rotationToleranceHasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelA.getRotationTolerance());
         }
     }
 

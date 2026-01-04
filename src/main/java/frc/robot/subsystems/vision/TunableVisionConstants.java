@@ -1,334 +1,316 @@
 package frc.robot.subsystems.vision;
 
-import frc.robot.util.TunableNumber;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import java.util.Map;
 
 /**
- * TunableVisionConstants - Live-tunable PID and vision parameters.
+ * Tunable vision constants that automatically create Shuffleboard tabs with sliders.
  *
- * This class wraps all tunable vision alignment parameters using TunableNumber,
- * allowing real-time adjustment via SmartDashboard/Shuffleboard without redeploying.
+ * This class programmatically creates Shuffleboard tabs for each vision model with
+ * pre-configured sliders. No JSON file or manual drag-and-drop needed!
  *
- * Usage:
- * - View/edit values in SmartDashboard or Shuffleboard
- * - Values are organized by model (A, B, C, D) and main AlignToAprilTagCommand
- * - Changes take effect immediately on next command execution
- * - Disable tuning for competition: TunableNumber.setTuningEnabled(false)
+ * USAGE:
+ * 1. Call TunableVisionConstants.initializeAll() during robot initialization
+ * 2. Access constants via TunableVisionConstants.ModelA.getRotationKp()
+ * 3. Use .hasChanged() to detect updates and refresh PID controllers
+ *
+ * Shuffleboard tabs are automatically created:
+ * - "Vision A: Rotation" - Model A constants
+ * - "Vision B: Rot+Range" - Model B constants
+ * - "Vision C: Full 3-Axis" - Model C constants
+ * - "Vision D: Color Hunt" - Model D constants
  */
 public class TunableVisionConstants {
 
-    // ============================================================================
-    // MAIN ALIGNMENT COMMAND (AlignToAprilTagCommand)
-    // ============================================================================
-
-    public static class Main {
-        // Forward/Backward PID
-        public static final TunableNumber FORWARD_KP =
-            new TunableNumber("Vision/Main/Forward_kP", 1.0);
-        public static final TunableNumber FORWARD_KI =
-            new TunableNumber("Vision/Main/Forward_kI", 0.0);
-        public static final TunableNumber FORWARD_KD =
-            new TunableNumber("Vision/Main/Forward_kD", 0.0);
-
-        // Lateral/Strafe PID
-        public static final TunableNumber LATERAL_KP =
-            new TunableNumber("Vision/Main/Lateral_kP", 0.3);
-        public static final TunableNumber LATERAL_KI =
-            new TunableNumber("Vision/Main/Lateral_kI", 0.0);
-        public static final TunableNumber LATERAL_KD =
-            new TunableNumber("Vision/Main/Lateral_kD", 0.0);
-
-        // Rotation PID
-        public static final TunableNumber ROTATION_KP =
-            new TunableNumber("Vision/Main/Rotation_kP", 0.08);
-        public static final TunableNumber ROTATION_KI =
-            new TunableNumber("Vision/Main/Rotation_kI", 0.0);
-        public static final TunableNumber ROTATION_KD =
-            new TunableNumber("Vision/Main/Rotation_kD", 0.0);
-
-        // Speed limits
-        public static final TunableNumber MAX_FORWARD_SPEED =
-            new TunableNumber("Vision/Main/MaxForwardSpeed", 0.625);
-        public static final TunableNumber MAX_LATERAL_SPEED =
-            new TunableNumber("Vision/Main/MaxLateralSpeed", 0.625);
-        public static final TunableNumber MAX_ROTATION_SPEED =
-            new TunableNumber("Vision/Main/MaxRotationSpeed", 0.9375);
-
-        // Tolerances
-        public static final TunableNumber FORWARD_TOLERANCE =
-            new TunableNumber("Vision/Main/ForwardTolerance_m", 0.10);
-        public static final TunableNumber LATERAL_TOLERANCE =
-            new TunableNumber("Vision/Main/LateralTolerance_m", 0.05);
-        public static final TunableNumber ROTATION_TOLERANCE =
-            new TunableNumber("Vision/Main/RotationTolerance_deg", 2.0);
-
-        // Target distance
-        public static final TunableNumber TARGET_DISTANCE =
-            new TunableNumber("Vision/Main/TargetDistance_m", 1.0);
-    }
+    private static boolean initialized = false;
 
     // ============================================================================
     // MODEL A: ROTATION ONLY
     // ============================================================================
-
     public static class ModelA {
-        public static final TunableNumber ROTATION_KP =
-            new TunableNumber("Vision/ModelA/Rotation_kP", VisionConstants.ModelA.ROTATION_KP);
-        public static final TunableNumber ROTATION_KI =
-            new TunableNumber("Vision/ModelA/Rotation_kI", VisionConstants.ModelA.ROTATION_KI);
-        public static final TunableNumber ROTATION_KD =
-            new TunableNumber("Vision/ModelA/Rotation_kD", VisionConstants.ModelA.ROTATION_KD);
+        private static GenericEntry rotation_kP;
+        private static GenericEntry rotation_kI;
+        private static GenericEntry rotation_kD;
+        private static GenericEntry maxRotationSpeed;
+        private static GenericEntry minRotationSpeed;
+        private static GenericEntry rotationTolerance_deg;
 
-        public static final TunableNumber MAX_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelA/MaxRotationSpeed", VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS);
-        public static final TunableNumber MIN_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelA/MinRotationSpeed", VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS);
+        private static double lastKp, lastKi, lastKd, lastTolerance;
 
-        public static final TunableNumber ROTATION_TOLERANCE =
-            new TunableNumber("Vision/ModelA/RotationTolerance_deg", VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES);
+        public static void initialize() {
+            ShuffleboardTab tab = Shuffleboard.getTab("Vision A: Rotation");
+
+            // PID Gains
+            rotation_kP = tab.add("kP", VisionConstants.ModelA.ROTATION_KP)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.2, "block_increment", 0.001))
+                .withPosition(0, 0).withSize(2, 1).getEntry();
+
+            rotation_kI = tab.add("kI", VisionConstants.ModelA.ROTATION_KI)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.05, "block_increment", 0.001))
+                .withPosition(0, 1).withSize(2, 1).getEntry();
+
+            rotation_kD = tab.add("kD", VisionConstants.ModelA.ROTATION_KD)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.05, "block_increment", 0.001))
+                .withPosition(0, 2).withSize(2, 1).getEntry();
+
+            // Speed limits
+            maxRotationSpeed = tab.add("Max Speed (rad/s)", VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 4.0, "block_increment", 0.1))
+                .withPosition(2, 0).withSize(2, 1).getEntry();
+
+            minRotationSpeed = tab.add("Min Speed (rad/s)", VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.5, "block_increment", 0.01))
+                .withPosition(2, 1).withSize(2, 1).getEntry();
+
+            // Tolerance
+            rotationTolerance_deg = tab.add("Tolerance (deg)", VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.5, "max", 5.0, "block_increment", 0.1))
+                .withPosition(2, 2).withSize(2, 1).getEntry();
+
+            // Initialize last values
+            lastKp = VisionConstants.ModelA.ROTATION_KP;
+            lastKi = VisionConstants.ModelA.ROTATION_KI;
+            lastKd = VisionConstants.ModelA.ROTATION_KD;
+            lastTolerance = VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES;
+        }
+
+        // Getters
+        public static double getRotationKp() { return rotation_kP.getDouble(VisionConstants.ModelA.ROTATION_KP); }
+        public static double getRotationKi() { return rotation_kI.getDouble(VisionConstants.ModelA.ROTATION_KI); }
+        public static double getRotationKd() { return rotation_kD.getDouble(VisionConstants.ModelA.ROTATION_KD); }
+        public static double getMaxRotationSpeed() { return maxRotationSpeed.getDouble(VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS); }
+        public static double getMinRotationSpeed() { return minRotationSpeed.getDouble(VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS); }
+        public static double getRotationTolerance() { return rotationTolerance_deg.getDouble(VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES); }
+
+        // hasChanged methods for PID auto-update
+        public static boolean rotationKpHasChanged() {
+            double current = getRotationKp();
+            if (current != lastKp) {
+                lastKp = current;
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean rotationKiHasChanged() {
+            double current = getRotationKi();
+            if (current != lastKi) {
+                lastKi = current;
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean rotationKdHasChanged() {
+            double current = getRotationKd();
+            if (current != lastKd) {
+                lastKd = current;
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean rotationToleranceHasChanged() {
+            double current = getRotationTolerance();
+            if (current != lastTolerance) {
+                lastTolerance = current;
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean anyPIDHasChanged() {
+            return rotationKpHasChanged() || rotationKiHasChanged() || rotationKdHasChanged();
+        }
     }
 
     // ============================================================================
     // MODEL B: ROTATION + RANGE
     // ============================================================================
-
     public static class ModelB {
         // Rotation PID
-        public static final TunableNumber ROTATION_KP =
-            new TunableNumber("Vision/ModelB/Rotation_kP", VisionConstants.ModelB.ROTATION_KP);
-        public static final TunableNumber ROTATION_KI =
-            new TunableNumber("Vision/ModelB/Rotation_kI", VisionConstants.ModelB.ROTATION_KI);
-        public static final TunableNumber ROTATION_KD =
-            new TunableNumber("Vision/ModelB/Rotation_kD", VisionConstants.ModelB.ROTATION_KD);
+        private static GenericEntry rotation_kP;
+        private static GenericEntry rotation_kI;
+        private static GenericEntry rotation_kD;
 
         // Range PID
-        public static final TunableNumber RANGE_KP =
-            new TunableNumber("Vision/ModelB/Range_kP", VisionConstants.ModelB.RANGE_KP);
-        public static final TunableNumber RANGE_KI =
-            new TunableNumber("Vision/ModelB/Range_kI", VisionConstants.ModelB.RANGE_KI);
-        public static final TunableNumber RANGE_KD =
-            new TunableNumber("Vision/ModelB/Range_kD", VisionConstants.ModelB.RANGE_KD);
+        private static GenericEntry range_kP;
+        private static GenericEntry range_kI;
+        private static GenericEntry range_kD;
 
         // Speed limits
-        public static final TunableNumber MAX_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelB/MaxRotationSpeed", VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS);
-        public static final TunableNumber MAX_FORWARD_SPEED =
-            new TunableNumber("Vision/ModelB/MaxForwardSpeed", VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS);
+        private static GenericEntry maxRotationSpeed;
+        private static GenericEntry maxForwardSpeed;
 
         // Tolerances
-        public static final TunableNumber ROTATION_TOLERANCE =
-            new TunableNumber("Vision/ModelB/RotationTolerance_deg", VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES);
-        public static final TunableNumber DISTANCE_TOLERANCE =
-            new TunableNumber("Vision/ModelB/DistanceTolerance_m", VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS);
+        private static GenericEntry rotationTolerance_deg;
+        private static GenericEntry distanceTolerance_m;
+        private static GenericEntry targetDistance_m;
 
-        // Target distance
-        public static final TunableNumber TARGET_DISTANCE =
-            new TunableNumber("Vision/ModelB/TargetDistance_m", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
-    }
+        private static double lastRotKp, lastRotKi, lastRotKd;
+        private static double lastRangeKp, lastRangeKi, lastRangeKd;
+        private static double lastRotTol, lastDistTol, lastTargetDist;
 
-    // ============================================================================
-    // MODEL C: PERPENDICULAR ALIGNMENT (3-axis)
-    // ============================================================================
+        public static void initialize() {
+            ShuffleboardTab tab = Shuffleboard.getTab("Vision B: Rot+Range");
 
-    public static class ModelC {
-        // Rotation PID
-        public static final TunableNumber ROTATION_KP =
-            new TunableNumber("Vision/ModelC/Rotation_kP", VisionConstants.ModelC.ROTATION_KP);
-        public static final TunableNumber ROTATION_KI =
-            new TunableNumber("Vision/ModelC/Rotation_kI", VisionConstants.ModelC.ROTATION_KI);
-        public static final TunableNumber ROTATION_KD =
-            new TunableNumber("Vision/ModelC/Rotation_kD", VisionConstants.ModelC.ROTATION_KD);
+            // Rotation PID (left column)
+            rotation_kP = tab.add("Rot kP", VisionConstants.ModelB.ROTATION_KP)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.15, "block_increment", 0.001))
+                .withPosition(0, 0).withSize(2, 1).getEntry();
+            rotation_kI = tab.add("Rot kI", VisionConstants.ModelB.ROTATION_KI)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.05, "block_increment", 0.001))
+                .withPosition(0, 1).withSize(2, 1).getEntry();
+            rotation_kD = tab.add("Rot kD", VisionConstants.ModelB.ROTATION_KD)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.05, "block_increment", 0.001))
+                .withPosition(0, 2).withSize(2, 1).getEntry();
 
-        // Range PID
-        public static final TunableNumber RANGE_KP =
-            new TunableNumber("Vision/ModelC/Range_kP", VisionConstants.ModelC.RANGE_KP);
-        public static final TunableNumber RANGE_KI =
-            new TunableNumber("Vision/ModelC/Range_kI", VisionConstants.ModelC.RANGE_KI);
-        public static final TunableNumber RANGE_KD =
-            new TunableNumber("Vision/ModelC/Range_kD", VisionConstants.ModelC.RANGE_KD);
+            // Range PID (middle column)
+            range_kP = tab.add("Range kP", VisionConstants.ModelB.RANGE_KP)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 3.0, "block_increment", 0.05))
+                .withPosition(2, 0).withSize(2, 1).getEntry();
+            range_kI = tab.add("Range kI", VisionConstants.ModelB.RANGE_KI)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.5, "block_increment", 0.01))
+                .withPosition(2, 1).withSize(2, 1).getEntry();
+            range_kD = tab.add("Range kD", VisionConstants.ModelB.RANGE_KD)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 0.5, "block_increment", 0.01))
+                .withPosition(2, 2).withSize(2, 1).getEntry();
 
-        // Lateral PID
-        public static final TunableNumber LATERAL_KP =
-            new TunableNumber("Vision/ModelC/Lateral_kP", VisionConstants.ModelC.LATERAL_KP);
-        public static final TunableNumber LATERAL_KI =
-            new TunableNumber("Vision/ModelC/Lateral_kI", VisionConstants.ModelC.LATERAL_KI);
-        public static final TunableNumber LATERAL_KD =
-            new TunableNumber("Vision/ModelC/Lateral_kD", VisionConstants.ModelC.LATERAL_KD);
+            // Speed limits (right column)
+            maxRotationSpeed = tab.add("Max Rot (rad/s)", VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 4.0, "block_increment", 0.1))
+                .withPosition(4, 0).withSize(2, 1).getEntry();
+            maxForwardSpeed = tab.add("Max Fwd (m/s)", VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.0, "max", 2.0, "block_increment", 0.05))
+                .withPosition(4, 1).withSize(2, 1).getEntry();
 
-        // Speed limits
-        public static final TunableNumber MAX_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelC/MaxRotationSpeed", VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS);
-        public static final TunableNumber MAX_FORWARD_SPEED =
-            new TunableNumber("Vision/ModelC/MaxForwardSpeed", VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS);
-        public static final TunableNumber MAX_LATERAL_SPEED =
-            new TunableNumber("Vision/ModelC/MaxLateralSpeed", VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS);
+            // Tolerances (bottom row)
+            rotationTolerance_deg = tab.add("Rot Tol (deg)", VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.5, "max", 5.0, "block_increment", 0.1))
+                .withPosition(0, 3).withSize(2, 1).getEntry();
+            distanceTolerance_m = tab.add("Dist Tol (m)", VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.01, "max", 0.3, "block_increment", 0.01))
+                .withPosition(2, 3).withSize(2, 1).getEntry();
+            targetDistance_m = tab.add("Target Dist (m)", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0.3, "max", 2.0, "block_increment", 0.05))
+                .withPosition(4, 3).withSize(2, 1).getEntry();
 
-        // Tolerances
-        public static final TunableNumber ROTATION_TOLERANCE =
-            new TunableNumber("Vision/ModelC/RotationTolerance_deg", VisionConstants.ModelC.ROTATION_TOLERANCE_DEGREES);
-        public static final TunableNumber DISTANCE_TOLERANCE =
-            new TunableNumber("Vision/ModelC/DistanceTolerance_m", VisionConstants.ModelC.DISTANCE_TOLERANCE_METERS);
-        public static final TunableNumber LATERAL_TOLERANCE =
-            new TunableNumber("Vision/ModelC/LateralTolerance_deg", VisionConstants.ModelC.LATERAL_TOLERANCE_DEGREES);
+            // Initialize last values
+            lastRotKp = VisionConstants.ModelB.ROTATION_KP;
+            lastRotKi = VisionConstants.ModelB.ROTATION_KI;
+            lastRotKd = VisionConstants.ModelB.ROTATION_KD;
+            lastRangeKp = VisionConstants.ModelB.RANGE_KP;
+            lastRangeKi = VisionConstants.ModelB.RANGE_KI;
+            lastRangeKd = VisionConstants.ModelB.RANGE_KD;
+            lastRotTol = VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES;
+            lastDistTol = VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS;
+            lastTargetDist = VisionConstants.DEFAULT_TARGET_DISTANCE_METERS;
+        }
 
-        // Lateral deadband
-        public static final TunableNumber LATERAL_DEADBAND =
-            new TunableNumber("Vision/ModelC/LateralDeadband_deg", VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES);
+        // Rotation getters
+        public static double getRotationKp() { return rotation_kP.getDouble(VisionConstants.ModelB.ROTATION_KP); }
+        public static double getRotationKi() { return rotation_kI.getDouble(VisionConstants.ModelB.ROTATION_KI); }
+        public static double getRotationKd() { return rotation_kD.getDouble(VisionConstants.ModelB.ROTATION_KD); }
 
-        // Target distance
-        public static final TunableNumber TARGET_DISTANCE =
-            new TunableNumber("Vision/ModelC/TargetDistance_m", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
-    }
+        // Range getters
+        public static double getRangeKp() { return range_kP.getDouble(VisionConstants.ModelB.RANGE_KP); }
+        public static double getRangeKi() { return range_kI.getDouble(VisionConstants.ModelB.RANGE_KI); }
+        public static double getRangeKd() { return range_kD.getDouble(VisionConstants.ModelB.RANGE_KD); }
 
-    // ============================================================================
-    // MODEL D: COLOR BLOB HUNT
-    // ============================================================================
+        // Speed limits getters
+        public static double getMaxRotationSpeed() { return maxRotationSpeed.getDouble(VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS); }
+        public static double getMaxForwardSpeed() { return maxForwardSpeed.getDouble(VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS); }
 
-    public static class ModelD {
-        // Hunt mode PID
-        public static final TunableNumber HUNT_ROTATION_KP =
-            new TunableNumber("Vision/ModelD/HuntRotation_kP", VisionConstants.ModelD.HUNT_ROTATION_KP);
-        public static final TunableNumber HUNT_ROTATION_KI =
-            new TunableNumber("Vision/ModelD/HuntRotation_kI", VisionConstants.ModelD.HUNT_ROTATION_KI);
-        public static final TunableNumber HUNT_ROTATION_KD =
-            new TunableNumber("Vision/ModelD/HuntRotation_kD", VisionConstants.ModelD.HUNT_ROTATION_KD);
+        // Tolerance getters
+        public static double getRotationTolerance() { return rotationTolerance_deg.getDouble(VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES); }
+        public static double getDistanceTolerance() { return distanceTolerance_m.getDouble(VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS); }
+        public static double getTargetDistance() { return targetDistance_m.getDouble(VisionConstants.DEFAULT_TARGET_DISTANCE_METERS); }
 
-        // Seek mode rotation PID
-        public static final TunableNumber SEEK_ROTATION_KP =
-            new TunableNumber("Vision/ModelD/SeekRotation_kP", VisionConstants.ModelD.SEEK_ROTATION_KP);
-        public static final TunableNumber SEEK_ROTATION_KI =
-            new TunableNumber("Vision/ModelD/SeekRotation_kI", VisionConstants.ModelD.SEEK_ROTATION_KI);
-        public static final TunableNumber SEEK_ROTATION_KD =
-            new TunableNumber("Vision/ModelD/SeekRotation_kD", VisionConstants.ModelD.SEEK_ROTATION_KD);
+        // hasChanged methods
+        public static boolean rotationKpHasChanged() {
+            double current = getRotationKp();
+            if (current != lastRotKp) { lastRotKp = current; return true; }
+            return false;
+        }
+        public static boolean rotationKiHasChanged() {
+            double current = getRotationKi();
+            if (current != lastRotKi) { lastRotKi = current; return true; }
+            return false;
+        }
+        public static boolean rotationKdHasChanged() {
+            double current = getRotationKd();
+            if (current != lastRotKd) { lastRotKd = current; return true; }
+            return false;
+        }
+        public static boolean rangeKpHasChanged() {
+            double current = getRangeKp();
+            if (current != lastRangeKp) { lastRangeKp = current; return true; }
+            return false;
+        }
+        public static boolean rangeKiHasChanged() {
+            double current = getRangeKi();
+            if (current != lastRangeKi) { lastRangeKi = current; return true; }
+            return false;
+        }
+        public static boolean rangeKdHasChanged() {
+            double current = getRangeKd();
+            if (current != lastRangeKd) { lastRangeKd = current; return true; }
+            return false;
+        }
+        public static boolean rotationToleranceHasChanged() {
+            double current = getRotationTolerance();
+            if (current != lastRotTol) { lastRotTol = current; return true; }
+            return false;
+        }
+        public static boolean distanceToleranceHasChanged() {
+            double current = getDistanceTolerance();
+            if (current != lastDistTol) { lastDistTol = current; return true; }
+            return false;
+        }
+        public static boolean targetDistanceHasChanged() {
+            double current = getTargetDistance();
+            if (current != lastTargetDist) { lastTargetDist = current; return true; }
+            return false;
+        }
 
-        // Range PID
-        public static final TunableNumber RANGE_KP =
-            new TunableNumber("Vision/ModelD/Range_kP", VisionConstants.ModelD.RANGE_KP);
-        public static final TunableNumber RANGE_KI =
-            new TunableNumber("Vision/ModelD/Range_kI", VisionConstants.ModelD.RANGE_KI);
-        public static final TunableNumber RANGE_KD =
-            new TunableNumber("Vision/ModelD/Range_kD", VisionConstants.ModelD.RANGE_KD);
-
-        // Speed limits
-        public static final TunableNumber HUNT_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelD/HuntRotationSpeed", VisionConstants.ModelD.HUNT_ROTATION_SPEED_RADPS);
-        public static final TunableNumber MAX_ROTATION_SPEED =
-            new TunableNumber("Vision/ModelD/MaxRotationSpeed", VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS);
-        public static final TunableNumber MAX_FORWARD_SPEED =
-            new TunableNumber("Vision/ModelD/MaxForwardSpeed", VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS);
-
-        // Tolerances
-        public static final TunableNumber ROTATION_TOLERANCE =
-            new TunableNumber("Vision/ModelD/RotationTolerance_deg", VisionConstants.ModelD.ROTATION_TOLERANCE_DEGREES);
-        public static final TunableNumber DISTANCE_TOLERANCE =
-            new TunableNumber("Vision/ModelD/DistanceTolerance_m", VisionConstants.ModelD.DISTANCE_TOLERANCE_METERS);
-
-        // Color blob thresholds
-        public static final TunableNumber MIN_TARGET_AREA =
-            new TunableNumber("Vision/ModelD/MinTargetArea", VisionConstants.ModelD.MIN_TARGET_AREA);
-        public static final TunableNumber TARGET_AREA_FOR_DISTANCE =
-            new TunableNumber("Vision/ModelD/TargetAreaForDistance", VisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE);
-    }
-
-    // ============================================================================
-    // CAMERA CONFIGURATION (less frequently tuned, but available)
-    // ============================================================================
-
-    public static class Camera {
-        public static final TunableNumber HEIGHT =
-            new TunableNumber("Vision/Camera/Height_m", VisionConstants.CAMERA_HEIGHT_METERS);
-        public static final TunableNumber ANGLE =
-            new TunableNumber("Vision/Camera/Angle_deg", VisionConstants.CAMERA_ANGLE_DEGREES);
-        public static final TunableNumber LATERAL_OFFSET =
-            new TunableNumber("Vision/Camera/LateralOffset_m", VisionConstants.CAMERA_LATERAL_OFFSET_METERS);
-        public static final TunableNumber LONGITUDINAL_OFFSET =
-            new TunableNumber("Vision/Camera/LongitudinalOffset_m", VisionConstants.CAMERA_LONGITUDINAL_OFFSET_METERS);
+        public static boolean rotationPIDHasChanged() {
+            return rotationKpHasChanged() || rotationKiHasChanged() || rotationKdHasChanged();
+        }
+        public static boolean rangePIDHasChanged() {
+            return rangeKpHasChanged() || rangeKiHasChanged() || rangeKdHasChanged();
+        }
     }
 
     /**
-     * Reset all tunable values to their defaults.
-     * Useful for resetting after testing.
+     * Call this once during robot initialization to create all Shuffleboard tabs
      */
-    public static void resetAllToDefaults() {
-        // Model A
-        ModelA.ROTATION_KP.reset();
-        ModelA.ROTATION_KI.reset();
-        ModelA.ROTATION_KD.reset();
-        ModelA.MAX_ROTATION_SPEED.reset();
-        ModelA.MIN_ROTATION_SPEED.reset();
-        ModelA.ROTATION_TOLERANCE.reset();
-
-        // Model B
-        ModelB.ROTATION_KP.reset();
-        ModelB.ROTATION_KI.reset();
-        ModelB.ROTATION_KD.reset();
-        ModelB.RANGE_KP.reset();
-        ModelB.RANGE_KI.reset();
-        ModelB.RANGE_KD.reset();
-        ModelB.MAX_ROTATION_SPEED.reset();
-        ModelB.MAX_FORWARD_SPEED.reset();
-        ModelB.ROTATION_TOLERANCE.reset();
-        ModelB.DISTANCE_TOLERANCE.reset();
-        ModelB.TARGET_DISTANCE.reset();
-
-        // Model C
-        ModelC.ROTATION_KP.reset();
-        ModelC.ROTATION_KI.reset();
-        ModelC.ROTATION_KD.reset();
-        ModelC.RANGE_KP.reset();
-        ModelC.RANGE_KI.reset();
-        ModelC.RANGE_KD.reset();
-        ModelC.LATERAL_KP.reset();
-        ModelC.LATERAL_KI.reset();
-        ModelC.LATERAL_KD.reset();
-        ModelC.MAX_ROTATION_SPEED.reset();
-        ModelC.MAX_FORWARD_SPEED.reset();
-        ModelC.MAX_LATERAL_SPEED.reset();
-        ModelC.ROTATION_TOLERANCE.reset();
-        ModelC.DISTANCE_TOLERANCE.reset();
-        ModelC.LATERAL_TOLERANCE.reset();
-        ModelC.LATERAL_DEADBAND.reset();
-        ModelC.TARGET_DISTANCE.reset();
-
-        // Model D
-        ModelD.HUNT_ROTATION_KP.reset();
-        ModelD.HUNT_ROTATION_KI.reset();
-        ModelD.HUNT_ROTATION_KD.reset();
-        ModelD.SEEK_ROTATION_KP.reset();
-        ModelD.SEEK_ROTATION_KI.reset();
-        ModelD.SEEK_ROTATION_KD.reset();
-        ModelD.RANGE_KP.reset();
-        ModelD.RANGE_KI.reset();
-        ModelD.RANGE_KD.reset();
-        ModelD.HUNT_ROTATION_SPEED.reset();
-        ModelD.MAX_ROTATION_SPEED.reset();
-        ModelD.MAX_FORWARD_SPEED.reset();
-        ModelD.ROTATION_TOLERANCE.reset();
-        ModelD.DISTANCE_TOLERANCE.reset();
-        ModelD.MIN_TARGET_AREA.reset();
-        ModelD.TARGET_AREA_FOR_DISTANCE.reset();
-
-        // Main
-        Main.FORWARD_KP.reset();
-        Main.FORWARD_KI.reset();
-        Main.FORWARD_KD.reset();
-        Main.LATERAL_KP.reset();
-        Main.LATERAL_KI.reset();
-        Main.LATERAL_KD.reset();
-        Main.ROTATION_KP.reset();
-        Main.ROTATION_KI.reset();
-        Main.ROTATION_KD.reset();
-        Main.MAX_FORWARD_SPEED.reset();
-        Main.MAX_LATERAL_SPEED.reset();
-        Main.MAX_ROTATION_SPEED.reset();
-        Main.FORWARD_TOLERANCE.reset();
-        Main.LATERAL_TOLERANCE.reset();
-        Main.ROTATION_TOLERANCE.reset();
-        Main.TARGET_DISTANCE.reset();
-
-        // Camera
-        Camera.HEIGHT.reset();
-        Camera.ANGLE.reset();
-        Camera.LATERAL_OFFSET.reset();
-        Camera.LONGITUDINAL_OFFSET.reset();
+    public static void initializeAll() {
+        if (!initialized) {
+            ModelA.initialize();
+            ModelB.initialize();
+            // ModelC.initialize();
+            // ModelD.initialize();
+            initialized = true;
+        }
     }
 }

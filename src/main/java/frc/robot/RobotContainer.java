@@ -127,14 +127,8 @@ public class RobotContainer {
      * on robot startup, even if their corresponding commands haven't been created yet.
      */
     private void initializeTunableConstants() {
-        // Access one field from each inner class to trigger static initialization
-        // The JVM will then initialize all static fields in that class
-        TunableVisionConstants.Main.ROTATION_KP.getKey();
-        TunableVisionConstants.ModelA.ROTATION_KP.getKey();
-        TunableVisionConstants.ModelB.ROTATION_KP.getKey();
-        TunableVisionConstants.ModelC.ROTATION_KP.getKey();
-        TunableVisionConstants.ModelD.SEEK_ROTATION_KP.getKey();
-        TunableVisionConstants.Camera.HEIGHT.getKey();
+        // TunableVisionConstants.initializeAll() is already called in Robot.java constructor
+        // No need to do anything here - tabs are created automatically
     }
 
     public Command getAutonomousCommand() {

@@ -100,13 +100,18 @@ public class VisionTestDashboard extends SubsystemBase {
             .beforeStarting(() -> setActiveModel("Model B"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        modelCCommand = new PerpendicularAlignCommand(drivetrain, vision)
-            .beforeStarting(() -> setActiveModel("Model C"))
-            .finallyDo(interrupted -> clearActiveModel());
+        // TODO: Implement ModelC and ModelD in TunableVisionConstants.java
+        // modelCCommand = new PerpendicularAlignCommand(drivetrain, vision)
+        //     .beforeStarting(() -> setActiveModel("Model C"))
+        //     .finallyDo(interrupted -> clearActiveModel());
 
-        modelDCommand = new ColorBlobHuntCommand(drivetrain, vision)
-            .beforeStarting(() -> setActiveModel("Model D"))
-            .finallyDo(interrupted -> clearActiveModel());
+        // modelDCommand = new ColorBlobHuntCommand(drivetrain, vision)
+        //     .beforeStarting(() -> setActiveModel("Model D"))
+        //     .finallyDo(interrupted -> clearActiveModel());
+
+        // Temporary placeholders until ModelC and ModelD are implemented
+        modelCCommand = Commands.print("Model C not yet implemented");
+        modelDCommand = Commands.print("Model D not yet implemented");
 
         // Create Shuffleboard tab
         tab = Shuffleboard.getTab(VisionConstants.Dashboard.TAB_NAME);

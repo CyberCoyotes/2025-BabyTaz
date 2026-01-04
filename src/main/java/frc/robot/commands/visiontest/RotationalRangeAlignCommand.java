@@ -170,8 +170,8 @@ public class RotationalRangeAlignCommand extends Command {
         double forwardSpeed = rangePID.calculate(currentDistance);
 
         // Apply speed limits
-        double maxRotation = TunableVisionConstants.ModelB.MAX_ROTATION_SPEED.get();
-        double maxForward = TunableVisionConstants.ModelB.MAX_FORWARD_SPEED.get();
+        double maxRotation = TunableVisionConstants.ModelB.getMaxRotationSpeed();
+        double maxForward = TunableVisionConstants.ModelB.getMaxForwardSpeed();
         rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotation, maxRotation);
         forwardSpeed = MathUtil.clamp(forwardSpeed, -maxForward, maxForward);
 
@@ -200,39 +200,33 @@ public class RotationalRangeAlignCommand extends Command {
      */
     private void updatePIDGains() {
         // Update rotation PID
-        if (TunableVisionConstants.ModelB.ROTATION_KP.hasChanged() ||
-            TunableVisionConstants.ModelB.ROTATION_KI.hasChanged() ||
-            TunableVisionConstants.ModelB.ROTATION_KD.hasChanged()) {
-
+        if (TunableVisionConstants.ModelB.rotationPIDHasChanged()) {
             rotationPID.setPID(
-                TunableVisionConstants.ModelB.ROTATION_KP.get(),
-                TunableVisionConstants.ModelB.ROTATION_KI.get(),
-                TunableVisionConstants.ModelB.ROTATION_KD.get()
+                TunableVisionConstants.ModelB.getRotationKp(),
+                TunableVisionConstants.ModelB.getRotationKi(),
+                TunableVisionConstants.ModelB.getRotationKd()
             );
         }
 
-        if (TunableVisionConstants.ModelB.ROTATION_TOLERANCE.hasChanged()) {
-            rotationPID.setTolerance(TunableVisionConstants.ModelB.ROTATION_TOLERANCE.get());
+        if (TunableVisionConstants.ModelB.rotationToleranceHasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelB.getRotationTolerance());
         }
 
         // Update range PID
-        if (TunableVisionConstants.ModelB.RANGE_KP.hasChanged() ||
-            TunableVisionConstants.ModelB.RANGE_KI.hasChanged() ||
-            TunableVisionConstants.ModelB.RANGE_KD.hasChanged()) {
-
+        if (TunableVisionConstants.ModelB.rangePIDHasChanged()) {
             rangePID.setPID(
-                TunableVisionConstants.ModelB.RANGE_KP.get(),
-                TunableVisionConstants.ModelB.RANGE_KI.get(),
-                TunableVisionConstants.ModelB.RANGE_KD.get()
+                TunableVisionConstants.ModelB.getRangeKp(),
+                TunableVisionConstants.ModelB.getRangeKi(),
+                TunableVisionConstants.ModelB.getRangeKd()
             );
         }
 
-        if (TunableVisionConstants.ModelB.DISTANCE_TOLERANCE.hasChanged()) {
-            rangePID.setTolerance(TunableVisionConstants.ModelB.DISTANCE_TOLERANCE.get());
+        if (TunableVisionConstants.ModelB.distanceToleranceHasChanged()) {
+            rangePID.setTolerance(TunableVisionConstants.ModelB.getDistanceTolerance());
         }
 
-        if (TunableVisionConstants.ModelB.TARGET_DISTANCE.hasChanged()) {
-            rangePID.setSetpoint(TunableVisionConstants.ModelB.TARGET_DISTANCE.get());
+        if (TunableVisionConstants.ModelB.targetDistanceHasChanged()) {
+            rangePID.setSetpoint(TunableVisionConstants.ModelB.getTargetDistance());
         }
     }
 
