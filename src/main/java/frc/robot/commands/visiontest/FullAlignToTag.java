@@ -25,6 +25,7 @@ public class FullAlignToTag extends Command {
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
+    @SuppressWarnings("unused")
     private static final double TARGET_DISTANCE_METERS = VisionConstants.DEFAULT_TARGET_DISTANCE_METERS;  // How far from tag to stop
     private static final double TARGET_TX = VisionConstants.TARGET_TX_CENTERED;
 
