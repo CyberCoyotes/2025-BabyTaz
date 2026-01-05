@@ -106,7 +106,7 @@ public final class VisionConstants {
 
     public static final class ModelA {
         // PID Tuning for rotation
-        public static final double ROTATION_KP = 0.05;  
+        public static final double ROTATION_KP = 0.12; // Great results going from 0.05 to 0.12
         // Increased from 0.035 to provide more power near target
         // 0.04 still too low
 
