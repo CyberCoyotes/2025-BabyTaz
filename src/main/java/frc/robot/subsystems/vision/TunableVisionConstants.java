@@ -2,6 +2,8 @@ package frc.robot.subsystems.vision;
 
 import frc.robot.util.TunableNumber;
 
+@SuppressWarnings("unused")
+
 /**
  * TunableVisionConstants - Live-tunable PID and vision parameters.
  *
