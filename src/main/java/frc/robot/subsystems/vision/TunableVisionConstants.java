@@ -85,6 +85,24 @@ public class TunableVisionConstants {
 
         public static final TunableNumber ROTATION_TOLERANCE =
             new TunableNumber("Vision/ModelA/RotationTolerance_deg", VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES);
+
+        // Convenience getters for commands
+        private static double lastKp, lastKi, lastKd, lastTolerance;
+
+        public static double getRotationKp() { return ROTATION_KP.get(); }
+        public static double getRotationKi() { return ROTATION_KI.get(); }
+        public static double getRotationKd() { return ROTATION_KD.get(); }
+        public static double getMaxRotationSpeed() { return MAX_ROTATION_SPEED.get(); }
+        public static double getMinRotationSpeed() { return MIN_ROTATION_SPEED.get(); }
+        public static double getRotationTolerance() { return ROTATION_TOLERANCE.get(); }
+
+        public static boolean anyPIDHasChanged() {
+            return ROTATION_KP.hasChanged() || ROTATION_KI.hasChanged() || ROTATION_KD.hasChanged();
+        }
+
+        public static boolean rotationToleranceHasChanged() {
+            return ROTATION_TOLERANCE.hasChanged();
+        }
     }
 
     // ============================================================================
@@ -123,6 +141,39 @@ public class TunableVisionConstants {
         // Target distance
         public static final TunableNumber TARGET_DISTANCE =
             new TunableNumber("Vision/ModelB/TargetDistance_m", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
+
+        // Convenience getters for commands
+        public static double getRotationKp() { return ROTATION_KP.get(); }
+        public static double getRotationKi() { return ROTATION_KI.get(); }
+        public static double getRotationKd() { return ROTATION_KD.get(); }
+        public static double getRangeKp() { return RANGE_KP.get(); }
+        public static double getRangeKi() { return RANGE_KI.get(); }
+        public static double getRangeKd() { return RANGE_KD.get(); }
+        public static double getMaxRotationSpeed() { return MAX_ROTATION_SPEED.get(); }
+        public static double getMaxForwardSpeed() { return MAX_FORWARD_SPEED.get(); }
+        public static double getRotationTolerance() { return ROTATION_TOLERANCE.get(); }
+        public static double getDistanceTolerance() { return DISTANCE_TOLERANCE.get(); }
+        public static double getTargetDistance() { return TARGET_DISTANCE.get(); }
+
+        public static boolean rotationPIDHasChanged() {
+            return ROTATION_KP.hasChanged() || ROTATION_KI.hasChanged() || ROTATION_KD.hasChanged();
+        }
+
+        public static boolean rangePIDHasChanged() {
+            return RANGE_KP.hasChanged() || RANGE_KI.hasChanged() || RANGE_KD.hasChanged();
+        }
+
+        public static boolean rotationToleranceHasChanged() {
+            return ROTATION_TOLERANCE.hasChanged();
+        }
+
+        public static boolean distanceToleranceHasChanged() {
+            return DISTANCE_TOLERANCE.hasChanged();
+        }
+
+        public static boolean targetDistanceHasChanged() {
+            return TARGET_DISTANCE.hasChanged();
+        }
     }
 
     // ============================================================================
@@ -242,6 +293,17 @@ public class TunableVisionConstants {
             new TunableNumber("Vision/Camera/LateralOffset_m", VisionConstants.CAMERA_LATERAL_OFFSET_METERS);
         public static final TunableNumber LONGITUDINAL_OFFSET =
             new TunableNumber("Vision/Camera/LongitudinalOffset_m", VisionConstants.CAMERA_LONGITUDINAL_OFFSET_METERS);
+    }
+
+    /**
+     * Initialize all tunable constants. Called during robot initialization.
+     * Note: With TunableNumber approach, initialization happens automatically
+     * when the static fields are first accessed. This method exists for
+     * compatibility with commands that expect it.
+     */
+    public static void initializeAll() {
+        // TunableNumbers are initialized automatically when first accessed
+        // This method is a no-op but exists for API compatibility
     }
 
     /**
