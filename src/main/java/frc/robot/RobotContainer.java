@@ -110,7 +110,7 @@ public class RobotContainer {
         // B button: Model B - Rotation + Range alignment
         driver.b().whileTrue(visionTestDashboard.getModelBCommand());
 
-        // Y button: Model C - Perpendicular + Range alignment
+        // Y button: Model Y - Perpendicular + Range alignment
         driver.y().whileTrue(visionTestDashboard.getModelCCommand());
 
         // Left Bumper: Model D - Color blob hunt and seek

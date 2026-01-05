@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.visiontest.ModelD_ColorBlobCommand;
-import frc.robot.commands.visiontest.ModelC_DistancePerpendicular;
+import frc.robot.commands.visiontest.ModelY_DistancePerpendicular;
 import frc.robot.commands.visiontest.ModelA_Rotation;
 import frc.robot.commands.visiontest.ModelB_RotationDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -99,7 +99,7 @@ public class VisionTestDashboard extends SubsystemBase {
             .beforeStarting(() -> setActiveModel("Model B"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        modelCCommand = new ModelC_DistancePerpendicular(drivetrain, vision)
+        modelCCommand = new ModelY_DistancePerpendicular(drivetrain, vision)
             .beforeStarting(() -> setActiveModel("Model C"))
             .finallyDo(interrupted -> clearActiveModel());
 
