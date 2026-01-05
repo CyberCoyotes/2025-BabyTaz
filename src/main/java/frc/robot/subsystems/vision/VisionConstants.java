@@ -136,7 +136,7 @@ public final class VisionConstants {
 
     public static final class ModelB {
         // Rotation PID
-        public static final double ROTATION_KP = 0.035;
+        public static final double ROTATION_KP = ModelA.ROTATION_KP;
         public static final double ROTATION_KI = 0.0;
         public static final double ROTATION_KD = 0.0;
 
@@ -163,7 +163,7 @@ public final class VisionConstants {
 
     public static final class ModelC {
         // Rotation PID (perpendicular to tag)
-        public static final double ROTATION_KP = 0.05;
+        public static final double ROTATION_KP = ModelA.ROTATION_KP;
         public static final double ROTATION_KI = 0.0;
         public static final double ROTATION_KD = 0.0;
 
