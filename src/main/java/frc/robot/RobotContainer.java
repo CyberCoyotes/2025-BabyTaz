@@ -18,6 +18,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionTestDashboard;
 
+@SuppressWarnings("unused")
 
 public class RobotContainer {
 

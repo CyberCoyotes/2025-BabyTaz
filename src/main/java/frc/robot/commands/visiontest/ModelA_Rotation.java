@@ -41,7 +41,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * BUTTON BINDING: Shuffleboard "Model A: Rotation Only" button
  */
-public class RotationalAlignCommand extends Command {
+public class ModelA_Rotation extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -53,7 +53,7 @@ public class RotationalAlignCommand extends Command {
     // NetworkTables for fast telemetry output
     private final NetworkTable telemetryTable;
 
-    public RotationalAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelA_Rotation(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 

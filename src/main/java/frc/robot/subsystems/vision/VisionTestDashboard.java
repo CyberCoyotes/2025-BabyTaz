@@ -7,11 +7,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.visiontest.ColorBlobHuntCommand;
-import frc.robot.commands.visiontest.PerpendicularAlignCommand;
-import frc.robot.commands.visiontest.RotationalAlignCommand;
-import frc.robot.commands.visiontest.RotationalRangeAlignCommand;
+import frc.robot.commands.visiontest.ModelD_ColorBlobCommand;
+import frc.robot.commands.visiontest.ModelC_DistancePerpendicular;
+import frc.robot.commands.visiontest.ModelA_Rotation;
+import frc.robot.commands.visiontest.ModelB_RotationDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,18 +30,18 @@ import java.util.Map;
  * - Telemetry display for current test values
  *
  * SHUFFLEBOARD LAYOUT:
- * ┌─────────────────────────────────────────────────────────────────────┐
- * │ Vision Tests                                                        │
- * ├─────────────────┬──────────────────┬──────────────────┬────────────┤
- * │ Model A:        │ Model B:         │ Model C:         │ Model D:   │
- * │ Rotation Only   │ Rotation + Range │ Perpendicular    │ Color Hunt │
- * │ [Button]        │ [Button]         │ [Button]         │ [Button]   │
- * ├─────────────────┴──────────────────┴──────────────────┴────────────┤
- * │                        [STOP ALL]                                  │
- * ├─────────────────┬──────────────────┬──────────────────┬────────────┤
- * │ Active Model:   │ Status:          │ TX:              │ Distance:  │
- * │ [text]          │ [text]           │ [number]         │ [number]   │
- * └─────────────────┴──────────────────┴──────────────────┴────────────┘
+ * +-----------------------------------------------------------------------+
+ * | Vision Tests                                                          |
+ * +---------------+----------------+----------------+---------------------+
+ * | Model A:      | Model B:       | Model C:       | Model D:            |
+ * | Rotation Only | Rotation+Range | Perpendicular  | Color Hunt          |
+ * | [Button]      | [Button]       | [Button]       | [Button]            |
+ * +---------------+----------------+----------------+---------------------+
+ * |                        [STOP ALL]                                     |
+ * +---------------+----------------+----------------+---------------------+
+ * | Active Model: | Status:        | TX:            | Distance:           |
+ * | [text]        | [text]         | [number]       | [number]            |
+ * +-----------------------------------------------------------------------+
  *
  * USAGE:
  * 1. Create VisionTestDashboard in RobotContainer
@@ -92,19 +91,19 @@ public class VisionTestDashboard extends SubsystemBase {
         this.vision = vision;
 
         // Create commands
-        modelACommand = new RotationalAlignCommand(drivetrain, vision)
+        modelACommand = new ModelA_Rotation(drivetrain, vision)
             .beforeStarting(() -> setActiveModel("Model A"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        modelBCommand = new RotationalRangeAlignCommand(drivetrain, vision)
+        modelBCommand = new ModelB_RotationDistance(drivetrain, vision)
             .beforeStarting(() -> setActiveModel("Model B"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        modelCCommand = new PerpendicularAlignCommand(drivetrain, vision)
+        modelCCommand = new ModelC_DistancePerpendicular(drivetrain, vision)
             .beforeStarting(() -> setActiveModel("Model C"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        modelDCommand = new ColorBlobHuntCommand(drivetrain, vision)
+        modelDCommand = new ModelD_ColorBlobCommand(drivetrain, vision)
             .beforeStarting(() -> setActiveModel("Model D"))
             .finallyDo(interrupted -> clearActiveModel());
 
@@ -188,7 +187,13 @@ public class VisionTestDashboard extends SubsystemBase {
         tab.add("Instructions", "Click button to start test. Click STOP or same button to stop.")
             .withWidget(BuiltInWidgets.kTextView)
             .withPosition(1, 3)
-            .withSize(7, 1);
+            .withSize(5, 1);
+
+        // Add reference to tuning tab
+        tab.add("Tuning", "See 'Vision Tuning' tab for live PID adjustment")
+            .withWidget(BuiltInWidgets.kTextView)
+            .withPosition(6, 3)
+            .withSize(2, 1);
 
         // Setup triggers for buttons
         setupButtonTriggers();

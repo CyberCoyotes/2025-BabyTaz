@@ -1,7 +1,5 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * Constants for Vision Alignment.
  *
@@ -11,6 +9,8 @@ import edu.wpi.first.math.util.Units;
  * - PID tuning parameters
  * - Motion constraints
  */
+
+
 public final class VisionConstants {
 
     private VisionConstants() {} // Prevent instantiation

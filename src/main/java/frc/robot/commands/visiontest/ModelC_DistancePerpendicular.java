@@ -53,7 +53,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * BUTTON BINDING: Shuffleboard "Model C: Perpendicular + Range" button
  */
-public class PerpendicularAlignCommand extends Command {
+public class ModelC_DistancePerpendicular extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -76,7 +76,7 @@ public class PerpendicularAlignCommand extends Command {
     /**
      * Creates a PerpendicularAlignCommand with default target distance (1.2m).
      */
-    public PerpendicularAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelC_DistancePerpendicular(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -87,7 +87,7 @@ public class PerpendicularAlignCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from AprilTag in meters
      */
-    public PerpendicularAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
+    public ModelC_DistancePerpendicular(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;

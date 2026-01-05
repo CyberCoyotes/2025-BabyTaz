@@ -49,7 +49,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * BUTTON BINDING: Shuffleboard "Model B: Rotation + Range" button
  */
-public class RotationalRangeAlignCommand extends Command {
+public class ModelB_RotationDistance extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -68,7 +68,7 @@ public class RotationalRangeAlignCommand extends Command {
     /**
      * Creates a RotationalRangeAlignCommand with default target distance (0.75m).
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelB_RotationDistance(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -79,7 +79,7 @@ public class RotationalRangeAlignCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from AprilTag in meters
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
+    public ModelB_RotationDistance(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;

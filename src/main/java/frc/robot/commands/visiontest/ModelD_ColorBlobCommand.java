@@ -86,7 +86,7 @@ Crop the image if algae is always below bumper height
  *
  * IMPORTANT: Configure pipeline 1 in Limelight web interface for teal color detection!
  */
-public class ColorBlobHuntCommand extends Command {
+public class ModelD_ColorBlobCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -115,7 +115,7 @@ public class ColorBlobHuntCommand extends Command {
     /**
      * Creates a ColorBlobHuntCommand with default target distance (1.2m).
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelD_ColorBlobCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -126,7 +126,7 @@ public class ColorBlobHuntCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from color blob in meters
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
+    public ModelD_ColorBlobCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;

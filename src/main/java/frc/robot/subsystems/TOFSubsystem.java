@@ -10,7 +10,6 @@ public class TOFSubsystem extends SubsystemBase {
     private static final int MIN_RANGE_MM = 30; // Minimum valid range
     
     public TOFSubsystem() {
-        // TODO Confirm ToF CAN ID
         tof = new TimeOfFlight(42); 
         // Configure for long range mode
         tof.setRangingMode(TimeOfFlight.RangingMode.Long, 24);

@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.Optional;
+// import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -25,6 +25,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+
+@SuppressWarnings("unused")
+
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -310,7 +313,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 visionMeasurementStdDevs);
     }
 
-    // TODO Add this simple, custom method to stop the drivetrain
     public void stopDrive() {
         // Use the existing brake request to stop all modules
         this.setControl(new SwerveRequest.SwerveDriveBrake()); 
