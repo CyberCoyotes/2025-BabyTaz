@@ -102,7 +102,7 @@ public class RobotContainer {
         // ============================================================================
 
         // X button: Original AlignToTag (3-axis alignment) - KEEP FOR CONTINUED TESTING
-        driver.x().whileTrue(new FullAlignToTag(drivetrain, vision));
+        driver.leftBumper().whileTrue(new FullAlignToTag(drivetrain, vision));
 
         // A button: Model A - Rotation only alignment
         driver.a().whileTrue(visionTestDashboard.getModelACommand());
@@ -113,8 +113,8 @@ public class RobotContainer {
         // Y button: Model Y - Perpendicular + Range alignment
         driver.y().whileTrue(visionTestDashboard.getModelCCommand());
 
-        // Left Bumper: Model D - Color blob hunt and seek
-        driver.leftBumper().whileTrue(visionTestDashboard.getModelDCommand());
+        // Color blob hunt and seek
+        driver.x().whileTrue(visionTestDashboard.getModelDCommand());
 
         // Right Bumper: Stop all vision tests
         driver.rightBumper().onTrue(visionTestDashboard.getStopCommand());
