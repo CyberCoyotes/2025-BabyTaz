@@ -1,7 +1,5 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * Constants for Vision Alignment.
  *
@@ -11,6 +9,8 @@ import edu.wpi.first.math.util.Units;
  * - PID tuning parameters
  * - Motion constraints
  */
+
+
 public final class VisionConstants {
 
     private VisionConstants() {} // Prevent instantiation
@@ -106,7 +106,7 @@ public final class VisionConstants {
 
     public static final class ModelA {
         // PID Tuning for rotation
-        public static final double ROTATION_KP = 0.05;  
+        public static final double ROTATION_KP = 0.12; // Great results going from 0.05 to 0.12
         // Increased from 0.035 to provide more power near target
         // 0.04 still too low
 
@@ -136,7 +136,7 @@ public final class VisionConstants {
 
     public static final class ModelB {
         // Rotation PID
-        public static final double ROTATION_KP = 0.035;
+        public static final double ROTATION_KP = ModelA.ROTATION_KP;
         public static final double ROTATION_KI = 0.0;
         public static final double ROTATION_KD = 0.0;
 
@@ -163,7 +163,7 @@ public final class VisionConstants {
 
     public static final class ModelC {
         // Rotation PID (perpendicular to tag)
-        public static final double ROTATION_KP = 0.05;
+        public static final double ROTATION_KP = ModelA.ROTATION_KP;
         public static final double ROTATION_KI = 0.0;
         public static final double ROTATION_KD = 0.0;
 

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -40,7 +41,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * BUTTON BINDING: Shuffleboard "Model A: Rotation Only" button
  */
-public class RotationalAlignCommand extends Command {
+public class ModelA_Rotation extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -52,7 +53,7 @@ public class RotationalAlignCommand extends Command {
     // NetworkTables for fast telemetry output
     private final NetworkTable telemetryTable;
 
-    public RotationalAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelA_Rotation(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
@@ -84,6 +85,9 @@ public class RotationalAlignCommand extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Check for valid target
         if (!vision.hasTarget()) {
             // Update state machine
@@ -108,16 +112,14 @@ public class RotationalAlignCommand extends Command {
 
         // Add minimum speed to overcome static friction (servoing)
         // This prevents the robot from getting "stuck" near the target
-        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS) {
-            rotationSpeed = Math.copySign(VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS, rotationSpeed);
+        double minSpeed = TunableVisionConstants.ModelA.getMinRotationSpeed();
+        if (Math.abs(rotationSpeed) > 0.01 && Math.abs(rotationSpeed) < minSpeed) {
+            rotationSpeed = Math.copySign(minSpeed, rotationSpeed);
         }
 
         // Apply speed limits
-        rotationSpeed = MathUtil.clamp(
-            rotationSpeed,
-            -VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS,
-            VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS
-        );
+        double maxSpeed = TunableVisionConstants.ModelA.getMaxRotationSpeed();
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxSpeed, maxSpeed);
 
         // Check if aligned
         boolean atTarget = rotationPID.atSetpoint();
@@ -135,6 +137,24 @@ public class RotationalAlignCommand extends Command {
 
         // Log telemetry
         logTelemetry(tx, rotationSpeed, atTarget);
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        if (TunableVisionConstants.ModelA.anyPIDHasChanged()) {
+            rotationPID.setPID(
+                TunableVisionConstants.ModelA.getRotationKp(),
+                TunableVisionConstants.ModelA.getRotationKi(),
+                TunableVisionConstants.ModelA.getRotationKd()
+            );
+        }
+
+        if (TunableVisionConstants.ModelA.rotationToleranceHasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelA.getRotationTolerance());
+        }
     }
 
     private void stopRobot() {

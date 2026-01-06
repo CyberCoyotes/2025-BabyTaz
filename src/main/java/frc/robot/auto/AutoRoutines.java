@@ -54,8 +54,7 @@ public class AutoRoutines {
         routine.active().onTrue(
                 Commands.sequence(
                         driveForward.resetOdometry(), // Always reset odometry first
-                        driveForward.cmd() // Follow the path
-                        // driveForward.done() // TODO add a done command
+                        driveForward.cmd() // Follow the path                        
                 ));
 
         return routine;
@@ -70,9 +69,7 @@ public class AutoRoutines {
                     Commands.sequence(
                             driveForward.resetOdometry(), // Always reset odometry first
                             driveForward.cmd() // Follow the path
-                            // driveForward.done() // TODO add a done command
                     ));
-            // TODO Add event markers for scoring L1 as a last resort
             return routine;
         }
 
@@ -85,9 +82,7 @@ public class AutoRoutines {
                             Commands.sequence(
                                     driveForward.resetOdometry(), // Always reset odometry first
                                     driveForward.cmd() // Follow the path
-                                    // driveForward.done() // TODO add a done command
                             ));
-                    // TODO Add event markers for scoring L1 as a last resort
                     return routine;
                 }
 
@@ -104,7 +99,6 @@ public class AutoRoutines {
                 // Start to Score K
                 topK.cmd(),
                 // Stop and Score
-                // FIXME m_drivetrain.stop().withTimeout(scoreDelay),
                 // Drive to Load station from K
                 loadK.cmd()
             ));
@@ -121,7 +115,6 @@ public class AutoRoutines {
         routine.active().onTrue(
                  topK.resetOdometry()
                 .andThen(topK.cmd())
-                // FIXME .andThen(m_drivetrain.stop().withTimeout(scoreDelay))
             );
 
         

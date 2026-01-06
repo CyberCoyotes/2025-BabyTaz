@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.visiontest.FullAlignToTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionTestDashboard;
 
+@SuppressWarnings("unused")
 
 public class RobotContainer {
 
@@ -48,8 +50,16 @@ public class RobotContainer {
 
 
     public RobotContainer() {
+        // Test SmartDashboard connectivity
+        edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putString("RobotContainer", "Initialized");
+        edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("TestNumber", 42.0);
+
         // Initialize vision test dashboard (creates Shuffleboard tab with buttons)
         visionTestDashboard = new VisionTestDashboard(drivetrain, vision);
+
+        // Force initialization of all TunableVisionConstants so they appear on dashboard
+        // This triggers static field initialization which publishes values to SmartDashboard
+        initializeTunableConstants();
 
         configureBindings();
 
@@ -92,7 +102,7 @@ public class RobotContainer {
         // ============================================================================
 
         // X button: Original AlignToTag (3-axis alignment) - KEEP FOR CONTINUED TESTING
-        driver.x().whileTrue(new FullAlignToTag(drivetrain, vision));
+        driver.leftBumper().whileTrue(new FullAlignToTag(drivetrain, vision));
 
         // A button: Model A - Rotation only alignment
         driver.a().whileTrue(visionTestDashboard.getModelACommand());
@@ -100,16 +110,26 @@ public class RobotContainer {
         // B button: Model B - Rotation + Range alignment
         driver.b().whileTrue(visionTestDashboard.getModelBCommand());
 
-        // Y button: Model C - Perpendicular + Range alignment
+        // Y button: Model Y - Perpendicular + Range alignment
         driver.y().whileTrue(visionTestDashboard.getModelCCommand());
 
-        // Left Bumper: Model D - Color blob hunt and seek
-        driver.leftBumper().whileTrue(visionTestDashboard.getModelDCommand());
+        // Color blob hunt and seek
+        driver.x().whileTrue(visionTestDashboard.getModelDCommand());
 
         // Right Bumper: Stop all vision tests
         driver.rightBumper().onTrue(visionTestDashboard.getStopCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    /**
+     * Force initialization of all TunableVisionConstants classes.
+     * This ensures all tunable PID values are published to SmartDashboard/Shuffleboard
+     * on robot startup, even if their corresponding commands haven't been created yet.
+     */
+    private void initializeTunableConstants() {
+        // TunableVisionConstants.initializeAll() is already called in Robot.java constructor
+        // No need to do anything here - tabs are created automatically
     }
 
     public Command getAutonomousCommand() {

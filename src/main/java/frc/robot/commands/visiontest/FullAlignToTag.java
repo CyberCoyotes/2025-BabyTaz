@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -24,6 +25,7 @@ public class FullAlignToTag extends Command {
     private final SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric();
 
     // Target values
+    @SuppressWarnings("unused")
     private static final double TARGET_DISTANCE_METERS = VisionConstants.DEFAULT_TARGET_DISTANCE_METERS;  // How far from tag to stop
     private static final double TARGET_TX = VisionConstants.TARGET_TX_CENTERED;
 
@@ -33,43 +35,31 @@ public class FullAlignToTag extends Command {
     private final PIDController lateralPID;    // Controls left/right strafe
     private final PIDController rotationPID;   // Controls rotation
 
-    // PID Tuning - Forward/Backward
-    private static final double FORWARD_KP = 1.2;
-    private static final double FORWARD_KI = 0.0;
-    private static final double FORWARD_KD = 0.1;
-    private static final double FORWARD_TOLERANCE = 0.1;  // 10cm
-
-    // PID Tuning - Left/Right
-    private static final double LATERAL_KP = 0.04;  // Start gentle
-    private static final double LATERAL_KI = 0.0;
-    private static final double LATERAL_KD = 0.0;
-    private static final double LATERAL_TOLERANCE = 2.0;  // 2 degrees
-    private static final double LATERAL_DEADBAND = 3.0;  // Don't strafe if within 3 degrees
-
-    // PID Tuning - Rotation
-    private static final double ROTATION_KP = 0.05;  // Start gentle
-    private static final double ROTATION_KI = 0.0;
-    private static final double ROTATION_KD = 0.0;
-    private static final double ROTATION_TOLERANCE = 2.0;  // 2 degrees
-
-    // Speed limits (m/s and rad/s)
-    private static final double MAX_FORWARD_SPEED = 0.8;
-    private static final double MAX_LATERAL_SPEED = 0.5;
-    private static final double MAX_ROTATION_SPEED = 1.0;
-
     public FullAlignToTag(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
 
-        // Initialize PID controllers
-        forwardPID = new PIDController(FORWARD_KP, FORWARD_KI, FORWARD_KD);
-        forwardPID.setTolerance(FORWARD_TOLERANCE);
+        // Initialize PID controllers with tunable constants
+        forwardPID = new PIDController(
+            TunableVisionConstants.Main.FORWARD_KP.get(),
+            TunableVisionConstants.Main.FORWARD_KI.get(),
+            TunableVisionConstants.Main.FORWARD_KD.get()
+        );
+        forwardPID.setTolerance(TunableVisionConstants.Main.FORWARD_TOLERANCE.get());
 
-        lateralPID = new PIDController(LATERAL_KP, LATERAL_KI, LATERAL_KD);
-        lateralPID.setTolerance(LATERAL_TOLERANCE);
+        lateralPID = new PIDController(
+            TunableVisionConstants.Main.LATERAL_KP.get(),
+            TunableVisionConstants.Main.LATERAL_KI.get(),
+            TunableVisionConstants.Main.LATERAL_KD.get()
+        );
+        lateralPID.setTolerance(TunableVisionConstants.Main.LATERAL_TOLERANCE.get());
 
-        rotationPID = new PIDController(ROTATION_KP, ROTATION_KI, ROTATION_KD);
-        rotationPID.setTolerance(ROTATION_TOLERANCE);
+        rotationPID = new PIDController(
+            TunableVisionConstants.Main.ROTATION_KP.get(),
+            TunableVisionConstants.Main.ROTATION_KI.get(),
+            TunableVisionConstants.Main.ROTATION_KD.get()
+        );
+        rotationPID.setTolerance(TunableVisionConstants.Main.ROTATION_TOLERANCE.get());
         rotationPID.enableContinuousInput(-180, 180);
 
         addRequirements(drivetrain);
@@ -87,6 +77,9 @@ public class FullAlignToTag extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Check if we can see a target
         if (!vision.hasTarget()) {
             drivetrain.setControl(driveRequest
@@ -109,12 +102,14 @@ public class FullAlignToTag extends Command {
 
         // Calculate control outputs
         // Forward: Use distance to maintain target distance (positive = move forward)
-        double forwardSpeed = forwardPID.calculate(currentDistance, TARGET_DISTANCE_METERS);
+        double targetDistance = TunableVisionConstants.Main.TARGET_DISTANCE.get();
+        double forwardSpeed = forwardPID.calculate(currentDistance, targetDistance);
 
         // Lateral: Use tx to center on tag (strafe left/right)
         // Apply deadband to prevent small corrections from causing arc
         double lateralSpeed = 0.0;
-        if (Math.abs(tx) > LATERAL_DEADBAND) {
+        double lateralTolerance = TunableVisionConstants.Main.LATERAL_TOLERANCE.get();
+        if (Math.abs(tx) > lateralTolerance) {
             lateralSpeed = lateralPID.calculate(tx, TARGET_TX);
         }
 
@@ -122,9 +117,12 @@ public class FullAlignToTag extends Command {
         double rotationSpeed = VisionConstants.ROTATION_DIRECTION_MULTIPLIER * rotationPID.calculate(tx, TARGET_TX);
 
         // Apply speed limits
-        forwardSpeed = MathUtil.clamp(forwardSpeed, -MAX_FORWARD_SPEED, MAX_FORWARD_SPEED);
-        lateralSpeed = MathUtil.clamp(lateralSpeed, -MAX_LATERAL_SPEED, MAX_LATERAL_SPEED);
-        rotationSpeed = MathUtil.clamp(rotationSpeed, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
+        double maxForward = TunableVisionConstants.Main.MAX_FORWARD_SPEED.get();
+        double maxLateral = TunableVisionConstants.Main.MAX_LATERAL_SPEED.get();
+        double maxRotation = TunableVisionConstants.Main.MAX_ROTATION_SPEED.get();
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -maxForward, maxForward);
+        lateralSpeed = MathUtil.clamp(lateralSpeed, -maxLateral, maxLateral);
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotation, maxRotation);
 
         // Send control to drivetrain (robot-centric)
         drivetrain.setControl(driveRequest
@@ -144,6 +142,60 @@ public class FullAlignToTag extends Command {
         Logger.recordOutput("AlignToTag/ForwardAtTarget", forwardPID.atSetpoint());
         Logger.recordOutput("AlignToTag/LateralAtTarget", lateralPID.atSetpoint());
         Logger.recordOutput("AlignToTag/RotationAtTarget", rotationPID.atSetpoint());
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        // Update forward PID
+        if (TunableVisionConstants.Main.FORWARD_KP.hasChanged() ||
+            TunableVisionConstants.Main.FORWARD_KI.hasChanged() ||
+            TunableVisionConstants.Main.FORWARD_KD.hasChanged()) {
+
+            forwardPID.setPID(
+                TunableVisionConstants.Main.FORWARD_KP.get(),
+                TunableVisionConstants.Main.FORWARD_KI.get(),
+                TunableVisionConstants.Main.FORWARD_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.Main.FORWARD_TOLERANCE.hasChanged()) {
+            forwardPID.setTolerance(TunableVisionConstants.Main.FORWARD_TOLERANCE.get());
+        }
+
+        // Update lateral PID
+        if (TunableVisionConstants.Main.LATERAL_KP.hasChanged() ||
+            TunableVisionConstants.Main.LATERAL_KI.hasChanged() ||
+            TunableVisionConstants.Main.LATERAL_KD.hasChanged()) {
+
+            lateralPID.setPID(
+                TunableVisionConstants.Main.LATERAL_KP.get(),
+                TunableVisionConstants.Main.LATERAL_KI.get(),
+                TunableVisionConstants.Main.LATERAL_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.Main.LATERAL_TOLERANCE.hasChanged()) {
+            lateralPID.setTolerance(TunableVisionConstants.Main.LATERAL_TOLERANCE.get());
+        }
+
+        // Update rotation PID
+        if (TunableVisionConstants.Main.ROTATION_KP.hasChanged() ||
+            TunableVisionConstants.Main.ROTATION_KI.hasChanged() ||
+            TunableVisionConstants.Main.ROTATION_KD.hasChanged()) {
+
+            rotationPID.setPID(
+                TunableVisionConstants.Main.ROTATION_KP.get(),
+                TunableVisionConstants.Main.ROTATION_KI.get(),
+                TunableVisionConstants.Main.ROTATION_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.Main.ROTATION_TOLERANCE.hasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.Main.ROTATION_TOLERANCE.get());
+        }
     }
 
     @Override

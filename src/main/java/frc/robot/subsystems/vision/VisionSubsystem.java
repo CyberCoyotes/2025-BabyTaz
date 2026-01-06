@@ -9,6 +9,8 @@ import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
 import org.littletonrobotics.junction.Logger;
 
+@SuppressWarnings("unused")
+
 /**
  * Unified vision subsystem for AprilTag detection using Limelight.
  * Provides target detection, measurement data, state tracking, and LED feedback.

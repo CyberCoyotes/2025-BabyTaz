@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 /*
  * Algae color
@@ -86,7 +87,7 @@ Crop the image if algae is always below bumper height
  *
  * IMPORTANT: Configure pipeline 1 in Limelight web interface for teal color detection!
  */
-public class ColorBlobHuntCommand extends Command {
+public class ModelX_ColorBlobCommand extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -115,7 +116,7 @@ public class ColorBlobHuntCommand extends Command {
     /**
      * Creates a ColorBlobHuntCommand with default target distance (1.2m).
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelX_ColorBlobCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -126,7 +127,7 @@ public class ColorBlobHuntCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from color blob in meters
      */
-    public ColorBlobHuntCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
+    public ModelX_ColorBlobCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;
@@ -189,13 +190,16 @@ public class ColorBlobHuntCommand extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Check if Limelight sees a target
         boolean hasTarget = LimelightHelpers.getTV(vision.getName());
         double ta = LimelightHelpers.getTA(vision.getName());
         double tx = LimelightHelpers.getTX(vision.getName());
 
         // Validate target - must have minimum area
-        boolean validTarget = hasTarget && ta >= VisionConstants.ModelD.MIN_TARGET_AREA;
+        boolean validTarget = hasTarget && ta >= TunableVisionConstants.ModelD.MIN_TARGET_AREA.get();
 
         if (!validTarget) {
             // HUNT MODE - No target, rotate to search
@@ -222,7 +226,7 @@ public class ColorBlobHuntCommand extends Command {
         }
 
         // Apply constant rotation speed in hunt direction
-        double rotationSpeed = VisionConstants.ModelD.HUNT_ROTATION_SPEED_RADPS * huntDirection;
+        double rotationSpeed = TunableVisionConstants.ModelD.HUNT_ROTATION_SPEED.get() * huntDirection;
 
         // Apply to drivetrain - rotation only
         drivetrain.setControl(driveRequest
@@ -256,16 +260,10 @@ public class ColorBlobHuntCommand extends Command {
         double forwardSpeed = rangePID.calculate(estimatedDistance);
 
         // Apply speed limits
-        rotationSpeed = MathUtil.clamp(
-            rotationSpeed,
-            -VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS,
-            VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS
-        );
-        forwardSpeed = MathUtil.clamp(
-            forwardSpeed,
-            -VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS,
-            VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS
-        );
+        double maxRotation = TunableVisionConstants.ModelD.MAX_ROTATION_SPEED.get();
+        double maxForward = TunableVisionConstants.ModelD.MAX_FORWARD_SPEED.get();
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotation, maxRotation);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -maxForward, maxForward);
 
         // Check alignment
         boolean rotationAligned = seekRotationPID.atSetpoint();
@@ -310,7 +308,7 @@ public class ColorBlobHuntCommand extends Command {
             return Double.MAX_VALUE;  // Avoid division by zero
         }
 
-        double calibrationArea = VisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE;
+        double calibrationArea = TunableVisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE.get();
 
         // distance = calibrationDistance * sqrt(calibrationArea / currentArea)
         double estimatedDistance = CALIBRATION_DISTANCE_METERS *
@@ -318,6 +316,56 @@ public class ColorBlobHuntCommand extends Command {
 
         // Clamp to reasonable range
         return MathUtil.clamp(estimatedDistance, 0.1, 5.0);
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        // Update seek rotation PID
+        if (TunableVisionConstants.ModelD.SEEK_ROTATION_KP.hasChanged() ||
+            TunableVisionConstants.ModelD.SEEK_ROTATION_KI.hasChanged() ||
+            TunableVisionConstants.ModelD.SEEK_ROTATION_KD.hasChanged()) {
+
+            seekRotationPID.setPID(
+                TunableVisionConstants.ModelD.SEEK_ROTATION_KP.get(),
+                TunableVisionConstants.ModelD.SEEK_ROTATION_KI.get(),
+                TunableVisionConstants.ModelD.SEEK_ROTATION_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelD.ROTATION_TOLERANCE.hasChanged()) {
+            seekRotationPID.setTolerance(TunableVisionConstants.ModelD.ROTATION_TOLERANCE.get());
+        }
+
+        // Update hunt rotation PID (if needed - currently not using PID for hunt mode)
+        if (TunableVisionConstants.ModelD.HUNT_ROTATION_KP.hasChanged() ||
+            TunableVisionConstants.ModelD.HUNT_ROTATION_KI.hasChanged() ||
+            TunableVisionConstants.ModelD.HUNT_ROTATION_KD.hasChanged()) {
+
+            huntRotationPID.setPID(
+                TunableVisionConstants.ModelD.HUNT_ROTATION_KP.get(),
+                TunableVisionConstants.ModelD.HUNT_ROTATION_KI.get(),
+                TunableVisionConstants.ModelD.HUNT_ROTATION_KD.get()
+            );
+        }
+
+        // Update range PID
+        if (TunableVisionConstants.ModelD.RANGE_KP.hasChanged() ||
+            TunableVisionConstants.ModelD.RANGE_KI.hasChanged() ||
+            TunableVisionConstants.ModelD.RANGE_KD.hasChanged()) {
+
+            rangePID.setPID(
+                TunableVisionConstants.ModelD.RANGE_KP.get(),
+                TunableVisionConstants.ModelD.RANGE_KI.get(),
+                TunableVisionConstants.ModelD.RANGE_KD.get()
+            );
+        }
+
+        if (TunableVisionConstants.ModelD.DISTANCE_TOLERANCE.hasChanged()) {
+            rangePID.setTolerance(TunableVisionConstants.ModelD.DISTANCE_TOLERANCE.get());
+        }
     }
 
     private void stopRobot() {

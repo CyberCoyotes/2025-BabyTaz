@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.TunableVisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -49,7 +50,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * BUTTON BINDING: Shuffleboard "Model B: Rotation + Range" button
  */
-public class RotationalRangeAlignCommand extends Command {
+public class ModelB_RotationDistance extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
@@ -68,7 +69,7 @@ public class RotationalRangeAlignCommand extends Command {
     /**
      * Creates a RotationalRangeAlignCommand with default target distance (0.75m).
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
+    public ModelB_RotationDistance(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this(drivetrain, vision, VisionConstants.DEFAULT_TARGET_DISTANCE_METERS);
     }
 
@@ -79,7 +80,7 @@ public class RotationalRangeAlignCommand extends Command {
      * @param vision The Limelight vision subsystem
      * @param targetDistanceMeters Target distance from AprilTag in meters
      */
-    public RotationalRangeAlignCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
+    public ModelB_RotationDistance(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision, double targetDistanceMeters) {
         this.drivetrain = drivetrain;
         this.vision = vision;
         this.targetDistanceMeters = targetDistanceMeters;
@@ -126,6 +127,9 @@ public class RotationalRangeAlignCommand extends Command {
 
     @Override
     public void execute() {
+        // Update PID gains from dashboard if changed
+        updatePIDGains();
+
         // Check for valid target
         if (!vision.hasTarget()) {
             // Update state machine
@@ -166,16 +170,10 @@ public class RotationalRangeAlignCommand extends Command {
         double forwardSpeed = rangePID.calculate(currentDistance);
 
         // Apply speed limits
-        rotationSpeed = MathUtil.clamp(
-            rotationSpeed,
-            -VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS,
-            VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS
-        );
-        forwardSpeed = MathUtil.clamp(
-            forwardSpeed,
-            -VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS,
-            VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS
-        );
+        double maxRotation = TunableVisionConstants.ModelB.getMaxRotationSpeed();
+        double maxForward = TunableVisionConstants.ModelB.getMaxForwardSpeed();
+        rotationSpeed = MathUtil.clamp(rotationSpeed, -maxRotation, maxRotation);
+        forwardSpeed = MathUtil.clamp(forwardSpeed, -maxForward, maxForward);
 
         // Check alignment status
         boolean rotationAligned = rotationPID.atSetpoint();
@@ -194,6 +192,42 @@ public class RotationalRangeAlignCommand extends Command {
 
         // Log telemetry
         logTelemetry(tx, currentDistance, rotationSpeed, forwardSpeed, rotationAligned, distanceAligned);
+    }
+
+    /**
+     * Updates PID gains from tunable constants if they've changed.
+     * Called every execute() cycle to allow live tuning.
+     */
+    private void updatePIDGains() {
+        // Update rotation PID
+        if (TunableVisionConstants.ModelB.rotationPIDHasChanged()) {
+            rotationPID.setPID(
+                TunableVisionConstants.ModelB.getRotationKp(),
+                TunableVisionConstants.ModelB.getRotationKi(),
+                TunableVisionConstants.ModelB.getRotationKd()
+            );
+        }
+
+        if (TunableVisionConstants.ModelB.rotationToleranceHasChanged()) {
+            rotationPID.setTolerance(TunableVisionConstants.ModelB.getRotationTolerance());
+        }
+
+        // Update range PID
+        if (TunableVisionConstants.ModelB.rangePIDHasChanged()) {
+            rangePID.setPID(
+                TunableVisionConstants.ModelB.getRangeKp(),
+                TunableVisionConstants.ModelB.getRangeKi(),
+                TunableVisionConstants.ModelB.getRangeKd()
+            );
+        }
+
+        if (TunableVisionConstants.ModelB.distanceToleranceHasChanged()) {
+            rangePID.setTolerance(TunableVisionConstants.ModelB.getDistanceTolerance());
+        }
+
+        if (TunableVisionConstants.ModelB.targetDistanceHasChanged()) {
+            rangePID.setSetpoint(TunableVisionConstants.ModelB.getTargetDistance());
+        }
     }
 
     private void stopRobot() {
