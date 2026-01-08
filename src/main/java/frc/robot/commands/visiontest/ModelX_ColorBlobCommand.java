@@ -18,6 +18,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 /*
  * Algae color
  * H: 35 → 65
+ * H 55 -> 90 @ home
  * S: 120 → 255
  * V: 80 → 255
 
