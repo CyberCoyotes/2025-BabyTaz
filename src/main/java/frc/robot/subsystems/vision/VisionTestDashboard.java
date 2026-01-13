@@ -302,7 +302,7 @@ public class VisionTestDashboard extends SubsystemBase {
         resetButtonVisuals();
 
         // Ensure drivetrain is stopped
-        drivetrain.stopDrive();
+   //     drivetrain.stopDrive();
 
         Logger.recordOutput("VisionTestDashboard/StoppedAllTests", true);
         statusEntry.setString("STOPPED");

@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem;
+//import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 @SuppressWarnings("unused") // Suppresses unused variable warning
@@ -15,7 +15,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 public class AutoRoutines {
     private final AutoFactory m_factory;
     private CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
-    private final TurretSubsystem m_turret;
+  //  private final TurretSubsystem m_turret;
     LEDSubsystem m_leds;
     VisionSubsystem m_vision;
 
@@ -34,10 +34,10 @@ public class AutoRoutines {
     private final double minLoadDelay = 0.2; // seconds
 
     // Constructor to receive dependencies
-    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, TurretSubsystem turret) {
+    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain) {
         m_factory = factory;
         m_drivetrain = drivetrain;
-        m_turret = new TurretSubsystem(27);
+    //    m_turret = new TurretSubsystem(27);
         // m_elevator = new ElevatorSubsystem(); // Competition robot only
         // m_intake = new IntakeSubsystem(); // Competition robot only
         // m_score = new ScoreSubsystem(); // Competition robot only

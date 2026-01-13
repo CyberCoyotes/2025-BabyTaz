@@ -4,7 +4,9 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.HootAutoReplay;
+import com.ctre.phoenix6.HootReplay;
+
+//import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -17,9 +19,9 @@ public class Robot extends TimedRobot {
     private final RobotContainer m_robotContainer;
 
     /* log and replay timestamp and joystick data */
-    private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
-        .withTimestampReplay()
-        .withJoystickReplay();
+    // private final HootReplay m_timeAndJoystickReplay = new HootReplay()
+    //     .withTimestampReplay()
+    //     .withJoystickReplay();
 
     private final boolean kUseLimelight = false;
 
@@ -29,7 +31,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        m_timeAndJoystickReplay.update();
+        // m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
         /*

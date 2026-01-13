@@ -21,7 +21,7 @@ import frc.robot.subsystems.vision.VisionTestDashboard;
 
 @SuppressWarnings("unused")
 
-public class RobotContainer {
+public class RobotContainerOriginal {
 
     private double slowMo = 0.30;
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)*slowMo;// kSpeedAt12Volts desired top speed
@@ -34,7 +34,7 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -49,7 +49,7 @@ public class RobotContainer {
     private final VisionTestDashboard visionTestDashboard;
 
 
-    public RobotContainer() {
+    public RobotContainerOriginal() {
         // Test SmartDashboard connectivity
         edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putString("RobotContainer", "Initialized");
         edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("TestNumber", 42.0);
@@ -119,7 +119,7 @@ public class RobotContainer {
         // Right Bumper: Stop all vision tests
         driver.rightBumper().onTrue(visionTestDashboard.getStopCommand());
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     /**
