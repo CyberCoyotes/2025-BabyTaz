@@ -6,6 +6,8 @@ import java.util.List;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 
+@SuppressWarnings("unused")
+
 public class LEDConfig {
     public static final class Constants {
         public static final int CANDLE_ID = 30; // CAN ID of the LED controller

@@ -16,6 +16,8 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.Map;
 
+@SuppressWarnings("unused")
+
 /**
  * ===========================================================================
  * VISION TEST DASHBOARD
