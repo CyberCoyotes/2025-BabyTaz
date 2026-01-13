@@ -176,7 +176,7 @@ public class AlignToAprilTagCommand extends Command {
      * Stops the robot and updates status.
      */
     private void handleNoTarget() {
-        drivetrain.stopDrive();
+        // drivetrain.stopDrive();
         Logger.recordOutput("AprilTagAlign/Status", "NO TARGET");
         SmartDashboard.putString("AprilTagAlign/Status", "NO TARGET");
     }
@@ -278,7 +278,7 @@ public class AlignToAprilTagCommand extends Command {
      */
     @Override
     public void end(boolean interrupted) {
-        drivetrain.stopDrive();
+        // drivetrain.stopDrive();
 
         if (interrupted) {
             Logger.recordOutput("AprilTagAlign/Status", "INTERRUPTED");
