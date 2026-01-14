@@ -2,26 +2,26 @@
   "path_elements": [
     {
       "type": "translation",
-      "x_meters": 0.23956656346749217,
-      "y_meters": 1.510990712074304,
+      "x_meters": 3.1285077399380796,
+      "y_meters": 0.8376284829721365,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
       "type": "rotation",
-      "rotation_radians": 2.0943951023931953,
+      "rotation_radians": 0.8414173411540337,
       "t_ratio": 1.0,
       "profiled_rotation": true
     },
     {
       "type": "translation",
-      "x_meters": 2.8723482614941926,
-      "y_meters": 1.776969643875665,
+      "x_meters": 6.5541191593270085,
+      "y_meters": 0.8755331113679219,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
       "type": "translation",
-      "x_meters": 4.904217345104074,
-      "y_meters": 2.9686142969124703,
+      "x_meters": 7.575944899283639,
+      "y_meters": 2.306112748924855,
       "intermediate_handoff_radius_meters": 0.2
     }
   ]
