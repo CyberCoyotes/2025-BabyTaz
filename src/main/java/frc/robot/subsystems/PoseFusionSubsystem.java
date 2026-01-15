@@ -17,6 +17,7 @@ import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import org.littletonrobotics.junction.Logger;
 
+
 /**
  * PoseFusionSubsystem - Continuously fuses Limelight 4 vision data with odometry.
  * 
@@ -69,6 +70,9 @@ import org.littletonrobotics.junction.Logger;
  * 
  * @author CyberCoyotes - Educational Vision Fusion
  */
+
+ @SuppressWarnings("unused")
+
 public class PoseFusionSubsystem extends SubsystemBase {
     
     // ============ DEPENDENCIES ============
