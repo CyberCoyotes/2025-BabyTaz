@@ -1,9 +1,10 @@
 package frc.robot.subsystems.led;
 
 import com.ctre.phoenix.led.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 public class LEDSubsystem extends SubsystemBase {
@@ -13,6 +14,8 @@ public class LEDSubsystem extends SubsystemBase {
     private double lastStateChangeTime = 0;
     private static final double MIN_STATE_CHANGE_INTERVAL = 0.1; // seconds
 
+    // Elastic Dashboard NetworkTable
+    private final NetworkTable elasticTable;
 
     // Animation configuration
     private double animationSpeed = 0.7; // Default animation speed
@@ -22,7 +25,8 @@ public class LEDSubsystem extends SubsystemBase {
 public LEDSubsystem() {
     this.hardware = new LEDHardware();
     this.ledCount = LEDConfig.Constants.LED_COUNT;
-    
+    this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("LED");
+
     DataLogManager.log("LEDSubsystem: Initializing...");
     hardware.configure(LEDConfig.defaultConfig());
     Timer.delay(0.1); // Add small delay for hardware to initialize
@@ -200,14 +204,14 @@ public LEDSubsystem() {
     
 
     private void updateTelemetry(LEDHardware.Status status) {
-        SmartDashboard.putString("LED/State", currentState.toString());
-        SmartDashboard.putBoolean("LED/AnimationsEnabled", animationEnabled);
-        SmartDashboard.putNumber("LED/AnimationSpeed", animationSpeed);
-        SmartDashboard.putNumber("LED/Brightness", brightness);
-        SmartDashboard.putBoolean("LED/IsConfigured", status.isConfigured);
-        SmartDashboard.putNumber("LED/BusVoltage", status.busVoltage);
-        SmartDashboard.putNumber("LED/Current", status.current);
-        SmartDashboard.putNumber("LED/Temperature", status.temperature);
-        SmartDashboard.putBoolean("LED/IsConnected", status.isConnected);
+        elasticTable.getEntry("State").setString(currentState.toString());
+        elasticTable.getEntry("AnimationsEnabled").setBoolean(animationEnabled);
+        elasticTable.getEntry("AnimationSpeed").setDouble(animationSpeed);
+        elasticTable.getEntry("Brightness").setDouble(brightness);
+        elasticTable.getEntry("IsConfigured").setBoolean(status.isConfigured);
+        elasticTable.getEntry("BusVoltage").setDouble(status.busVoltage);
+        elasticTable.getEntry("Current").setDouble(status.current);
+        elasticTable.getEntry("Temperature").setDouble(status.temperature);
+        elasticTable.getEntry("IsConnected").setBoolean(status.isConnected);
     }
 }

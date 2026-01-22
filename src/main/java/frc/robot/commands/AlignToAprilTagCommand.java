@@ -4,7 +4,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -35,6 +36,7 @@ import org.littletonrobotics.junction.Logger;
 public class AlignToAprilTagCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
+    private final NetworkTable elasticTable;
 
     // PID Controllers for three-axis alignment
     private final PIDController forwardController;   // X-axis: Forward/Backward
@@ -94,6 +96,7 @@ public class AlignToAprilTagCommand extends Command {
     public AlignToAprilTagCommand(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("AprilTagAlign");
 
         // Initialize PID controllers with tuning values
         forwardController = new PIDController(FORWARD_KP, FORWARD_KI, FORWARD_KD);
@@ -118,7 +121,7 @@ public class AlignToAprilTagCommand extends Command {
         rotationController.reset();
 
         Logger.recordOutput("AprilTagAlign/Status", "STARTED");
-        SmartDashboard.putString("AprilTagAlign/Status", "STARTED");
+        elasticTable.getEntry("Status").setString("STARTED");
     }
 
     @Override
@@ -178,7 +181,7 @@ public class AlignToAprilTagCommand extends Command {
     private void handleNoTarget() {
         // drivetrain.stopDrive();
         Logger.recordOutput("AprilTagAlign/Status", "NO TARGET");
-        SmartDashboard.putString("AprilTagAlign/Status", "NO TARGET");
+        elasticTable.getEntry("Status").setString("NO TARGET");
     }
 
     /**
@@ -202,24 +205,27 @@ public class AlignToAprilTagCommand extends Command {
     }
 
     /**
-     * Logs alignment data to SmartDashboard and AdvantageKit.
+     * Logs alignment data to Elastic Dashboard and AdvantageKit.
      */
     private void logAlignmentData(int tagId, double tx, double ty, double distance,
                                    double forwardSpeed, double lateralSpeed, double rotationSpeed) {
-        // SmartDashboard logging for driver feedback
-        SmartDashboard.putNumber("AprilTagAlign/TagID", tagId);
-        SmartDashboard.putNumber("AprilTagAlign/TX", tx);
-        SmartDashboard.putNumber("AprilTagAlign/TY", ty);
-        SmartDashboard.putNumber("AprilTagAlign/Distance", distance);
-        SmartDashboard.putNumber("AprilTagAlign/ForwardSpeed", forwardSpeed);
-        SmartDashboard.putNumber("AprilTagAlign/LateralSpeed", lateralSpeed);
-        SmartDashboard.putNumber("AprilTagAlign/RotationSpeed", rotationSpeed);
+        // Elastic Dashboard logging for driver feedback
+        elasticTable.getEntry("TagID").setDouble(tagId);
+        elasticTable.getEntry("TX").setDouble(tx);
+        elasticTable.getEntry("TY").setDouble(ty);
+        elasticTable.getEntry("Distance").setDouble(distance);
+        elasticTable.getEntry("ForwardSpeed").setDouble(forwardSpeed);
+        elasticTable.getEntry("LateralSpeed").setDouble(lateralSpeed);
+        elasticTable.getEntry("RotationSpeed").setDouble(rotationSpeed);
 
         // Show which axes are aligned
-        SmartDashboard.putBoolean("AprilTagAlign/ForwardAligned", forwardController.atSetpoint());
-        SmartDashboard.putBoolean("AprilTagAlign/LateralAligned", lateralController.atSetpoint());
-        SmartDashboard.putBoolean("AprilTagAlign/RotationAligned", rotationController.atSetpoint());
-        SmartDashboard.putBoolean("AprilTagAlign/FullyAligned", isAligned());
+        elasticTable.getEntry("ForwardAligned").setBoolean(forwardController.atSetpoint());
+        elasticTable.getEntry("LateralAligned").setBoolean(lateralController.atSetpoint());
+        elasticTable.getEntry("RotationAligned").setBoolean(rotationController.atSetpoint());
+        elasticTable.getEntry("FullyAligned").setBoolean(isAligned());
+
+        // Publish PID errors for tuning graphs
+        publishPIDErrors();
 
         // AdvantageKit logging for detailed analysis
         Logger.recordOutput("AprilTagAlign/TagID", tagId);
@@ -282,10 +288,20 @@ public class AlignToAprilTagCommand extends Command {
 
         if (interrupted) {
             Logger.recordOutput("AprilTagAlign/Status", "INTERRUPTED");
-            SmartDashboard.putString("AprilTagAlign/Status", "INTERRUPTED");
+            elasticTable.getEntry("Status").setString("INTERRUPTED");
         } else {
             Logger.recordOutput("AprilTagAlign/Status", "COMPLETED");
-            SmartDashboard.putString("AprilTagAlign/Status", "COMPLETED");
+            elasticTable.getEntry("Status").setString("COMPLETED");
         }
+    }
+
+    /**
+     * Publishes PID controller errors for tuning and analysis.
+     */
+    private void publishPIDErrors() {
+        NetworkTable pidTable = elasticTable.getSubTable("PID");
+        pidTable.getEntry("ForwardError").setDouble(forwardController.getError());
+        pidTable.getEntry("LateralError").setDouble(lateralController.getError());
+        pidTable.getEntry("RotationError").setDouble(rotationController.getError());
     }
 }
