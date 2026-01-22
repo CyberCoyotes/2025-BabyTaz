@@ -65,12 +65,12 @@ public class VisionValidationCommand extends SequentialCommandGroup {
             // ===== SETUP =====
             Commands.runOnce(() -> {
                 System.out.println("\n");
-                System.out.println("╔══════════════════════════════════════════╗");
-                System.out.println("║     VISION FUSION VALIDATION TEST        ║");
-                System.out.println("╠══════════════════════════════════════════╣");
-                System.out.println("║  This test will run the same pattern     ║");
-                System.out.println("║  twice to compare performance.           ║");
-                System.out.println("╚══════════════════════════════════════════╝");
+                System.out.println("===========================================");
+                System.out.println("     VISION FUSION VALIDATION TEST        ");
+                System.out.println("===========================================");
+                System.out.println("  This test will run the same pattern     ");
+                System.out.println("  twice to compare performance.           ");
+                System.out.println("===========================================");
                 System.out.println("\n");
                 
                 Logger.recordOutput("VisionValidation/Status", "STARTING");
@@ -82,7 +82,7 @@ public class VisionValidationCommand extends SequentialCommandGroup {
             
             // ===== RUN 1: ODOMETRY ONLY =====
             Commands.runOnce(() -> {
-                System.out.println("═══ RUN 1: ODOMETRY ONLY ═══");
+                System.out.println("=== RUN 1: ODOMETRY ONLY ===");
                 System.out.println("Disabling vision fusion...");
                 poseFusion.setFusionEnabled(false);
                 poseFusion.resetStatistics();
@@ -102,7 +102,7 @@ public class VisionValidationCommand extends SequentialCommandGroup {
             
             // ===== RUN 2: WITH VISION FUSION =====
             Commands.runOnce(() -> {
-                System.out.println("\n═══ RUN 2: WITH VISION FUSION ═══");
+                System.out.println("\n=== RUN 2: WITH VISION FUSION ===");
                 System.out.println("Enabling vision fusion...");
                 poseFusion.setFusionEnabled(true);
                 poseFusion.resetStatistics();
@@ -129,13 +129,13 @@ public class VisionValidationCommand extends SequentialCommandGroup {
      */
     private void analyzeAndReportResults(PoseFusionSubsystem poseFusion) {
         System.out.println("\n");
-        System.out.println("╔══════════════════════════════════════════════════════════╗");
-        System.out.println("║              VALIDATION TEST RESULTS                     ║");
-        System.out.println("╠══════════════════════════════════════════════════════════╣");
-        
+        System.out.println("===========================================================");
+        System.out.println("              VALIDATION TEST RESULTS                     ");
+        System.out.println("===========================================================");
+
         if (odometryOnlyResult == null || fusionEnabledResult == null) {
-            System.out.println("║  ERROR: One or both test runs did not complete!         ║");
-            System.out.println("╚══════════════════════════════════════════════════════════╝");
+            System.out.println("  ERROR: One or both test runs did not complete!         ");
+            System.out.println("===========================================================");
             Logger.recordOutput("VisionValidation/Status", "INCOMPLETE");
             return;
         }
@@ -147,39 +147,39 @@ public class VisionValidationCommand extends SequentialCommandGroup {
         double improvementPercent = (improvement / odoDrift) * 100;
         
         // Print results
-        System.out.printf("║  ODOMETRY ONLY:                                          ║%n");
-        System.out.printf("║    Final drift: %.4f meters                              %n", odoDrift);
-        System.out.printf("║    Max error during test: %.4f meters                    %n", 
+        System.out.printf("  ODOMETRY ONLY:                                          %n");
+        System.out.printf("    Final drift: %.4f meters                              %n", odoDrift);
+        System.out.printf("    Max error during test: %.4f meters                    %n",
             odometryOnlyResult.maxError);
-        System.out.println("║                                                          ║");
-        System.out.printf("║  WITH VISION FUSION:                                     ║%n");
-        System.out.printf("║    Final drift: %.4f meters                              %n", fusionDrift);
-        System.out.printf("║    Max error during test: %.4f meters                    %n", 
+        System.out.println("                                                          ");
+        System.out.printf("  WITH VISION FUSION:                                     %n");
+        System.out.printf("    Final drift: %.4f meters                              %n", fusionDrift);
+        System.out.printf("    Max error during test: %.4f meters                    %n",
             fusionEnabledResult.maxError);
-        System.out.printf("║    Vision corrections applied: %d                         %n", 
+        System.out.printf("    Vision corrections applied: %d                         %n",
             poseFusion.getAcceptedMeasurements());
-        System.out.println("║                                                          ║");
-        System.out.println("╠══════════════════════════════════════════════════════════╣");
+        System.out.println("                                                          ");
+        System.out.println("===========================================================");
         
         if (improvement > 0) {
-            System.out.printf("║  ✓ IMPROVEMENT: %.4f meters (%.1f%% better)              %n", 
+            System.out.printf("  [+] IMPROVEMENT: %.4f meters (%.1f%% better)              %n",
                 improvement, improvementPercent);
-            
+
             if (improvementPercent > 50) {
-                System.out.println("║  EXCELLENT! Vision fusion is working great!             ║");
+                System.out.println("  EXCELLENT! Vision fusion is working great!             ");
             } else if (improvementPercent > 20) {
-                System.out.println("║  GOOD! Meaningful improvement from vision.              ║");
+                System.out.println("  GOOD! Meaningful improvement from vision.              ");
             } else {
-                System.out.println("║  MODEST improvement. Consider tuning std devs.          ║");
+                System.out.println("  MODEST improvement. Consider tuning std devs.          ");
             }
         } else {
-            System.out.printf("║  ✗ REGRESSION: %.4f meters (%.1f%% worse)                %n", 
+            System.out.printf("  [-] REGRESSION: %.4f meters (%.1f%% worse)                %n",
                 -improvement, -improvementPercent);
-            System.out.println("║  WARNING: Vision is making things worse!                 ║");
-            System.out.println("║  Check: Limelight calibration, mounting, tag visibility  ║");
+            System.out.println("  WARNING: Vision is making things worse!                 ");
+            System.out.println("  Check: Limelight calibration, mounting, tag visibility  ");
         }
-        
-        System.out.println("╚══════════════════════════════════════════════════════════╝");
+
+        System.out.println("===========================================================");
         System.out.println("\n");
         
         // Log everything for AdvantageScope analysis
