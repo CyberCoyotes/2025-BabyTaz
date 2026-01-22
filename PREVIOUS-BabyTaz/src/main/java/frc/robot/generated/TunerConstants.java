@@ -197,7 +197,10 @@ public class TunerConstants {
      */
     public static CommandSwerveDrivetrain createDrivetrain() {
         return new CommandSwerveDrivetrain(
-            DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight
+            // Added 100 Hz odometry update frequency for smoother running. 
+            // The default on CAN 2.0 is 250 Hz for Phoenix 6 according to Claude
+            // 250 is for CAN FD which we are not using on this bot
+            DrivetrainConstants, 50,FrontLeft, FrontRight, BackLeft, BackRight
         );
     }
 
