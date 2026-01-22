@@ -1,9 +1,10 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,8 +15,6 @@ import frc.robot.commands.visiontest.ModelB_RotationDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Map;
-
 @SuppressWarnings("unused")
 
 /**
@@ -23,37 +22,37 @@ import java.util.Map;
  * VISION TEST DASHBOARD
  * ===========================================================================
  *
- * Provides Shuffleboard UI for testing vision alignment models.
+ * Provides Elastic Dashboard UI for testing vision alignment models.
  *
  * FEATURES:
- * - Virtual buttons to trigger each vision test model
+ * - NetworkTables boolean entries to trigger each vision test model
  * - Real-time status display for each model
  * - Stop All button to immediately halt any running test
  * - Telemetry display for current test values
  *
- * SHUFFLEBOARD LAYOUT:
- * +-----------------------------------------------------------------------+
- * | Vision Tests                                                          |
- * +---------------+----------------+----------------+---------------------+
- * | Model A:      | Model B:       | Model C:       | Model D:            |
- * | Rotation Only | Rotation+Range | Perpendicular  | Color Hunt          |
- * | [Button]      | [Button]       | [Button]       | [Button]            |
- * +---------------+----------------+----------------+---------------------+
- * |                        [STOP ALL]                                     |
- * +---------------+----------------+----------------+---------------------+
- * | Active Model: | Status:        | TX:            | Distance:           |
- * | [text]        | [text]         | [number]       | [number]            |
- * +-----------------------------------------------------------------------+
+ * NETWORKTABLES LAYOUT (Elastic/VisionTest):
+ * - Buttons:
+ *   - ModelAButton (boolean): Toggle to start/stop Model A
+ *   - ModelBButton (boolean): Toggle to start/stop Model B
+ *   - ModelCButton (boolean): Toggle to start/stop Model C
+ *   - ModelDButton (boolean): Toggle to start/stop Model D
+ *   - StopButton (boolean): Stops all running tests
+ * - Status:
+ *   - ActiveModel (string): Currently running model name
+ *   - Status (string): Current alignment state
+ *   - TX (double): Horizontal offset in degrees
+ *   - Distance (double): Distance to target in meters
+ *   - Aligned (boolean): Whether robot is aligned
  *
  * USAGE:
  * 1. Create VisionTestDashboard in RobotContainer
- * 2. Dashboard automatically creates Shuffleboard tab
- * 3. Click buttons in Shuffleboard to trigger tests
- * 4. Monitor telemetry in the same tab
+ * 2. Dashboard automatically publishes to NetworkTables under "Elastic/VisionTest"
+ * 3. Toggle buttons in Elastic Dashboard to trigger tests
+ * 4. Monitor telemetry in the same dashboard
  *
  * BUTTON BEHAVIOR:
- * - Clicking a test button starts that test (cancels any running test)
- * - Button stays "pressed" while test is running
+ * - Setting a test button to true starts that test (cancels any running test)
+ * - Button resets to false automatically
  * - STOP ALL immediately cancels any running test
  */
 public class VisionTestDashboard extends SubsystemBase {
@@ -61,22 +60,22 @@ public class VisionTestDashboard extends SubsystemBase {
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem vision;
 
-    // Shuffleboard tab and entries
-    private final ShuffleboardTab tab;
+    // Elastic Dashboard NetworkTable
+    private final NetworkTable elasticTable;
 
     // Button entries (writable booleans)
-    private final GenericEntry modelAButton;
-    private final GenericEntry modelBButton;
-    private final GenericEntry modelCButton;
-    private final GenericEntry modelDButton;
-    private final GenericEntry stopButton;
+    private final BooleanEntry modelAButton;
+    private final BooleanEntry modelBButton;
+    private final BooleanEntry modelCButton;
+    private final BooleanEntry modelDButton;
+    private final BooleanEntry stopButton;
 
     // Status display entries
-    private final GenericEntry activeModelEntry;
-    private final GenericEntry statusEntry;
-    private final GenericEntry txEntry;
-    private final GenericEntry distanceEntry;
-    private final GenericEntry alignedEntry;
+    private final StringEntry activeModelEntry;
+    private final StringEntry statusEntry;
+    private final DoubleEntry txEntry;
+    private final DoubleEntry distanceEntry;
+    private final BooleanEntry alignedEntry;
 
     // Commands for each model
     private final Command modelACommand;
@@ -91,6 +90,7 @@ public class VisionTestDashboard extends SubsystemBase {
     public VisionTestDashboard(CommandSwerveDrivetrain drivetrain, VisionSubsystem vision) {
         this.drivetrain = drivetrain;
         this.vision = vision;
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("VisionTest");
 
         // Create commands
         modelACommand = new ModelA_Rotation(drivetrain, vision)
@@ -109,105 +109,33 @@ public class VisionTestDashboard extends SubsystemBase {
             .beforeStarting(() -> setActiveModel("Model D"))
             .finallyDo(interrupted -> clearActiveModel());
 
-        // Create Shuffleboard tab
-        tab = Shuffleboard.getTab(VisionConstants.Dashboard.TAB_NAME);
+        // Create NetworkTables entries for buttons
+        modelAButton = elasticTable.getBooleanTopic("ModelAButton").getEntry(false);
+        modelBButton = elasticTable.getBooleanTopic("ModelBButton").getEntry(false);
+        modelCButton = elasticTable.getBooleanTopic("ModelCButton").getEntry(false);
+        modelDButton = elasticTable.getBooleanTopic("ModelDButton").getEntry(false);
+        stopButton = elasticTable.getBooleanTopic("StopButton").getEntry(false);
 
-        // Create button entries - use toggle buttons for visual feedback
-        // Row 0: Test buttons
-        modelAButton = tab.add("Model A: Rotation Only", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withPosition(0, 0)
-            .withSize(2, 1)
-            .withProperties(Map.of("colorWhenTrue", "green", "colorWhenFalse", "gray"))
-            .getEntry();
+        // Create NetworkTables entries for status display
+        activeModelEntry = elasticTable.getStringTopic("ActiveModel").getEntry("NONE");
+        statusEntry = elasticTable.getStringTopic("Status").getEntry("IDLE");
+        txEntry = elasticTable.getDoubleTopic("TX").getEntry(0.0);
+        distanceEntry = elasticTable.getDoubleTopic("Distance").getEntry(0.0);
+        alignedEntry = elasticTable.getBooleanTopic("Aligned").getEntry(false);
 
-        modelBButton = tab.add("Model B: Rotation + Range", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withPosition(2, 0)
-            .withSize(2, 1)
-            .withProperties(Map.of("colorWhenTrue", "green", "colorWhenFalse", "gray"))
-            .getEntry();
-
-        modelCButton = tab.add("Model C: Perpendicular", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withPosition(4, 0)
-            .withSize(2, 1)
-            .withProperties(Map.of("colorWhenTrue", "green", "colorWhenFalse", "gray"))
-            .getEntry();
-
-        modelDButton = tab.add("Model D: Color Hunt", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withPosition(6, 0)
-            .withSize(2, 1)
-            .withProperties(Map.of("colorWhenTrue", "blue", "colorWhenFalse", "gray"))
-            .getEntry();
-
-        // Row 1: Stop button
-        stopButton = tab.add("STOP ALL", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withPosition(3, 1)
-            .withSize(2, 1)
-            .withProperties(Map.of("colorWhenTrue", "red", "colorWhenFalse", "darkred"))
-            .getEntry();
-
-        // Row 2: Status display
-        activeModelEntry = tab.add("Active Model", "NONE")
-            .withWidget(BuiltInWidgets.kTextView)
-            .withPosition(0, 2)
-            .withSize(2, 1)
-            .getEntry();
-
-        statusEntry = tab.add("Status", "IDLE")
-            .withWidget(BuiltInWidgets.kTextView)
-            .withPosition(2, 2)
-            .withSize(2, 1)
-            .getEntry();
-
-        txEntry = tab.add("TX (deg)", 0.0)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withPosition(4, 2)
-            .withSize(2, 1)
-            .withProperties(Map.of("min", -30, "max", 30))
-            .getEntry();
-
-        distanceEntry = tab.add("Distance (m)", 0.0)
-            .withWidget(BuiltInWidgets.kNumberBar)
-            .withPosition(6, 2)
-            .withSize(2, 1)
-            .withProperties(Map.of("min", 0, "max", 3))
-            .getEntry();
-
-        // Row 3: Aligned indicator
-        alignedEntry = tab.add("Aligned", false)
-            .withWidget(BuiltInWidgets.kBooleanBox)
-            .withPosition(0, 3)
-            .withSize(1, 1)
-            .withProperties(Map.of("colorWhenTrue", "lime", "colorWhenFalse", "red"))
-            .getEntry();
-
-        // Add instructions
-        tab.add("Instructions", "Click button to start test. Click STOP or same button to stop.")
-            .withWidget(BuiltInWidgets.kTextView)
-            .withPosition(1, 3)
-            .withSize(5, 1);
-
-        // Add reference to tuning tab
-        tab.add("Tuning", "See 'Vision Tuning' tab for live PID adjustment")
-            .withWidget(BuiltInWidgets.kTextView)
-            .withPosition(6, 3)
-            .withSize(2, 1);
-
-        // Setup triggers for buttons
-        setupButtonTriggers();
+        // Initialize default values
+        modelAButton.set(false);
+        modelBButton.set(false);
+        modelCButton.set(false);
+        modelDButton.set(false);
+        stopButton.set(false);
+        activeModelEntry.set("NONE");
+        statusEntry.set("IDLE");
+        txEntry.set(0.0);
+        distanceEntry.set(0.0);
+        alignedEntry.set(false);
     }
 
-    /**
-     * Sets up triggers to respond to Shuffleboard button presses.
-     * Uses polling in periodic() to detect button state changes.
-     */
-    private void setupButtonTriggers() {
-        // Button triggers are handled in periodic() for reliability
-    }
 
     @Override
     public void periodic() {
@@ -219,63 +147,63 @@ public class VisionTestDashboard extends SubsystemBase {
     }
 
     /**
-     * Polls Shuffleboard buttons and triggers commands accordingly.
+     * Polls NetworkTables button entries and triggers commands accordingly.
      * This is more reliable than using Trigger bindings with NetworkTables.
      */
     private void handleButtonPolling() {
         // Check STOP button first (highest priority)
-        if (stopButton.getBoolean(false)) {
+        if (stopButton.get()) {
             stopAllTests();
-            stopButton.setBoolean(false);  // Reset button
+            stopButton.set(false);  // Reset button
             return;
         }
 
         // Check Model A button
-        if (modelAButton.getBoolean(false)) {
+        if (modelAButton.get()) {
             if (currentCommand != modelACommand) {
                 startTest(modelACommand, "Model A", modelAButton);
             } else {
                 // Toggle off - stop the test
                 stopAllTests();
             }
-            modelAButton.setBoolean(false);  // Reset toggle
+            modelAButton.set(false);  // Reset toggle
         }
 
         // Check Model B button
-        if (modelBButton.getBoolean(false)) {
+        if (modelBButton.get()) {
             if (currentCommand != modelBCommand) {
                 startTest(modelBCommand, "Model B", modelBButton);
             } else {
                 stopAllTests();
             }
-            modelBButton.setBoolean(false);
+            modelBButton.set(false);
         }
 
         // Check Model C button
-        if (modelCButton.getBoolean(false)) {
+        if (modelCButton.get()) {
             if (currentCommand != modelCCommand) {
                 startTest(modelCCommand, "Model C", modelCButton);
             } else {
                 stopAllTests();
             }
-            modelCButton.setBoolean(false);
+            modelCButton.set(false);
         }
 
         // Check Model D button
-        if (modelDButton.getBoolean(false)) {
+        if (modelDButton.get()) {
             if (currentCommand != modelDCommand) {
                 startTest(modelDCommand, "Model D", modelDButton);
             } else {
                 stopAllTests();
             }
-            modelDButton.setBoolean(false);
+            modelDButton.set(false);
         }
     }
 
     /**
      * Starts a vision test, canceling any currently running test.
      */
-    private void startTest(Command command, String modelName, GenericEntry buttonEntry) {
+    private void startTest(Command command, String modelName, BooleanEntry buttonEntry) {
         // Cancel any running test
         if (currentCommand != null && currentCommand.isScheduled()) {
             currentCommand.cancel();
@@ -307,30 +235,30 @@ public class VisionTestDashboard extends SubsystemBase {
    //     drivetrain.stopDrive();
 
         Logger.recordOutput("VisionTestDashboard/StoppedAllTests", true);
-        statusEntry.setString("STOPPED");
+        statusEntry.set("STOPPED");
     }
 
     /**
      * Resets all button toggle states to false.
      */
     private void resetButtonVisuals() {
-        modelAButton.setBoolean(false);
-        modelBButton.setBoolean(false);
-        modelCButton.setBoolean(false);
-        modelDButton.setBoolean(false);
+        modelAButton.set(false);
+        modelBButton.set(false);
+        modelCButton.set(false);
+        modelDButton.set(false);
     }
 
     private void setActiveModel(String modelName) {
         currentModelName = modelName;
-        activeModelEntry.setString(modelName);
-        statusEntry.setString("RUNNING");
+        activeModelEntry.set(modelName);
+        statusEntry.set("RUNNING");
     }
 
     private void clearActiveModel() {
         currentModelName = "NONE";
         currentCommand = null;
-        activeModelEntry.setString("NONE");
-        statusEntry.setString("IDLE");
+        activeModelEntry.set("NONE");
+        statusEntry.set("IDLE");
         resetButtonVisuals();
     }
 
@@ -339,21 +267,21 @@ public class VisionTestDashboard extends SubsystemBase {
      */
     private void updateTelemetry() {
         // Update active model display
-        activeModelEntry.setString(currentModelName);
+        activeModelEntry.set(currentModelName);
 
         // Update status from state machine
-        statusEntry.setString(vision.getAlignmentState().name());
+        statusEntry.set(vision.getAlignmentState().name());
 
         // Update aligned indicator from state machine
-        alignedEntry.setBoolean(vision.isAligned());
+        alignedEntry.set(vision.isAligned());
 
         // Update vision values
         if (vision.hasTarget()) {
-            txEntry.setDouble(vision.getTX());
-            distanceEntry.setDouble(vision.getDistanceToCM() / 100.0);  // Convert cm to m
+            txEntry.set(vision.getTX());
+            distanceEntry.set(vision.getDistanceToCM() / 100.0);  // Convert cm to m
         } else {
-            txEntry.setDouble(0.0);
-            distanceEntry.setDouble(0.0);
+            txEntry.set(0.0);
+            distanceEntry.set(0.0);
         }
 
         // Log to AdvantageKit

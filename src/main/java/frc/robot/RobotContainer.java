@@ -51,7 +51,11 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory);
 
         autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        // Publish auto chooser to NetworkTables for Elastic Dashboard
+        // Note: SmartDashboard.putData() publishes to NetworkTables at the specified path
+        // Elastic Dashboard reads from NetworkTables, so this is the correct way to publish SendableChooser
+        SmartDashboard.putData("Elastic/Autonomous/AutoChooser", autoChooser);
 
         configureBindings();
     }

@@ -10,7 +10,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -78,7 +81,9 @@ public class PoseFusionSubsystem extends SubsystemBase {
     // ============ DEPENDENCIES ============
     private final CommandSwerveDrivetrain drivetrain;
     private final String limelightName;
-    
+    private final NetworkTable elasticTable;
+    private final Field2d field;
+
     // ============ CONFIGURATION ============
     
     /**
@@ -143,7 +148,12 @@ public class PoseFusionSubsystem extends SubsystemBase {
     public PoseFusionSubsystem(CommandSwerveDrivetrain drivetrain, String limelightName) {
         this.drivetrain = drivetrain;
         this.limelightName = limelightName;
-        
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("PoseFusion");
+
+        // Initialize Field2d for pose visualization
+        this.field = new Field2d();
+        SmartDashboard.putData("Field", field);
+
         // Log initial configuration
         Logger.recordOutput("PoseFusion/Config/LimelightName", limelightName);
         Logger.recordOutput("PoseFusion/Config/MaxAngularVelocity", MAX_ANGULAR_VELOCITY_DPS);
@@ -178,9 +188,12 @@ public class PoseFusionSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+        // Update Field2d with current robot pose
+        field.setRobotPose(drivetrain.getState().Pose);
+
         // Always log, even if fusion is disabled (for comparison)
         logCurrentState();
-        
+
         if (!fusionEnabled) {
             Logger.recordOutput("PoseFusion/Status", "DISABLED");
             return;
@@ -380,17 +393,17 @@ public class PoseFusionSubsystem extends SubsystemBase {
         Logger.recordOutput("PoseFusion/LL/TagArea", 
             LimelightHelpers.getTA(limelightName));
         
-        // SmartDashboard for driver station
-        SmartDashboard.putBoolean("Vision Fusion Active", fusionEnabled);
-        SmartDashboard.putNumber("Vision Corrections", acceptedMeasurements);
-        SmartDashboard.putString("Last Vision Reject", lastRejectReason);
+        // Elastic Dashboard for driver station
+        elasticTable.getEntry("Fusion Active").setBoolean(fusionEnabled);
+        elasticTable.getEntry("Vision Corrections").setDouble(acceptedMeasurements);
+        elasticTable.getEntry("Last Vision Reject").setString(lastRejectReason);
     }
     
     /**
      * Logs details when a measurement is accepted.
      */
-    private void logAcceptedMeasurement(PoseEstimate estimate, 
-                                         Matrix<N3, N1> stdDevs, 
+    private void logAcceptedMeasurement(PoseEstimate estimate,
+                                         Matrix<N3, N1> stdDevs,
                                          double correctionMagnitude) {
         Logger.recordOutput("PoseFusion/Status", "ACCEPTED");
         Logger.recordOutput("PoseFusion/LastAccepted/Pose", estimate.pose);
@@ -400,7 +413,10 @@ public class PoseFusionSubsystem extends SubsystemBase {
         Logger.recordOutput("PoseFusion/LastAccepted/StdDevX", stdDevs.get(0, 0));
         Logger.recordOutput("PoseFusion/LastAccepted/StdDevY", stdDevs.get(1, 0));
         Logger.recordOutput("PoseFusion/LastAccepted/CorrectionMagnitude", correctionMagnitude);
-        
+
+        // Update Field2d with vision measurement
+        field.getObject("VisionPose").setPose(estimate.pose);
+
         // Log individual tag data if available
         if (estimate.rawFiducials != null) {
             for (int i = 0; i < estimate.rawFiducials.length; i++) {

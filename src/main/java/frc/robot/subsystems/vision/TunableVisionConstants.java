@@ -1,21 +1,19 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.util.TunableNumber;
 
 @SuppressWarnings("unused")
 
 /**
- * TunableVisionConstants - Live-tunable PID and vision parameters with Shuffleboard integration.
+ * TunableVisionConstants - Live-tunable PID and vision parameters with Elastic Dashboard integration.
  *
- * This class creates organized Shuffleboard tabs for each vision alignment model,
+ * This class creates organized NetworkTables entries for each vision alignment model,
  * allowing real-time adjustment of PID gains, speeds, and tolerances without redeploying.
  *
  * Usage:
- * - Call initializeAll() during robot initialization to create all Shuffleboard tabs and widgets
- * - Each model has its own dedicated tab: "Vision-Main", "Vision-ModelA", etc.
- * - Values are organized with sliders for easy adjustment
+ * - Call initializeAll() during robot initialization to create all NetworkTables entries
+ * - Each model has its own dedicated tab in Elastic: "Vision-Main", "Vision-ModelA", etc.
+ * - Values can be adjusted via Elastic Dashboard widgets
  * - Changes take effect immediately on next command execution
  * - Disable tuning for competition: TunableNumber.setTuningEnabled(false)
  */
@@ -28,7 +26,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class Main {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-Main";
 
         // Forward/Backward PID
         public static TunableNumber FORWARD_KP;
@@ -59,33 +57,31 @@ public class TunableVisionConstants {
         public static TunableNumber TARGET_DISTANCE;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-Main");
+            // Forward PID
+            FORWARD_KP = new TunableNumber(TAB_NAME, "Forward kP", 1.0, 0, 0, 2, 1);
+            FORWARD_KI = new TunableNumber(TAB_NAME, "Forward kI", 0.0, 0, 1, 2, 1);
+            FORWARD_KD = new TunableNumber(TAB_NAME, "Forward kD", 0.0, 0, 2, 2, 1);
 
-            // Column 0: Forward PID
-            FORWARD_KP = new TunableNumber(tab, "Forward kP", 1.0, 0, 0, 2, 1);
-            FORWARD_KI = new TunableNumber(tab, "Forward kI", 0.0, 0, 1, 2, 1);
-            FORWARD_KD = new TunableNumber(tab, "Forward kD", 0.0, 0, 2, 2, 1);
+            // Lateral PID
+            LATERAL_KP = new TunableNumber(TAB_NAME, "Lateral kP", 0.3, 2, 0, 2, 1);
+            LATERAL_KI = new TunableNumber(TAB_NAME, "Lateral kI", 0.0, 2, 1, 2, 1);
+            LATERAL_KD = new TunableNumber(TAB_NAME, "Lateral kD", 0.0, 2, 2, 2, 1);
 
-            // Column 2: Lateral PID
-            LATERAL_KP = new TunableNumber(tab, "Lateral kP", 0.3, 2, 0, 2, 1);
-            LATERAL_KI = new TunableNumber(tab, "Lateral kI", 0.0, 2, 1, 2, 1);
-            LATERAL_KD = new TunableNumber(tab, "Lateral kD", 0.0, 2, 2, 2, 1);
+            // Rotation PID
+            ROTATION_KP = new TunableNumber(TAB_NAME, "Rotation kP", 0.08, 4, 0, 2, 1);
+            ROTATION_KI = new TunableNumber(TAB_NAME, "Rotation kI", 0.0, 4, 1, 2, 1);
+            ROTATION_KD = new TunableNumber(TAB_NAME, "Rotation kD", 0.0, 4, 2, 2, 1);
 
-            // Column 4: Rotation PID
-            ROTATION_KP = new TunableNumber(tab, "Rotation kP", 0.08, 4, 0, 2, 1);
-            ROTATION_KI = new TunableNumber(tab, "Rotation kI", 0.0, 4, 1, 2, 1);
-            ROTATION_KD = new TunableNumber(tab, "Rotation kD", 0.0, 4, 2, 2, 1);
+            // Speed limits
+            MAX_FORWARD_SPEED = new TunableNumber(TAB_NAME, "Max Fwd Speed", 0.625, 6, 0, 2, 1);
+            MAX_LATERAL_SPEED = new TunableNumber(TAB_NAME, "Max Lat Speed", 0.625, 6, 1, 2, 1);
+            MAX_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Max Rot Speed", 0.9375, 6, 2, 2, 1);
 
-            // Column 6: Speed limits
-            MAX_FORWARD_SPEED = new TunableNumber(tab, "Max Fwd Speed", 0.625, 6, 0, 2, 1);
-            MAX_LATERAL_SPEED = new TunableNumber(tab, "Max Lat Speed", 0.625, 6, 1, 2, 1);
-            MAX_ROTATION_SPEED = new TunableNumber(tab, "Max Rot Speed", 0.9375, 6, 2, 2, 1);
-
-            // Column 8: Tolerances and target
-            FORWARD_TOLERANCE = new TunableNumber(tab, "Fwd Tol (m)", 0.10, 8, 0, 2, 1);
-            LATERAL_TOLERANCE = new TunableNumber(tab, "Lat Tol (m)", 0.05, 8, 1, 2, 1);
-            ROTATION_TOLERANCE = new TunableNumber(tab, "Rot Tol (deg)", 2.0, 8, 2, 2, 1);
-            TARGET_DISTANCE = new TunableNumber(tab, "Target Dist (m)", 1.0, 8, 3, 2, 1);
+            // Tolerances and target
+            FORWARD_TOLERANCE = new TunableNumber(TAB_NAME, "Fwd Tol (m)", 0.10, 8, 0, 2, 1);
+            LATERAL_TOLERANCE = new TunableNumber(TAB_NAME, "Lat Tol (m)", 0.05, 8, 1, 2, 1);
+            ROTATION_TOLERANCE = new TunableNumber(TAB_NAME, "Rot Tol (deg)", 2.0, 8, 2, 2, 1);
+            TARGET_DISTANCE = new TunableNumber(TAB_NAME, "Target Dist (m)", 1.0, 8, 3, 2, 1);
         }
     }
 
@@ -94,7 +90,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class ModelA {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-ModelA";
 
         public static TunableNumber ROTATION_KP;
         public static TunableNumber ROTATION_KI;
@@ -104,17 +100,15 @@ public class TunableVisionConstants {
         public static TunableNumber ROTATION_TOLERANCE;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-ModelA");
-
             // Column 0: Rotation PID
-            ROTATION_KP = new TunableNumber(tab, "Rotation kP", VisionConstants.ModelA.ROTATION_KP, 0, 0, 2, 1);
-            ROTATION_KI = new TunableNumber(tab, "Rotation kI", VisionConstants.ModelA.ROTATION_KI, 0, 1, 2, 1);
-            ROTATION_KD = new TunableNumber(tab, "Rotation kD", VisionConstants.ModelA.ROTATION_KD, 0, 2, 2, 1);
+            ROTATION_KP = new TunableNumber(TAB_NAME, "Rotation kP", VisionConstants.ModelA.ROTATION_KP, 0, 0, 2, 1);
+            ROTATION_KI = new TunableNumber(TAB_NAME, "Rotation kI", VisionConstants.ModelA.ROTATION_KI, 0, 1, 2, 1);
+            ROTATION_KD = new TunableNumber(TAB_NAME, "Rotation kD", VisionConstants.ModelA.ROTATION_KD, 0, 2, 2, 1);
 
             // Column 3: Speed limits and tolerance
-            MAX_ROTATION_SPEED = new TunableNumber(tab, "Max Rot Speed", VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS, 3, 0, 2, 1);
-            MIN_ROTATION_SPEED = new TunableNumber(tab, "Min Rot Speed", VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS, 3, 1, 2, 1);
-            ROTATION_TOLERANCE = new TunableNumber(tab, "Rot Tol (deg)", VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES, 3, 2, 2, 1);
+            MAX_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Max Rot Speed", VisionConstants.ModelA.MAX_ROTATION_SPEED_RADPS, 3, 0, 2, 1);
+            MIN_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Min Rot Speed", VisionConstants.ModelA.MIN_ROTATION_SPEED_RADPS, 3, 1, 2, 1);
+            ROTATION_TOLERANCE = new TunableNumber(TAB_NAME, "Rot Tol (deg)", VisionConstants.ModelA.ROTATION_TOLERANCE_DEGREES, 3, 2, 2, 1);
         }
 
         public static double getRotationKp() { return ROTATION_KP.get(); }
@@ -138,7 +132,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class ModelB {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-ModelB";
 
         // Rotation PID
         public static TunableNumber ROTATION_KP;
@@ -162,26 +156,24 @@ public class TunableVisionConstants {
         public static TunableNumber TARGET_DISTANCE;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-ModelB");
-
             // Column 0: Rotation PID
-            ROTATION_KP = new TunableNumber(tab, "Rotation kP", VisionConstants.ModelB.ROTATION_KP, 0, 0, 2, 1);
-            ROTATION_KI = new TunableNumber(tab, "Rotation kI", VisionConstants.ModelB.ROTATION_KI, 0, 1, 2, 1);
-            ROTATION_KD = new TunableNumber(tab, "Rotation kD", VisionConstants.ModelB.ROTATION_KD, 0, 2, 2, 1);
+            ROTATION_KP = new TunableNumber(TAB_NAME, "Rotation kP", VisionConstants.ModelB.ROTATION_KP, 0, 0, 2, 1);
+            ROTATION_KI = new TunableNumber(TAB_NAME, "Rotation kI", VisionConstants.ModelB.ROTATION_KI, 0, 1, 2, 1);
+            ROTATION_KD = new TunableNumber(TAB_NAME, "Rotation kD", VisionConstants.ModelB.ROTATION_KD, 0, 2, 2, 1);
 
             // Column 2: Range PID
-            RANGE_KP = new TunableNumber(tab, "Range kP", VisionConstants.ModelB.RANGE_KP, 2, 0, 2, 1);
-            RANGE_KI = new TunableNumber(tab, "Range kI", VisionConstants.ModelB.RANGE_KI, 2, 1, 2, 1);
-            RANGE_KD = new TunableNumber(tab, "Range kD", VisionConstants.ModelB.RANGE_KD, 2, 2, 2, 1);
+            RANGE_KP = new TunableNumber(TAB_NAME, "Range kP", VisionConstants.ModelB.RANGE_KP, 2, 0, 2, 1);
+            RANGE_KI = new TunableNumber(TAB_NAME, "Range kI", VisionConstants.ModelB.RANGE_KI, 2, 1, 2, 1);
+            RANGE_KD = new TunableNumber(TAB_NAME, "Range kD", VisionConstants.ModelB.RANGE_KD, 2, 2, 2, 1);
 
             // Column 4: Speed limits
-            MAX_ROTATION_SPEED = new TunableNumber(tab, "Max Rot Speed", VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS, 4, 0, 2, 1);
-            MAX_FORWARD_SPEED = new TunableNumber(tab, "Max Fwd Speed", VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS, 4, 1, 2, 1);
+            MAX_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Max Rot Speed", VisionConstants.ModelB.MAX_ROTATION_SPEED_RADPS, 4, 0, 2, 1);
+            MAX_FORWARD_SPEED = new TunableNumber(TAB_NAME, "Max Fwd Speed", VisionConstants.ModelB.MAX_FORWARD_SPEED_MPS, 4, 1, 2, 1);
 
             // Column 6: Tolerances and target
-            ROTATION_TOLERANCE = new TunableNumber(tab, "Rot Tol (deg)", VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES, 6, 0, 2, 1);
-            DISTANCE_TOLERANCE = new TunableNumber(tab, "Dist Tol (m)", VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS, 6, 1, 2, 1);
-            TARGET_DISTANCE = new TunableNumber(tab, "Target Dist (m)", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS, 6, 2, 2, 1);
+            ROTATION_TOLERANCE = new TunableNumber(TAB_NAME, "Rot Tol (deg)", VisionConstants.ModelB.ROTATION_TOLERANCE_DEGREES, 6, 0, 2, 1);
+            DISTANCE_TOLERANCE = new TunableNumber(TAB_NAME, "Dist Tol (m)", VisionConstants.ModelB.DISTANCE_TOLERANCE_METERS, 6, 1, 2, 1);
+            TARGET_DISTANCE = new TunableNumber(TAB_NAME, "Target Dist (m)", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS, 6, 2, 2, 1);
         }
 
         public static double getRotationKp() { return ROTATION_KP.get(); }
@@ -222,7 +214,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class ModelC {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-ModelC";
 
         // Rotation PID
         public static TunableNumber ROTATION_KP;
@@ -256,34 +248,32 @@ public class TunableVisionConstants {
         public static TunableNumber TARGET_DISTANCE;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-ModelC");
-
             // Column 0: Rotation PID
-            ROTATION_KP = new TunableNumber(tab, "Rotation kP", VisionConstants.ModelC.ROTATION_KP, 0, 0, 2, 1);
-            ROTATION_KI = new TunableNumber(tab, "Rotation kI", VisionConstants.ModelC.ROTATION_KI, 0, 1, 2, 1);
-            ROTATION_KD = new TunableNumber(tab, "Rotation kD", VisionConstants.ModelC.ROTATION_KD, 0, 2, 2, 1);
+            ROTATION_KP = new TunableNumber(TAB_NAME, "Rotation kP", VisionConstants.ModelC.ROTATION_KP, 0, 0, 2, 1);
+            ROTATION_KI = new TunableNumber(TAB_NAME, "Rotation kI", VisionConstants.ModelC.ROTATION_KI, 0, 1, 2, 1);
+            ROTATION_KD = new TunableNumber(TAB_NAME, "Rotation kD", VisionConstants.ModelC.ROTATION_KD, 0, 2, 2, 1);
 
             // Column 2: Range PID
-            RANGE_KP = new TunableNumber(tab, "Range kP", VisionConstants.ModelC.RANGE_KP, 2, 0, 2, 1);
-            RANGE_KI = new TunableNumber(tab, "Range kI", VisionConstants.ModelC.RANGE_KI, 2, 1, 2, 1);
-            RANGE_KD = new TunableNumber(tab, "Range kD", VisionConstants.ModelC.RANGE_KD, 2, 2, 2, 1);
+            RANGE_KP = new TunableNumber(TAB_NAME, "Range kP", VisionConstants.ModelC.RANGE_KP, 2, 0, 2, 1);
+            RANGE_KI = new TunableNumber(TAB_NAME, "Range kI", VisionConstants.ModelC.RANGE_KI, 2, 1, 2, 1);
+            RANGE_KD = new TunableNumber(TAB_NAME, "Range kD", VisionConstants.ModelC.RANGE_KD, 2, 2, 2, 1);
 
             // Column 4: Lateral PID
-            LATERAL_KP = new TunableNumber(tab, "Lateral kP", VisionConstants.ModelC.LATERAL_KP, 4, 0, 2, 1);
-            LATERAL_KI = new TunableNumber(tab, "Lateral kI", VisionConstants.ModelC.LATERAL_KI, 4, 1, 2, 1);
-            LATERAL_KD = new TunableNumber(tab, "Lateral kD", VisionConstants.ModelC.LATERAL_KD, 4, 2, 2, 1);
+            LATERAL_KP = new TunableNumber(TAB_NAME, "Lateral kP", VisionConstants.ModelC.LATERAL_KP, 4, 0, 2, 1);
+            LATERAL_KI = new TunableNumber(TAB_NAME, "Lateral kI", VisionConstants.ModelC.LATERAL_KI, 4, 1, 2, 1);
+            LATERAL_KD = new TunableNumber(TAB_NAME, "Lateral kD", VisionConstants.ModelC.LATERAL_KD, 4, 2, 2, 1);
 
             // Column 6: Speed limits
-            MAX_ROTATION_SPEED = new TunableNumber(tab, "Max Rot Speed", VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS, 6, 0, 2, 1);
-            MAX_FORWARD_SPEED = new TunableNumber(tab, "Max Fwd Speed", VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS, 6, 1, 2, 1);
-            MAX_LATERAL_SPEED = new TunableNumber(tab, "Max Lat Speed", VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS, 6, 2, 2, 1);
+            MAX_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Max Rot Speed", VisionConstants.ModelC.MAX_ROTATION_SPEED_RADPS, 6, 0, 2, 1);
+            MAX_FORWARD_SPEED = new TunableNumber(TAB_NAME, "Max Fwd Speed", VisionConstants.ModelC.MAX_FORWARD_SPEED_MPS, 6, 1, 2, 1);
+            MAX_LATERAL_SPEED = new TunableNumber(TAB_NAME, "Max Lat Speed", VisionConstants.ModelC.MAX_LATERAL_SPEED_MPS, 6, 2, 2, 1);
 
             // Column 8: Tolerances, deadband, and target
-            ROTATION_TOLERANCE = new TunableNumber(tab, "Rot Tol (deg)", VisionConstants.ModelC.ROTATION_TOLERANCE_DEGREES, 8, 0, 2, 1);
-            DISTANCE_TOLERANCE = new TunableNumber(tab, "Dist Tol (m)", VisionConstants.ModelC.DISTANCE_TOLERANCE_METERS, 8, 1, 2, 1);
-            LATERAL_TOLERANCE = new TunableNumber(tab, "Lat Tol (deg)", VisionConstants.ModelC.LATERAL_TOLERANCE_DEGREES, 8, 2, 2, 1);
-            LATERAL_DEADBAND = new TunableNumber(tab, "Lat Deadband", VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES, 8, 3, 2, 1);
-            TARGET_DISTANCE = new TunableNumber(tab, "Target Dist (m)", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS, 8, 4, 2, 1);
+            ROTATION_TOLERANCE = new TunableNumber(TAB_NAME, "Rot Tol (deg)", VisionConstants.ModelC.ROTATION_TOLERANCE_DEGREES, 8, 0, 2, 1);
+            DISTANCE_TOLERANCE = new TunableNumber(TAB_NAME, "Dist Tol (m)", VisionConstants.ModelC.DISTANCE_TOLERANCE_METERS, 8, 1, 2, 1);
+            LATERAL_TOLERANCE = new TunableNumber(TAB_NAME, "Lat Tol (deg)", VisionConstants.ModelC.LATERAL_TOLERANCE_DEGREES, 8, 2, 2, 1);
+            LATERAL_DEADBAND = new TunableNumber(TAB_NAME, "Lat Deadband", VisionConstants.ModelC.LATERAL_DEADBAND_DEGREES, 8, 3, 2, 1);
+            TARGET_DISTANCE = new TunableNumber(TAB_NAME, "Target Dist (m)", VisionConstants.DEFAULT_TARGET_DISTANCE_METERS, 8, 4, 2, 1);
         }
     }
 
@@ -292,7 +282,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class ModelD {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-ModelD";
 
         // Hunt mode PID
         public static TunableNumber HUNT_ROTATION_KP;
@@ -323,33 +313,31 @@ public class TunableVisionConstants {
         public static TunableNumber TARGET_AREA_FOR_DISTANCE;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-ModelD");
-
             // Column 0: Hunt Rotation PID
-            HUNT_ROTATION_KP = new TunableNumber(tab, "Hunt Rot kP", VisionConstants.ModelD.HUNT_ROTATION_KP, 0, 0, 2, 1);
-            HUNT_ROTATION_KI = new TunableNumber(tab, "Hunt Rot kI", VisionConstants.ModelD.HUNT_ROTATION_KI, 0, 1, 2, 1);
-            HUNT_ROTATION_KD = new TunableNumber(tab, "Hunt Rot kD", VisionConstants.ModelD.HUNT_ROTATION_KD, 0, 2, 2, 1);
+            HUNT_ROTATION_KP = new TunableNumber(TAB_NAME, "Hunt Rot kP", VisionConstants.ModelD.HUNT_ROTATION_KP, 0, 0, 2, 1);
+            HUNT_ROTATION_KI = new TunableNumber(TAB_NAME, "Hunt Rot kI", VisionConstants.ModelD.HUNT_ROTATION_KI, 0, 1, 2, 1);
+            HUNT_ROTATION_KD = new TunableNumber(TAB_NAME, "Hunt Rot kD", VisionConstants.ModelD.HUNT_ROTATION_KD, 0, 2, 2, 1);
 
             // Column 2: Seek Rotation PID
-            SEEK_ROTATION_KP = new TunableNumber(tab, "Seek Rot kP", VisionConstants.ModelD.SEEK_ROTATION_KP, 2, 0, 2, 1);
-            SEEK_ROTATION_KI = new TunableNumber(tab, "Seek Rot kI", VisionConstants.ModelD.SEEK_ROTATION_KI, 2, 1, 2, 1);
-            SEEK_ROTATION_KD = new TunableNumber(tab, "Seek Rot kD", VisionConstants.ModelD.SEEK_ROTATION_KD, 2, 2, 2, 1);
+            SEEK_ROTATION_KP = new TunableNumber(TAB_NAME, "Seek Rot kP", VisionConstants.ModelD.SEEK_ROTATION_KP, 2, 0, 2, 1);
+            SEEK_ROTATION_KI = new TunableNumber(TAB_NAME, "Seek Rot kI", VisionConstants.ModelD.SEEK_ROTATION_KI, 2, 1, 2, 1);
+            SEEK_ROTATION_KD = new TunableNumber(TAB_NAME, "Seek Rot kD", VisionConstants.ModelD.SEEK_ROTATION_KD, 2, 2, 2, 1);
 
             // Column 4: Range PID
-            RANGE_KP = new TunableNumber(tab, "Range kP", VisionConstants.ModelD.RANGE_KP, 4, 0, 2, 1);
-            RANGE_KI = new TunableNumber(tab, "Range kI", VisionConstants.ModelD.RANGE_KI, 4, 1, 2, 1);
-            RANGE_KD = new TunableNumber(tab, "Range kD", VisionConstants.ModelD.RANGE_KD, 4, 2, 2, 1);
+            RANGE_KP = new TunableNumber(TAB_NAME, "Range kP", VisionConstants.ModelD.RANGE_KP, 4, 0, 2, 1);
+            RANGE_KI = new TunableNumber(TAB_NAME, "Range kI", VisionConstants.ModelD.RANGE_KI, 4, 1, 2, 1);
+            RANGE_KD = new TunableNumber(TAB_NAME, "Range kD", VisionConstants.ModelD.RANGE_KD, 4, 2, 2, 1);
 
             // Column 6: Speed limits
-            HUNT_ROTATION_SPEED = new TunableNumber(tab, "Hunt Rot Speed", VisionConstants.ModelD.HUNT_ROTATION_SPEED_RADPS, 6, 0, 2, 1);
-            MAX_ROTATION_SPEED = new TunableNumber(tab, "Max Rot Speed", VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS, 6, 1, 2, 1);
-            MAX_FORWARD_SPEED = new TunableNumber(tab, "Max Fwd Speed", VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS, 6, 2, 2, 1);
+            HUNT_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Hunt Rot Speed", VisionConstants.ModelD.HUNT_ROTATION_SPEED_RADPS, 6, 0, 2, 1);
+            MAX_ROTATION_SPEED = new TunableNumber(TAB_NAME, "Max Rot Speed", VisionConstants.ModelD.MAX_ROTATION_SPEED_RADPS, 6, 1, 2, 1);
+            MAX_FORWARD_SPEED = new TunableNumber(TAB_NAME, "Max Fwd Speed", VisionConstants.ModelD.MAX_FORWARD_SPEED_MPS, 6, 2, 2, 1);
 
             // Column 8: Tolerances and blob thresholds
-            ROTATION_TOLERANCE = new TunableNumber(tab, "Rot Tol (deg)", VisionConstants.ModelD.ROTATION_TOLERANCE_DEGREES, 8, 0, 2, 1);
-            DISTANCE_TOLERANCE = new TunableNumber(tab, "Dist Tol (m)", VisionConstants.ModelD.DISTANCE_TOLERANCE_METERS, 8, 1, 2, 1);
-            MIN_TARGET_AREA = new TunableNumber(tab, "Min Target Area", VisionConstants.ModelD.MIN_TARGET_AREA, 8, 2, 2, 1);
-            TARGET_AREA_FOR_DISTANCE = new TunableNumber(tab, "Target Area Dist", VisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE, 8, 3, 2, 1);
+            ROTATION_TOLERANCE = new TunableNumber(TAB_NAME, "Rot Tol (deg)", VisionConstants.ModelD.ROTATION_TOLERANCE_DEGREES, 8, 0, 2, 1);
+            DISTANCE_TOLERANCE = new TunableNumber(TAB_NAME, "Dist Tol (m)", VisionConstants.ModelD.DISTANCE_TOLERANCE_METERS, 8, 1, 2, 1);
+            MIN_TARGET_AREA = new TunableNumber(TAB_NAME, "Min Target Area", VisionConstants.ModelD.MIN_TARGET_AREA, 8, 2, 2, 1);
+            TARGET_AREA_FOR_DISTANCE = new TunableNumber(TAB_NAME, "Target Area Dist", VisionConstants.ModelD.TARGET_AREA_FOR_DISTANCE, 8, 3, 2, 1);
         }
     }
 
@@ -358,7 +346,7 @@ public class TunableVisionConstants {
     // ============================================================================
 
     public static class Camera {
-        private static ShuffleboardTab tab;
+        private static final String TAB_NAME = "Vision-Camera";
 
         public static TunableNumber HEIGHT;
         public static TunableNumber ANGLE;
@@ -366,12 +354,10 @@ public class TunableVisionConstants {
         public static TunableNumber LONGITUDINAL_OFFSET;
 
         static void initialize() {
-            tab = Shuffleboard.getTab("Vision-Camera");
-
-            HEIGHT = new TunableNumber(tab, "Height (m)", VisionConstants.CAMERA_HEIGHT_METERS, 0, 0, 2, 1);
-            ANGLE = new TunableNumber(tab, "Angle (deg)", VisionConstants.CAMERA_ANGLE_DEGREES, 0, 1, 2, 1);
-            LATERAL_OFFSET = new TunableNumber(tab, "Lateral Offset (m)", VisionConstants.CAMERA_LATERAL_OFFSET_METERS, 0, 2, 2, 1);
-            LONGITUDINAL_OFFSET = new TunableNumber(tab, "Long Offset (m)", VisionConstants.CAMERA_LONGITUDINAL_OFFSET_METERS, 0, 3, 2, 1);
+            HEIGHT = new TunableNumber(TAB_NAME, "Height (m)", VisionConstants.CAMERA_HEIGHT_METERS, 0, 0, 2, 1);
+            ANGLE = new TunableNumber(TAB_NAME, "Angle (deg)", VisionConstants.CAMERA_ANGLE_DEGREES, 0, 1, 2, 1);
+            LATERAL_OFFSET = new TunableNumber(TAB_NAME, "Lateral Offset (m)", VisionConstants.CAMERA_LATERAL_OFFSET_METERS, 0, 2, 2, 1);
+            LONGITUDINAL_OFFSET = new TunableNumber(TAB_NAME, "Long Offset (m)", VisionConstants.CAMERA_LONGITUDINAL_OFFSET_METERS, 0, 3, 2, 1);
         }
     }
 

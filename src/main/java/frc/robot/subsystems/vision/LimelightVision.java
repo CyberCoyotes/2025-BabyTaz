@@ -2,7 +2,6 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
@@ -14,10 +13,12 @@ import org.littletonrobotics.junction.Logger;
 public class LimelightVision extends SubsystemBase {
     private final String limelightName;
     private final NetworkTable limelightTable;
+    private final NetworkTable elasticTable;
 
     public LimelightVision(String limelightName) {
         this.limelightName = limelightName;
         this.limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("LimelightVision");
 
         // Set to pipeline 0 for AprilTag detection
         LimelightHelpers.setPipelineIndex(limelightName, 0);
@@ -130,12 +131,13 @@ public class LimelightVision extends SubsystemBase {
         double yawAngle = getYawAngle();
 
         // Put AprilTag telemetry data on SmartDashboard
-        SmartDashboard.putBoolean("LL4/HasTarget", hasTarget());
-        SmartDashboard.putNumber("LL4/TagID", getTagID());
-        SmartDashboard.putNumber("LL4/Distance_CM", distanceCM);
-        SmartDashboard.putNumber("LL4/HorizontalOffset_CM", horizontalOffsetCM);
-        SmartDashboard.putNumber("LL4/YawAngle_Deg", yawAngle);
-        SmartDashboard.putNumber("LL4/TX_Raw", getTX());  // Debug: direct TX value
+        NetworkTable ll4Table = elasticTable.getSubTable("LL4");
+        ll4Table.getEntry("HasTarget").setBoolean(hasTarget());
+        ll4Table.getEntry("TagID").setDouble(getTagID());
+        ll4Table.getEntry("Distance_CM").setDouble(distanceCM);
+        ll4Table.getEntry("HorizontalOffset_CM").setDouble(horizontalOffsetCM);
+        ll4Table.getEntry("YawAngle_Deg").setDouble(yawAngle);
+        ll4Table.getEntry("TX_Raw").setDouble(getTX());  // Debug: direct TX value
 
         // Log basic vision data
         Logger.recordOutput("Vision/HasTarget", hasTarget());

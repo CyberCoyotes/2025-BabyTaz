@@ -1,80 +1,51 @@
 package frc.robot.controls;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class ControlsTelemetry {
     private final CommandXboxController driver;
     private final CommandXboxController operator;
-    private final ShuffleboardTab controlsTab;
+    private final NetworkTable elasticTable;
 
     public ControlsTelemetry(CommandXboxController driver, CommandXboxController operator) {
         this.driver = driver;
         this.operator = operator;
-        this.controlsTab = Shuffleboard.getTab("Controls");
-        
-        configureShuffleboard();
-    }
-
-    private void configureShuffleboard() {
-        // Driver Controls
-        var driverLayout = controlsTab.getLayout("Driver Controls", "Grid Layout")
-            .withSize(4, 5)
-            .withPosition(0, 0);
-            
-        // Add driver joystick values
-        driverLayout.addDouble("Left X", () -> driver.getLeftX());
-        driverLayout.addDouble("Left Y", () -> driver.getLeftY());
-        driverLayout.addDouble("Right X", () -> driver.getRightX());
-        driverLayout.addDouble("Right Y", () -> driver.getRightY());
-        
-        // Add driver trigger values
-        driverLayout.addDouble("Left Trigger", () -> driver.getLeftTriggerAxis());
-        driverLayout.addDouble("Right Trigger", () -> driver.getRightTriggerAxis());
-        
-        // Add driver button states
-        driverLayout.addBoolean("A Button", () -> driver.a().getAsBoolean());
-        driverLayout.addBoolean("B Button", () -> driver.b().getAsBoolean());
-        driverLayout.addBoolean("X Button", () -> driver.x().getAsBoolean());
-        driverLayout.addBoolean("Y Button", () -> driver.y().getAsBoolean());
-        driverLayout.addBoolean("Left Bumper", () -> driver.leftBumper().getAsBoolean());
-        driverLayout.addBoolean("Right Bumper", () -> driver.rightBumper().getAsBoolean());
-        driverLayout.addInteger("POV", () -> driver.getHID().getPOV());
-
-        // Operator Controls
-        var operatorLayout = controlsTab.getLayout("Operator Controls", "Grid Layout")
-            .withSize(4, 5)
-            .withPosition(4, 0);
-            
-        // Add operator joystick values
-        operatorLayout.addDouble("Left X", () -> operator.getLeftX());
-        operatorLayout.addDouble("Left Y", () -> operator.getLeftY());
-        operatorLayout.addDouble("Right X", () -> operator.getRightX());
-        operatorLayout.addDouble("Right Y", () -> operator.getRightY());
-        
-        // Add operator trigger values
-        operatorLayout.addDouble("Left Trigger", () -> operator.getLeftTriggerAxis());
-        operatorLayout.addDouble("Right Trigger", () -> operator.getRightTriggerAxis());
-        
-        // Add operator button states
-        operatorLayout.addBoolean("A Button", () -> operator.a().getAsBoolean());
-        operatorLayout.addBoolean("B Button", () -> operator.b().getAsBoolean());
-        operatorLayout.addBoolean("X Button", () -> operator.x().getAsBoolean());
-        operatorLayout.addBoolean("Y Button", () -> operator.y().getAsBoolean());
-        operatorLayout.addBoolean("Left Bumper", () -> operator.leftBumper().getAsBoolean());
-        operatorLayout.addBoolean("Right Bumper", () -> operator.rightBumper().getAsBoolean());
-        operatorLayout.addInteger("POV", () -> operator.getHID().getPOV());
-
-        // Add Command Scheduler data
-        controlsTab.add("Scheduler", CommandScheduler.getInstance())
-            .withSize(4, 3)
-            .withPosition(8, 0);
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("Controls");
     }
 
     public void updateTelemetry() {
-        // This method can be called periodically to update any non-lambda telemetry
-        // Currently all our telemetry uses lambdas which auto-update
+        // Update driver controls to NetworkTables
+        NetworkTable driverTable = elasticTable.getSubTable("Driver");
+        driverTable.getEntry("LeftX").setDouble(driver.getLeftX());
+        driverTable.getEntry("LeftY").setDouble(driver.getLeftY());
+        driverTable.getEntry("RightX").setDouble(driver.getRightX());
+        driverTable.getEntry("RightY").setDouble(driver.getRightY());
+        driverTable.getEntry("LeftTrigger").setDouble(driver.getLeftTriggerAxis());
+        driverTable.getEntry("RightTrigger").setDouble(driver.getRightTriggerAxis());
+        driverTable.getEntry("AButton").setBoolean(driver.a().getAsBoolean());
+        driverTable.getEntry("BButton").setBoolean(driver.b().getAsBoolean());
+        driverTable.getEntry("XButton").setBoolean(driver.x().getAsBoolean());
+        driverTable.getEntry("YButton").setBoolean(driver.y().getAsBoolean());
+        driverTable.getEntry("LeftBumper").setBoolean(driver.leftBumper().getAsBoolean());
+        driverTable.getEntry("RightBumper").setBoolean(driver.rightBumper().getAsBoolean());
+        driverTable.getEntry("POV").setInteger(driver.getHID().getPOV());
+
+        // Update operator controls to NetworkTables
+        NetworkTable operatorTable = elasticTable.getSubTable("Operator");
+        operatorTable.getEntry("LeftX").setDouble(operator.getLeftX());
+        operatorTable.getEntry("LeftY").setDouble(operator.getLeftY());
+        operatorTable.getEntry("RightX").setDouble(operator.getRightX());
+        operatorTable.getEntry("RightY").setDouble(operator.getRightY());
+        operatorTable.getEntry("LeftTrigger").setDouble(operator.getLeftTriggerAxis());
+        operatorTable.getEntry("RightTrigger").setDouble(operator.getRightTriggerAxis());
+        operatorTable.getEntry("AButton").setBoolean(operator.a().getAsBoolean());
+        operatorTable.getEntry("BButton").setBoolean(operator.b().getAsBoolean());
+        operatorTable.getEntry("XButton").setBoolean(operator.x().getAsBoolean());
+        operatorTable.getEntry("YButton").setBoolean(operator.y().getAsBoolean());
+        operatorTable.getEntry("LeftBumper").setBoolean(operator.leftBumper().getAsBoolean());
+        operatorTable.getEntry("RightBumper").setBoolean(operator.rightBumper().getAsBoolean());
+        operatorTable.getEntry("POV").setInteger(operator.getHID().getPOV());
     }
 }

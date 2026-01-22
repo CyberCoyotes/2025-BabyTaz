@@ -3,7 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.led.LEDState;
 import frc.robot.subsystems.led.LEDSubsystem;
@@ -67,6 +66,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final String limelightName;
     private final LEDSubsystem leds;
     private final NetworkTable limelightTable;
+    private final NetworkTable elasticTable;
 
     // Legacy state (deprecated)
     private VisionState currentState = VisionState.NO_TARGET;
@@ -80,6 +80,12 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double TARGET_LOCK_THRESHOLD = 2.0; // Degrees
     private static final double MIN_TARGET_AREA = 0.1; // % of image
 
+    // Vision tracking statistics
+    private int targetsDetectedCount = 0;
+    private int totalCycles = 0;
+    private double totalDistance = 0.0;
+    private int distanceSamples = 0;
+
     /**
      * Creates VisionSubsystem with LED feedback.
      * @param limelightName Name of the Limelight (e.g., "limelight")
@@ -89,6 +95,7 @@ public class VisionSubsystem extends SubsystemBase {
         this.limelightName = limelightName;
         this.leds = leds;
         this.limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
+        this.elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("Vision");
         configureLimelight();
     }
 
@@ -108,6 +115,17 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Track vision statistics
+        totalCycles++;
+        if (hasTarget()) {
+            targetsDetectedCount++;
+            double distance = getDistanceToCM();
+            if (distance > 0) {
+                totalDistance += distance;
+                distanceSamples++;
+            }
+        }
+
         // Update finite state machine
         updateVisionState();
 
@@ -116,6 +134,9 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Log comprehensive telemetry
         logTelemetry();
+
+        // Publish vision statistics
+        publishVisionStats();
     }
 
     private void updateVisionState() {
@@ -438,14 +459,15 @@ public class VisionSubsystem extends SubsystemBase {
         double horizontalOffsetCM = getHorizontalOffsetCM();
         double yawAngle = getYawAngle();
 
-        // Put AprilTag telemetry data on SmartDashboard
-        SmartDashboard.putBoolean("LL4/HasTarget", hasTarget());
-        SmartDashboard.putNumber("LL4/TagID", getTagID());
-        SmartDashboard.putNumber("LL4/Distance_CM", distanceCM);
-        SmartDashboard.putNumber("LL4/HorizontalOffset_CM", horizontalOffsetCM);
-        SmartDashboard.putNumber("LL4/YawAngle_Deg", yawAngle);
-        SmartDashboard.putNumber("LL4/TX_Raw", getTX());  // Debug: direct TX value
-        SmartDashboard.putString("Vision/State", currentState.toString());
+        // Put AprilTag telemetry data on Elastic Dashboard
+        NetworkTable ll4Table = elasticTable.getSubTable("LL4");
+        ll4Table.getEntry("HasTarget").setBoolean(hasTarget());
+        ll4Table.getEntry("TagID").setDouble(getTagID());
+        ll4Table.getEntry("Distance_CM").setDouble(distanceCM);
+        ll4Table.getEntry("HorizontalOffset_CM").setDouble(horizontalOffsetCM);
+        ll4Table.getEntry("YawAngle_Deg").setDouble(yawAngle);
+        ll4Table.getEntry("TX_Raw").setDouble(getTX());  // Debug: direct TX value
+        elasticTable.getEntry("State").setString(currentState.toString());
 
         // AdvantageKit logging - basic vision data
         Logger.recordOutput("Vision/HasTarget", hasTarget());
@@ -474,8 +496,28 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Vision/StateMachine/AlignmentState", alignmentState.name());
         Logger.recordOutput("Vision/StateMachine/IsAligning", isAligning());
         Logger.recordOutput("Vision/StateMachine/IsAligned", isAligned());
-        SmartDashboard.putString("Vision/Mode", currentMode.name());
-        SmartDashboard.putString("Vision/AlignmentState", alignmentState.name());
+        elasticTable.getEntry("Mode").setString(currentMode.name());
+        elasticTable.getEntry("AlignmentState").setString(alignmentState.name());
+    }
+
+    /**
+     * Publishes vision tracking statistics to Elastic Dashboard.
+     */
+    private void publishVisionStats() {
+        NetworkTable statsTable = elasticTable.getSubTable("Stats");
+
+        // Detection rate (percentage of cycles with valid target)
+        double detectionRate = totalCycles > 0 ? (double) targetsDetectedCount / totalCycles : 0.0;
+        statsTable.getEntry("DetectionRate").setDouble(detectionRate);
+        statsTable.getEntry("DetectionRatePercent").setDouble(detectionRate * 100.0);
+
+        // Average distance to targets
+        double avgDistance = distanceSamples > 0 ? totalDistance / distanceSamples : 0.0;
+        statsTable.getEntry("AvgDistance").setDouble(avgDistance);
+
+        // Counts
+        statsTable.getEntry("TargetsDetected").setDouble(targetsDetectedCount);
+        statsTable.getEntry("TotalCycles").setDouble(totalCycles);
     }
 
 }

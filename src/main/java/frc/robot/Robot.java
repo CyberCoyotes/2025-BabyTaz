@@ -12,6 +12,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.telemetry.MatchDataLogger;
+import frc.robot.telemetry.PerformanceMonitor;
+import frc.robot.telemetry.PowerMonitor;
+import frc.robot.telemetry.AlertManager;
 
 @SuppressWarnings("unused")
 
@@ -27,12 +31,24 @@ public class Robot extends TimedRobot {
 
     private final boolean kUseLimelight = false;
 
+    // Telemetry and monitoring systems
+    private final MatchDataLogger matchDataLogger = new MatchDataLogger();
+    private final PerformanceMonitor performanceMonitor = new PerformanceMonitor();
+    private final PowerMonitor powerMonitor = new PowerMonitor();
+    private final AlertManager alertManager = new AlertManager();
+
     public Robot() {
         m_robotContainer = new RobotContainer();
     }
 
     @Override
     public void robotPeriodic() {
+        // Update performance monitoring
+        performanceMonitor.updateCycleTime();
+
+        // Update power monitoring
+        powerMonitor.update();
+
         // m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
@@ -68,10 +84,16 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        // Log match start
+        matchDataLogger.logMatchStart();
+
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
+            alertManager.sendInfo("Autonomous started: " + m_autonomousCommand.getName());
+        } else {
+            alertManager.sendWarning("No autonomous command selected!");
         }
     }
 
@@ -79,7 +101,9 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {}
 
     @Override
-    public void autonomousExit() {}
+    public void autonomousExit() {
+        matchDataLogger.logMatchEnd();
+    }
 
     @Override
     public void teleopInit() {
