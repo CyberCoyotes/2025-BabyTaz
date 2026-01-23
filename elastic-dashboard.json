@@ -1,0 +1,820 @@
+{
+  "version": "1.0",
+  "tabs": [
+    {
+      "name": "Overview",
+      "widgets": [
+        {
+          "type": "Text Display",
+          "title": "Match Info",
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 2,
+          "topic": "/Elastic/MatchData/EventName"
+        },
+        {
+          "type": "Number Display",
+          "title": "Match Number",
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/MatchData/MatchNumber"
+        },
+        {
+          "type": "Text Display",
+          "title": "Alliance",
+          "x": 5,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/MatchData/AllianceColor"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Match Active",
+          "x": 7,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/MatchData/MatchActive",
+          "trueColor": "#00FF00",
+          "falseColor": "#808080"
+        },
+        {
+          "type": "Voltage View",
+          "title": "Battery Voltage",
+          "x": 0,
+          "y": 2,
+          "width": 3,
+          "height": 2,
+          "topic": "/Elastic/Power/BatteryVoltage",
+          "min": 0,
+          "max": 13,
+          "orientation": "VERTICAL"
+        },
+        {
+          "type": "Number Display",
+          "title": "Current Draw (A)",
+          "x": 3,
+          "y": 2,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/InputCurrent"
+        },
+        {
+          "type": "Number Display",
+          "title": "Power (W)",
+          "x": 3,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/PowerWatts"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Brownout",
+          "x": 5,
+          "y": 2,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/BrownedOut",
+          "trueColor": "#FF0000",
+          "falseColor": "#00FF00"
+        },
+        {
+          "type": "Number Display",
+          "title": "Min Voltage",
+          "x": 5,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/MinVoltage"
+        },
+        {
+          "type": "Graph",
+          "title": "Power Monitoring",
+          "x": 9,
+          "y": 0,
+          "width": 5,
+          "height": 4,
+          "topics": [
+            "/Elastic/Power/BatteryVoltage",
+            "/Elastic/Power/InputCurrent"
+          ],
+          "period": 30
+        },
+        {
+          "type": "Text Display",
+          "title": "Latest Alert",
+          "x": 0,
+          "y": 4,
+          "width": 4,
+          "height": 1,
+          "topic": "/Elastic/Alerts/LatestMessage"
+        },
+        {
+          "type": "Text Display",
+          "title": "Alert Level",
+          "x": 4,
+          "y": 4,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Alerts/LatestLevel"
+        },
+        {
+          "type": "Number Display",
+          "title": "Alert Count",
+          "x": 6,
+          "y": 4,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Alerts/AlertCount"
+        },
+        {
+          "type": "Number Display",
+          "title": "Cycle Time (ms)",
+          "x": 0,
+          "y": 5,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Performance/CycleTimeMs"
+        },
+        {
+          "type": "Number Display",
+          "title": "Max Cycle Time (ms)",
+          "x": 2,
+          "y": 5,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Performance/MaxCycleTimeMs"
+        },
+        {
+          "type": "Command",
+          "title": "Auto Chooser",
+          "x": 9,
+          "y": 4,
+          "width": 5,
+          "height": 2,
+          "topic": "/Elastic/Autonomous/AutoChooser"
+        }
+      ]
+    },
+    {
+      "name": "Vision",
+      "widgets": [
+        {
+          "type": "Text Display",
+          "title": "Vision State",
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Vision/State"
+        },
+        {
+          "type": "Text Display",
+          "title": "Vision Mode",
+          "x": 3,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Vision/Mode"
+        },
+        {
+          "type": "Text Display",
+          "title": "Alignment State",
+          "x": 6,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Vision/AlignmentState"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Has Target",
+          "x": 0,
+          "y": 1,
+          "width": 2,
+          "height": 2,
+          "topic": "/Elastic/Vision/LL4/HasTarget",
+          "trueColor": "#00FF00",
+          "falseColor": "#FF0000"
+        },
+        {
+          "type": "Number Display",
+          "title": "AprilTag ID",
+          "x": 2,
+          "y": 1,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/LL4/TagID"
+        },
+        {
+          "type": "Number Display",
+          "title": "Distance (cm)",
+          "x": 2,
+          "y": 2,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/LL4/Distance_CM"
+        },
+        {
+          "type": "Number Display",
+          "title": "Horizontal Offset (cm)",
+          "x": 4,
+          "y": 1,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/LL4/HorizontalOffset_CM"
+        },
+        {
+          "type": "Number Display",
+          "title": "Yaw Angle (°)",
+          "x": 4,
+          "y": 2,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/LL4/YawAngle_Deg"
+        },
+        {
+          "type": "Number Display",
+          "title": "TX Raw",
+          "x": 6,
+          "y": 1,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/LL4/TX_Raw"
+        },
+        {
+          "type": "Number Display",
+          "title": "Detection Rate (%)",
+          "x": 0,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/Stats/DetectionRatePercent"
+        },
+        {
+          "type": "Number Display",
+          "title": "Avg Distance",
+          "x": 2,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/Stats/AvgDistance"
+        },
+        {
+          "type": "Number Display",
+          "title": "Targets Detected",
+          "x": 4,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/Stats/TargetsDetected"
+        },
+        {
+          "type": "Number Display",
+          "title": "Total Cycles",
+          "x": 6,
+          "y": 3,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Vision/Stats/TotalCycles"
+        },
+        {
+          "type": "Graph",
+          "title": "Vision Distance & Detection",
+          "x": 8,
+          "y": 0,
+          "width": 6,
+          "height": 4,
+          "topics": [
+            "/Elastic/Vision/LL4/Distance_CM",
+            "/Elastic/Vision/Stats/DetectionRatePercent"
+          ],
+          "period": 30
+        },
+        {
+          "type": "Graph",
+          "title": "Vision Angles",
+          "x": 0,
+          "y": 4,
+          "width": 6,
+          "height": 3,
+          "topics": [
+            "/Elastic/Vision/LL4/YawAngle_Deg",
+            "/Elastic/Vision/LL4/TX_Raw"
+          ],
+          "period": 30
+        },
+        {
+          "type": "Graph",
+          "title": "Vision Offsets",
+          "x": 6,
+          "y": 4,
+          "width": 6,
+          "height": 3,
+          "topics": [
+            "/Elastic/Vision/LL4/HorizontalOffset_CM"
+          ],
+          "period": 30
+        }
+      ]
+    },
+    {
+      "name": "Power & Performance",
+      "widgets": [
+        {
+          "type": "Voltage View",
+          "title": "Battery Voltage",
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 3,
+          "topic": "/Elastic/Power/BatteryVoltage",
+          "min": 0,
+          "max": 13,
+          "orientation": "VERTICAL"
+        },
+        {
+          "type": "Number Display",
+          "title": "Current Draw (A)",
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/InputCurrent"
+        },
+        {
+          "type": "Number Display",
+          "title": "Power (W)",
+          "x": 3,
+          "y": 1,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/PowerWatts"
+        },
+        {
+          "type": "Number Display",
+          "title": "Min Voltage",
+          "x": 3,
+          "y": 2,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Power/MinVoltage"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Brownout Status",
+          "x": 5,
+          "y": 0,
+          "width": 2,
+          "height": 2,
+          "topic": "/Elastic/Power/BrownedOut",
+          "trueColor": "#FF0000",
+          "falseColor": "#00FF00"
+        },
+        {
+          "type": "Graph",
+          "title": "Voltage History",
+          "x": 7,
+          "y": 0,
+          "width": 7,
+          "height": 3,
+          "topics": [
+            "/Elastic/Power/BatteryVoltage",
+            "/Elastic/Power/MinVoltage"
+          ],
+          "period": 60
+        },
+        {
+          "type": "Graph",
+          "title": "Current & Power",
+          "x": 0,
+          "y": 3,
+          "width": 7,
+          "height": 3,
+          "topics": [
+            "/Elastic/Power/InputCurrent",
+            "/Elastic/Power/PowerWatts"
+          ],
+          "period": 60
+        },
+        {
+          "type": "Number Display",
+          "title": "Cycle Time (ms)",
+          "x": 7,
+          "y": 3,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Performance/CycleTimeMs"
+        },
+        {
+          "type": "Number Display",
+          "title": "Max Cycle Time (ms)",
+          "x": 10,
+          "y": 3,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Performance/MaxCycleTimeMs"
+        },
+        {
+          "type": "Graph",
+          "title": "Robot Loop Performance",
+          "x": 7,
+          "y": 4,
+          "width": 7,
+          "height": 2,
+          "topics": [
+            "/Elastic/Performance/CycleTimeMs",
+            "/Elastic/Performance/MaxCycleTimeMs"
+          ],
+          "period": 30
+        }
+      ]
+    },
+    {
+      "name": "Controls",
+      "widgets": [
+        {
+          "type": "Text Display",
+          "title": "Driver Controls",
+          "x": 0,
+          "y": 0,
+          "width": 6,
+          "height": 1,
+          "topic": "/FMSInfo/EventName"
+        },
+        {
+          "type": "Number Slider",
+          "title": "Driver Left X",
+          "x": 0,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/LeftX",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Driver Left Y",
+          "x": 0,
+          "y": 2,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/LeftY",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Driver Right X",
+          "x": 3,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/RightX",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Driver Right Y",
+          "x": 3,
+          "y": 2,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/RightY",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Boolean Box",
+          "title": "A Button",
+          "x": 0,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/AButton",
+          "trueColor": "#00FF00",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "B Button",
+          "x": 1,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/BButton",
+          "trueColor": "#FF0000",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "X Button",
+          "x": 2,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/XButton",
+          "trueColor": "#0000FF",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Y Button",
+          "x": 3,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/YButton",
+          "trueColor": "#FFFF00",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Left Bumper",
+          "x": 4,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/LeftBumper",
+          "trueColor": "#00FFFF",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Right Bumper",
+          "x": 5,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/RightBumper",
+          "trueColor": "#FF00FF",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Number Display",
+          "title": "POV",
+          "x": 0,
+          "y": 4,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/POV"
+        },
+        {
+          "type": "Number Slider",
+          "title": "Left Trigger",
+          "x": 2,
+          "y": 4,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/LeftTrigger",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Right Trigger",
+          "x": 4,
+          "y": 4,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/Controls/Driver/RightTrigger",
+          "min": 0,
+          "max": 1
+        },
+        {
+          "type": "Text Display",
+          "title": "Operator Controls",
+          "x": 7,
+          "y": 0,
+          "width": 6,
+          "height": 1,
+          "topic": "/FMSInfo/EventName"
+        },
+        {
+          "type": "Number Slider",
+          "title": "Operator Left X",
+          "x": 7,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/LeftX",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Operator Left Y",
+          "x": 7,
+          "y": 2,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/LeftY",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Operator Right X",
+          "x": 10,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/RightX",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Number Slider",
+          "title": "Operator Right Y",
+          "x": 10,
+          "y": 2,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/RightY",
+          "min": -1,
+          "max": 1
+        },
+        {
+          "type": "Boolean Box",
+          "title": "A Button",
+          "x": 7,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/AButton",
+          "trueColor": "#00FF00",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "B Button",
+          "x": 8,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/BButton",
+          "trueColor": "#FF0000",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "X Button",
+          "x": 9,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/XButton",
+          "trueColor": "#0000FF",
+          "falseColor": "#404040"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Y Button",
+          "x": 10,
+          "y": 3,
+          "width": 1,
+          "height": 1,
+          "topic": "/Elastic/Controls/Operator/YButton",
+          "trueColor": "#FFFF00",
+          "falseColor": "#404040"
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "widgets": [
+        {
+          "type": "Text Display",
+          "title": "Latest Alert Message",
+          "x": 0,
+          "y": 0,
+          "width": 6,
+          "height": 2,
+          "topic": "/Elastic/Alerts/LatestMessage"
+        },
+        {
+          "type": "Text Display",
+          "title": "Alert Level",
+          "x": 6,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Alerts/LatestLevel"
+        },
+        {
+          "type": "Number Display",
+          "title": "Alert Count",
+          "x": 9,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/Alerts/AlertCount"
+        },
+        {
+          "type": "Number Display",
+          "title": "Latest Timestamp",
+          "x": 6,
+          "y": 1,
+          "width": 6,
+          "height": 1,
+          "topic": "/Elastic/Alerts/LatestTimestamp"
+        }
+      ]
+    },
+    {
+      "name": "Match Data",
+      "widgets": [
+        {
+          "type": "Text Display",
+          "title": "Event Name",
+          "x": 0,
+          "y": 0,
+          "width": 4,
+          "height": 1,
+          "topic": "/Elastic/MatchData/EventName"
+        },
+        {
+          "type": "Number Display",
+          "title": "Match Number",
+          "x": 4,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "topic": "/Elastic/MatchData/MatchNumber"
+        },
+        {
+          "type": "Text Display",
+          "title": "Match Type",
+          "x": 6,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/MatchType"
+        },
+        {
+          "type": "Text Display",
+          "title": "Alliance Color",
+          "x": 9,
+          "y": 0,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/AllianceColor"
+        },
+        {
+          "type": "Boolean Box",
+          "title": "Match Active",
+          "x": 0,
+          "y": 1,
+          "width": 3,
+          "height": 2,
+          "topic": "/Elastic/MatchData/MatchActive",
+          "trueColor": "#00FF00",
+          "falseColor": "#808080"
+        },
+        {
+          "type": "Number Display",
+          "title": "Elapsed Time (s)",
+          "x": 3,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/ElapsedTime"
+        },
+        {
+          "type": "Number Display",
+          "title": "Duration (s)",
+          "x": 3,
+          "y": 2,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/Duration"
+        },
+        {
+          "type": "Number Display",
+          "title": "Start Time",
+          "x": 6,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/StartTime"
+        },
+        {
+          "type": "Number Display",
+          "title": "End Time",
+          "x": 9,
+          "y": 1,
+          "width": 3,
+          "height": 1,
+          "topic": "/Elastic/MatchData/EndTime"
+        }
+      ]
+    }
+  ]
+}

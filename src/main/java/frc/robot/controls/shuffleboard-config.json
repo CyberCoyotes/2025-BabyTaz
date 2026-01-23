@@ -26,24 +26,24 @@
               "0,0": {
                 "type": "Boolean Box",
                 "title": "Has Target",
-                "field": "Vision/HasTarget",
+                "field": "Elastic/Vision/LL4/HasTarget",
                 "colorWhenTrue": "#00FF00",
                 "colorWhenFalse": "#FF0000"
               },
               "0,1": {
                 "type": "Text View",
                 "title": "Tag ID",
-                "field": "Vision/TagID"
+                "field": "Elastic/Vision/LL4/TagID"
               },
               "0,2": {
                 "type": "Text View",
-                "title": "Pipeline",
-                "field": "Vision/Pipeline"
+                "title": "Vision State",
+                "field": "Elastic/Vision/State"
               },
               "0,3": {
                 "type": "Text View",
-                "title": "Consecutive Valid",
-                "field": "Vision/ConsecutiveValid"
+                "title": "Alignment State",
+                "field": "Elastic/Vision/AlignmentState"
               }
             }
           },
@@ -62,38 +62,41 @@
             "content": {
               "0,0": {
                 "type": "Linear Progress",
-                "title": "Confidence",
-                "field": "Vision/Confidence",
+                "title": "Detection Rate",
+                "field": "Elastic/Vision/Stats/DetectionRate",
                 "min": 0.0,
                 "max": 1.0
               },
               "0,1": {
                 "type": "Number Bar",
-                "title": "Distance (m)",
-                "field": "Vision/Distance",
+                "title": "Distance (cm)",
+                "field": "Elastic/Vision/LL4/Distance_CM",
                 "min": 0.0,
-                "max": 5.0,
-                "center": 2.5
+                "max": 500.0,
+                "center": 250.0
               },
               "0,2": {
-                "type": "Text View",
-                "title": "Tag Count",
-                "field": "Vision/TagCount"
+                "type": "Number Bar",
+                "title": "Yaw Angle (deg)",
+                "field": "Elastic/Vision/LL4/YawAngle_Deg",
+                "min": -30.0,
+                "max": 30.0,
+                "center": 0.0
               },
               "0,3": {
                 "type": "Number Bar",
-                "title": "Timestamp Dev",
-                "field": "Vision/TimestampDeviation",
-                "min": 0.0,
-                "max": 0.1,
-                "center": 0.05
+                "title": "Horizontal Offset (cm)",
+                "field": "Elastic/Vision/LL4/HorizontalOffset_CM",
+                "min": -100.0,
+                "max": 100.0,
+                "center": 0.0
               }
             }
           },
           {
             "type": "Graph",
             "title": "Vision Performance",
-            "field": ["Vision/Distance", "Vision/Confidence"],
+            "field": ["Elastic/Vision/LL4/Distance_CM", "Elastic/Vision/Stats/DetectionRatePercent"],
             "x": 6,
             "y": 0,
             "width": 6,
