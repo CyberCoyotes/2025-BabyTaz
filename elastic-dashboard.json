@@ -1,525 +1,867 @@
 {
-  "tabPane": [
+  "version": 1.0,
+  "grid_size": 128,
+  "tabs": [
     {
-      "title": "Overview",
-      "autoPopulate": false,
-      "autoPopulatePrefix": "",
-      "widgetPane": {
-        "gridSize": 32.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "widgets": [
+      "name": "Overview",
+      "grid_layout": {
+        "layouts": [
           {
-            "type": "Grid Layout",
             "title": "Match Status",
-            "gwidth": 6,
-            "gheight": 2,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 0,
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 2,
-              "Number of rows": 2
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Text View",
+            "children": [
+              {
                 "title": "Event Name",
-                "field": "Elastic/MatchData/EventName"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/EventName",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "1,0": {
-                "type": "Text View",
+              {
                 "title": "Match Number",
-                "field": "Elastic/MatchData/MatchNumber"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/MatchNumber",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,1": {
-                "type": "Text View",
+              {
                 "title": "Alliance",
-                "field": "Elastic/MatchData/AllianceColor"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/AllianceColor",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "1,1": {
-                "type": "Boolean Box",
+              {
                 "title": "Match Active",
-                "field": "Elastic/MatchData/MatchActive",
-                "colorWhenTrue": "#00FF00",
-                "colorWhenFalse": "#808080"
-              }
-            }
-          },
-          {
-            "type": "Grid Layout",
-            "title": "Power Status",
-            "gwidth": 6,
-            "gheight": 4,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 2,
-            "properties": {
-              "Number of columns": 2,
-              "Number of rows": 3
-            },
-            "content": {
-              "0,0": {
-                "type": "Voltage View",
-                "title": "Battery Voltage",
-                "field": "Elastic/Power/BatteryVoltage",
-                "min": 0.0,
-                "max": 13.0
-              },
-              "1,0": {
-                "type": "Text View",
-                "title": "Current (A)",
-                "field": "Elastic/Power/InputCurrent"
-              },
-              "0,1": {
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Boolean Box",
-                "title": "Brownout",
-                "field": "Elastic/Power/BrownedOut",
-                "colorWhenTrue": "#FF0000",
-                "colorWhenFalse": "#00FF00"
-              },
-              "1,1": {
-                "type": "Text View",
-                "title": "Power (W)",
-                "field": "Elastic/Power/PowerWatts"
-              },
-              "0,2": {
-                "type": "Text View",
-                "title": "Min Voltage",
-                "field": "Elastic/Power/MinVoltage"
-              },
-              "1,2": {
-                "type": "Text View",
-                "title": "Cycle Time (ms)",
-                "field": "Elastic/Performance/CycleTimeMs"
+                "properties": {
+                  "topic": "/Elastic/MatchData/MatchActive",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4286611584
+                }
               }
-            }
+            ]
           },
           {
-            "type": "Grid Layout",
+            "title": "Power Status",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Battery Voltage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Voltage View",
+                "properties": {
+                  "topic": "/Elastic/Power/BatteryVoltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "min": 0.0,
+                  "max": 13.0,
+                  "orientation": "horizontal"
+                }
+              },
+              {
+                "title": "Current (A)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/InputCurrent",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Power (W)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/PowerWatts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Min Voltage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/MinVoltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Brownout",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/Power/BrownedOut",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4278255360
+                }
+              },
+              {
+                "title": "Cycle Time (ms)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Performance/CycleTimeMs",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
             "title": "Alerts",
-            "gwidth": 6,
-            "gheight": 2,
-            "layout": "List Layout",
-            "x": 6,
-            "y": 0,
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 2,
-              "Number of rows": 2
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Text View",
+            "children": [
+              {
                 "title": "Latest Alert",
-                "field": "Elastic/Alerts/LatestMessage"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/LatestMessage",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "1,0": {
-                "type": "Text View",
+              {
                 "title": "Alert Level",
-                "field": "Elastic/Alerts/LatestLevel"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/LatestLevel",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "0,1": {
-                "type": "Text View",
+              {
                 "title": "Alert Count",
-                "field": "Elastic/Alerts/AlertCount"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/AlertCount",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "1,1": {
-                "type": "Text View",
+              {
                 "title": "Max Cycle (ms)",
-                "field": "Elastic/Performance/MaxCycleTimeMs"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Performance/MaxCycleTimeMs",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               }
-            }
-          },
+            ]
+          }
+        ],
+        "containers": [
           {
-            "type": "Graph",
             "title": "Power Monitor",
-            "x": 6,
-            "y": 2,
-            "width": 6,
-            "height": 4,
+            "x": 0.0,
+            "y": 256.0,
+            "width": 768.0,
+            "height": 384.0,
+            "type": "Graph",
             "properties": {
-              "Visible time": 30.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Power/BatteryVoltage", "Elastic/Power/InputCurrent"]
+              "topic": "/Elastic/Power/BatteryVoltage",
+              "period": 0.06,
+              "visible_time": 30.0
+            }
           }
         ]
       }
     },
     {
-      "title": "Vision",
-      "autoPopulate": false,
-      "autoPopulatePrefix": "",
-      "widgetPane": {
-        "gridSize": 32.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "widgets": [
+      "name": "Vision",
+      "grid_layout": {
+        "layouts": [
           {
-            "type": "Grid Layout",
             "title": "Vision Status",
-            "gwidth": 4,
-            "gheight": 3,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 0,
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 1,
-              "Number of rows": 3
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Text View",
+            "children": [
+              {
                 "title": "Vision State",
-                "field": "Elastic/Vision/State"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "0,1": {
-                "type": "Text View",
+              {
                 "title": "Vision Mode",
-                "field": "Elastic/Vision/Mode"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/Mode",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "0,2": {
-                "type": "Text View",
+              {
                 "title": "Alignment State",
-                "field": "Elastic/Vision/AlignmentState"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/AlignmentState",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               }
-            }
+            ]
           },
           {
-            "type": "Grid Layout",
             "title": "Target Detection",
-            "gwidth": 3,
-            "gheight": 4,
-            "layout": "List Layout",
-            "x": 4,
-            "y": 0,
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 1,
-              "Number of rows": 4
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Boolean Box",
+            "children": [
+              {
                 "title": "Has Target",
-                "field": "Elastic/Vision/LL4/HasTarget",
-                "colorWhenTrue": "#00FF00",
-                "colorWhenFalse": "#FF0000"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/Vision/LL4/HasTarget",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760
+                }
               },
-              "0,1": {
-                "type": "Text View",
+              {
                 "title": "AprilTag ID",
-                "field": "Elastic/Vision/LL4/TagID"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/LL4/TagID",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,2": {
-                "type": "Text View",
+              {
                 "title": "Distance (cm)",
-                "field": "Elastic/Vision/LL4/Distance_CM"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/LL4/Distance_CM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,3": {
-                "type": "Text View",
+              {
                 "title": "Yaw Angle (°)",
-                "field": "Elastic/Vision/LL4/YawAngle_Deg"
-              }
-            }
-          },
-          {
-            "type": "Grid Layout",
-            "title": "Target Metrics",
-            "gwidth": 3,
-            "gheight": 4,
-            "layout": "List Layout",
-            "x": 7,
-            "y": 0,
-            "properties": {
-              "Number of columns": 1,
-              "Number of rows": 4
-            },
-            "content": {
-              "0,0": {
-                "type": "Number Bar",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/LL4/YawAngle_Deg",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
                 "title": "Horizontal Offset (cm)",
-                "field": "Elastic/Vision/LL4/HorizontalOffset_CM",
-                "min": -100.0,
-                "max": 100.0,
-                "center": 0.0
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/LL4/HorizontalOffset_CM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "Vision Stats",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Detection Rate (%)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/Stats/DetectionRatePercent",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,1": {
-                "type": "Text View",
-                "title": "TX Raw",
-                "field": "Elastic/Vision/LL4/TX_Raw"
-              },
-              "0,2": {
-                "type": "Linear Progress",
-                "title": "Detection Rate",
-                "field": "Elastic/Vision/Stats/DetectionRate",
-                "min": 0.0,
-                "max": 1.0
-              },
-              "0,3": {
-                "type": "Text View",
+              {
                 "title": "Avg Distance",
-                "field": "Elastic/Vision/Stats/AvgDistance"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/Stats/AvgDistance",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Targets Detected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/Stats/TargetsDetected",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Total Cycles",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Vision/Stats/TotalCycles",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "title": "Vision Distance",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Elastic/Vision/LL4/Distance_CM",
+              "period": 0.06,
+              "visible_time": 30.0
             }
           },
           {
-            "type": "Graph",
-            "title": "Vision Distance & Detection",
-            "x": 0,
-            "y": 4,
-            "width": 6,
-            "height": 4,
-            "properties": {
-              "Visible time": 30.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Vision/LL4/Distance_CM", "Elastic/Vision/Stats/DetectionRatePercent"]
-          },
-          {
-            "type": "Graph",
             "title": "Vision Angles",
-            "x": 6,
-            "y": 4,
-            "width": 6,
-            "height": 4,
+            "x": 512.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Graph",
             "properties": {
-              "Visible time": 30.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Vision/LL4/YawAngle_Deg", "Elastic/Vision/LL4/HorizontalOffset_CM"]
+              "topic": "/Elastic/Vision/LL4/YawAngle_Deg",
+              "period": 0.06,
+              "visible_time": 30.0
+            }
           }
         ]
       }
     },
     {
-      "title": "Power & Performance",
-      "autoPopulate": false,
-      "autoPopulatePrefix": "",
-      "widgetPane": {
-        "gridSize": 32.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "widgets": [
+      "name": "Power & Performance",
+      "grid_layout": {
+        "layouts": [
           {
-            "type": "Grid Layout",
-            "title": "Power Status",
-            "gwidth": 3,
-            "gheight": 5,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 0,
+            "title": "Power",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 1,
-              "Number of rows": 5
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Voltage View",
+            "children": [
+              {
                 "title": "Battery Voltage",
-                "field": "Elastic/Power/BatteryVoltage",
-                "min": 0.0,
-                "max": 13.0
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Voltage View",
+                "properties": {
+                  "topic": "/Elastic/Power/BatteryVoltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "min": 0.0,
+                  "max": 13.0,
+                  "orientation": "horizontal"
+                }
               },
-              "0,1": {
-                "type": "Text View",
+              {
                 "title": "Current (A)",
-                "field": "Elastic/Power/InputCurrent"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/InputCurrent",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,2": {
-                "type": "Text View",
+              {
                 "title": "Power (W)",
-                "field": "Elastic/Power/PowerWatts"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/PowerWatts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,3": {
-                "type": "Text View",
+              {
                 "title": "Min Voltage",
-                "field": "Elastic/Power/MinVoltage"
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Power/MinVoltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,4": {
-                "type": "Boolean Box",
+              {
                 "title": "Brownout",
-                "field": "Elastic/Power/BrownedOut",
-                "colorWhenTrue": "#FF0000",
-                "colorWhenFalse": "#00FF00"
-              }
-            }
-          },
-          {
-            "type": "Graph",
-            "title": "Voltage History",
-            "x": 3,
-            "y": 0,
-            "width": 6,
-            "height": 3,
-            "properties": {
-              "Visible time": 60.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Power/BatteryVoltage", "Elastic/Power/MinVoltage"]
-          },
-          {
-            "type": "Graph",
-            "title": "Current & Power",
-            "x": 9,
-            "y": 0,
-            "width": 6,
-            "height": 3,
-            "properties": {
-              "Visible time": 60.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Power/InputCurrent", "Elastic/Power/PowerWatts"]
-          },
-          {
-            "type": "Grid Layout",
-            "title": "Performance",
-            "gwidth": 3,
-            "gheight": 2,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 5,
-            "properties": {
-              "Number of columns": 1,
-              "Number of rows": 2
-            },
-            "content": {
-              "0,0": {
-                "type": "Text View",
-                "title": "Cycle Time (ms)",
-                "field": "Elastic/Performance/CycleTimeMs"
-              },
-              "0,1": {
-                "type": "Text View",
-                "title": "Max Cycle Time (ms)",
-                "field": "Elastic/Performance/MaxCycleTimeMs"
-              }
-            }
-          },
-          {
-            "type": "Graph",
-            "title": "Robot Loop Performance",
-            "x": 3,
-            "y": 3,
-            "width": 6,
-            "height": 3,
-            "properties": {
-              "Visible time": 30.0,
-              "Unit": "seconds"
-            },
-            "field": ["Elastic/Performance/CycleTimeMs", "Elastic/Performance/MaxCycleTimeMs"]
-          }
-        ]
-      }
-    },
-    {
-      "title": "Match Data",
-      "autoPopulate": false,
-      "autoPopulatePrefix": "",
-      "widgetPane": {
-        "gridSize": 32.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "widgets": [
-          {
-            "type": "Grid Layout",
-            "title": "Match Information",
-            "gwidth": 5,
-            "gheight": 6,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 0,
-            "properties": {
-              "Number of columns": 1,
-              "Number of rows": 6
-            },
-            "content": {
-              "0,0": {
-                "type": "Text View",
-                "title": "Event Name",
-                "field": "Elastic/MatchData/EventName"
-              },
-              "0,1": {
-                "type": "Text View",
-                "title": "Match Number",
-                "field": "Elastic/MatchData/MatchNumber"
-              },
-              "0,2": {
-                "type": "Text View",
-                "title": "Match Type",
-                "field": "Elastic/MatchData/MatchType"
-              },
-              "0,3": {
-                "type": "Text View",
-                "title": "Alliance Color",
-                "field": "Elastic/MatchData/AllianceColor"
-              },
-              "0,4": {
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
-                "title": "Match Active",
-                "field": "Elastic/MatchData/MatchActive",
-                "colorWhenTrue": "#00FF00",
-                "colorWhenFalse": "#808080"
-              },
-              "0,5": {
-                "type": "Text View",
-                "title": "Elapsed Time (s)",
-                "field": "Elastic/MatchData/ElapsedTime"
+                "properties": {
+                  "topic": "/Elastic/Power/BrownedOut",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4278255360
+                }
               }
+            ]
+          },
+          {
+            "title": "Performance",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Cycle Time (ms)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Performance/CycleTimeMs",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Max Cycle Time (ms)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Performance/MaxCycleTimeMs",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "title": "Voltage History",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Elastic/Power/BatteryVoltage",
+              "period": 0.06,
+              "visible_time": 60.0
+            }
+          },
+          {
+            "title": "Current & Power",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Elastic/Power/InputCurrent",
+              "period": 0.06,
+              "visible_time": 60.0
+            }
+          },
+          {
+            "title": "Loop Performance",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Elastic/Performance/CycleTimeMs",
+              "period": 0.06,
+              "visible_time": 30.0
             }
           }
         ]
       }
     },
     {
-      "title": "Alerts",
-      "autoPopulate": false,
-      "autoPopulatePrefix": "",
-      "widgetPane": {
-        "gridSize": 32.0,
-        "showGrid": true,
-        "hgap": 16.0,
-        "vgap": 16.0,
-        "widgets": [
+      "name": "Match Data",
+      "grid_layout": {
+        "layouts": [
           {
-            "type": "Grid Layout",
-            "title": "System Alerts",
-            "gwidth": 6,
-            "gheight": 4,
-            "layout": "List Layout",
-            "x": 0,
-            "y": 0,
+            "title": "Match Information",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 384.0,
+            "type": "List Layout",
             "properties": {
-              "Number of columns": 1,
-              "Number of rows": 4
+              "label_position": "TOP"
             },
-            "content": {
-              "0,0": {
-                "type": "Text View",
-                "title": "Latest Alert",
-                "field": "Elastic/Alerts/LatestMessage"
+            "children": [
+              {
+                "title": "Event Name",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/EventName",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "0,1": {
-                "type": "Text View",
-                "title": "Alert Level",
-                "field": "Elastic/Alerts/LatestLevel"
+              {
+                "title": "Match Number",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/MatchNumber",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               },
-              "0,2": {
-                "type": "Text View",
-                "title": "Alert Count",
-                "field": "Elastic/Alerts/AlertCount"
+              {
+                "title": "Match Type",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/MatchType",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               },
-              "0,3": {
-                "type": "Text View",
-                "title": "Timestamp",
-                "field": "Elastic/Alerts/LatestTimestamp"
+              {
+                "title": "Alliance Color",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/AllianceColor",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Match Active",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/MatchData/MatchActive",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4286611584
+                }
+              },
+              {
+                "title": "Elapsed Time (s)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/MatchData/ElapsedTime",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
               }
-            }
+            ]
           }
-        ]
+        ],
+        "containers": []
+      }
+    },
+    {
+      "name": "Alerts",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "System Alerts",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Latest Alert",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 384.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/LatestMessage",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Alert Level",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/LatestLevel",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Alert Count",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/AlertCount",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Timestamp",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Alerts/LatestTimestamp",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": []
       }
     }
   ]
