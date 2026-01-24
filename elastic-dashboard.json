@@ -11,110 +11,131 @@
         "vgap": 16.0,
         "widgets": [
           {
-            "type": "Text Display",
-            "title": "Match Info",
+            "type": "Grid Layout",
+            "title": "Match Status",
+            "gwidth": 6,
+            "gheight": 2,
+            "layout": "List Layout",
             "x": 0,
             "y": 0,
-            "width": 3,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/MatchData/EventName"
-          },
-          {
-            "type": "Text Display",
-            "title": "Match Number",
-            "x": 3,
-            "y": 0,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/MatchData/MatchNumber"
-          },
-          {
-            "type": "Text Display",
-            "title": "Alliance",
-            "x": 4,
-            "y": 0,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/MatchData/AllianceColor"
-          },
-          {
-            "type": "Boolean Box",
-            "title": "Match Active",
-            "x": 5,
-            "y": 0,
-            "width": 1,
-            "height": 1,
             "properties": {
-              "colorWhenTrue": "#00FF00",
-              "colorWhenFalse": "#808080"
+              "Number of columns": 2,
+              "Number of rows": 2
             },
-            "field": "Elastic/MatchData/MatchActive"
+            "content": {
+              "0,0": {
+                "type": "Text View",
+                "title": "Event Name",
+                "field": "Elastic/MatchData/EventName"
+              },
+              "1,0": {
+                "type": "Text View",
+                "title": "Match Number",
+                "field": "Elastic/MatchData/MatchNumber"
+              },
+              "0,1": {
+                "type": "Text View",
+                "title": "Alliance",
+                "field": "Elastic/MatchData/AllianceColor"
+              },
+              "1,1": {
+                "type": "Boolean Box",
+                "title": "Match Active",
+                "field": "Elastic/MatchData/MatchActive",
+                "colorWhenTrue": "#00FF00",
+                "colorWhenFalse": "#808080"
+              }
+            }
           },
           {
-            "type": "Voltage View",
-            "title": "Battery Voltage",
+            "type": "Grid Layout",
+            "title": "Power Status",
+            "gwidth": 6,
+            "gheight": 4,
+            "layout": "List Layout",
             "x": 0,
-            "y": 1,
-            "width": 2,
-            "height": 3,
-            "properties": {
-              "Min": 0.0,
-              "Max": 13.0,
-              "Orientation": "VERTICAL"
-            },
-            "field": "Elastic/Power/BatteryVoltage"
-          },
-          {
-            "type": "Text Display",
-            "title": "Current (A)",
-            "x": 2,
-            "y": 1,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Power/InputCurrent"
-          },
-          {
-            "type": "Text Display",
-            "title": "Power (W)",
-            "x": 2,
             "y": 2,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Power/PowerWatts"
-          },
-          {
-            "type": "Boolean Box",
-            "title": "Brownout",
-            "x": 3,
-            "y": 1,
-            "width": 1,
-            "height": 1,
             "properties": {
-              "colorWhenTrue": "#FF0000",
-              "colorWhenFalse": "#00FF00"
+              "Number of columns": 2,
+              "Number of rows": 3
             },
-            "field": "Elastic/Power/BrownedOut"
+            "content": {
+              "0,0": {
+                "type": "Voltage View",
+                "title": "Battery Voltage",
+                "field": "Elastic/Power/BatteryVoltage",
+                "min": 0.0,
+                "max": 13.0
+              },
+              "1,0": {
+                "type": "Text View",
+                "title": "Current (A)",
+                "field": "Elastic/Power/InputCurrent"
+              },
+              "0,1": {
+                "type": "Boolean Box",
+                "title": "Brownout",
+                "field": "Elastic/Power/BrownedOut",
+                "colorWhenTrue": "#FF0000",
+                "colorWhenFalse": "#00FF00"
+              },
+              "1,1": {
+                "type": "Text View",
+                "title": "Power (W)",
+                "field": "Elastic/Power/PowerWatts"
+              },
+              "0,2": {
+                "type": "Text View",
+                "title": "Min Voltage",
+                "field": "Elastic/Power/MinVoltage"
+              },
+              "1,2": {
+                "type": "Text View",
+                "title": "Cycle Time (ms)",
+                "field": "Elastic/Performance/CycleTimeMs"
+              }
+            }
           },
           {
-            "type": "Text Display",
-            "title": "Min Voltage",
-            "x": 3,
-            "y": 2,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Power/MinVoltage"
+            "type": "Grid Layout",
+            "title": "Alerts",
+            "gwidth": 6,
+            "gheight": 2,
+            "layout": "List Layout",
+            "x": 6,
+            "y": 0,
+            "properties": {
+              "Number of columns": 2,
+              "Number of rows": 2
+            },
+            "content": {
+              "0,0": {
+                "type": "Text View",
+                "title": "Latest Alert",
+                "field": "Elastic/Alerts/LatestMessage"
+              },
+              "1,0": {
+                "type": "Text View",
+                "title": "Alert Level",
+                "field": "Elastic/Alerts/LatestLevel"
+              },
+              "0,1": {
+                "type": "Text View",
+                "title": "Alert Count",
+                "field": "Elastic/Alerts/AlertCount"
+              },
+              "1,1": {
+                "type": "Text View",
+                "title": "Max Cycle (ms)",
+                "field": "Elastic/Performance/MaxCycleTimeMs"
+              }
+            }
           },
           {
             "type": "Graph",
             "title": "Power Monitor",
             "x": 6,
-            "y": 0,
+            "y": 2,
             "width": 6,
             "height": 4,
             "properties": {
@@ -122,46 +143,6 @@
               "Unit": "seconds"
             },
             "field": ["Elastic/Power/BatteryVoltage", "Elastic/Power/InputCurrent"]
-          },
-          {
-            "type": "Text Display",
-            "title": "Latest Alert",
-            "x": 0,
-            "y": 4,
-            "width": 4,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Alerts/LatestMessage"
-          },
-          {
-            "type": "Text Display",
-            "title": "Alert Level",
-            "x": 4,
-            "y": 4,
-            "width": 1,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Alerts/LatestLevel"
-          },
-          {
-            "type": "Text Display",
-            "title": "Cycle Time (ms)",
-            "x": 0,
-            "y": 5,
-            "width": 2,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Performance/CycleTimeMs"
-          },
-          {
-            "type": "Text Display",
-            "title": "Max Cycle (ms)",
-            "x": 2,
-            "y": 5,
-            "width": 2,
-            "height": 1,
-            "properties": {},
-            "field": "Elastic/Performance/MaxCycleTimeMs"
           }
         ]
       }
@@ -287,7 +268,7 @@
             "type": "Graph",
             "title": "Vision Distance & Detection",
             "x": 0,
-            "y": 3,
+            "y": 4,
             "width": 6,
             "height": 4,
             "properties": {
@@ -300,7 +281,7 @@
             "type": "Graph",
             "title": "Vision Angles",
             "x": 6,
-            "y": 3,
+            "y": 4,
             "width": 6,
             "height": 4,
             "properties": {
