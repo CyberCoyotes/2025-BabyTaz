@@ -25,6 +25,8 @@ import edu.wpi.first.networktables.DoublePublisher;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.controls.OperatorBindings;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -44,6 +46,9 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final ShooterSubsystem shooter = new ShooterSubsystem();
+
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -69,6 +74,9 @@ public class RobotContainer {
         SmartDashboard.putData("Elastic/Autonomous/AutoChooser", autoChooser);
 
         configureBindings();
+
+        // Operator controller bindings for shooter
+        new OperatorBindings(operatorController, shooter);
     }
 
     private void configureBindings() {

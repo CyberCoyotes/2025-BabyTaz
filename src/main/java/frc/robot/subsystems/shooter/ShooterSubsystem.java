@@ -1,0 +1,298 @@
+package frc.robot.subsystems.shooter;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.robot.util.TunableNumber;
+
+import org.littletonrobotics.junction.Logger;
+
+/**
+ * Minimal shooter subsystem for prototype testing on BabyTaz.
+ * Controls 3 TalonFX flywheel motors in a leader-follower configuration.
+ *
+ * Motor A (CAN 25) = Leader
+ * Motor B (CAN 26) = Follower
+ * Motor C (CAN 27) = Follower
+ *
+ * Uses VelocityVoltage with FOC for closed-loop RPM control.
+ * Target RPM is tunable live from Elastic Dashboard.
+ */
+public class ShooterSubsystem extends SubsystemBase {
+
+    // ====== CONSTANTS ======
+    public static final int FLYWHEEL_A_ID = 25;
+    public static final int FLYWHEEL_B_ID = 26;
+    public static final int FLYWHEEL_C_ID = 27;
+
+    private static final double GEAR_RATIO = 1.5; // Motor rotations per flywheel rotation
+
+    // ====== HARDWARE ======
+    private final TalonFX flywheelA = new TalonFX(FLYWHEEL_A_ID);
+    private final TalonFX flywheelB = new TalonFX(FLYWHEEL_B_ID);
+    private final TalonFX flywheelC = new TalonFX(FLYWHEEL_C_ID);
+
+    // ====== CONTROL REQUESTS ======
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0)
+            .withEnableFOC(true)
+            .withSlot(0);
+
+    // ====== STATUS SIGNALS ======
+    private final StatusSignal<AngularVelocity> velocityA;
+    private final StatusSignal<AngularVelocity> velocityB;
+    private final StatusSignal<AngularVelocity> velocityC;
+    private final StatusSignal<Voltage> voltageA;
+    private final StatusSignal<Current> currentA;
+    private final StatusSignal<Current> currentB;
+    private final StatusSignal<Current> currentC;
+    private final StatusSignal<Temperature> tempA;
+    private final StatusSignal<Temperature> tempB;
+    private final StatusSignal<Temperature> tempC;
+
+    // ====== TUNABLE PARAMETERS (editable from Elastic Dashboard) ======
+    private final TunableNumber targetRPM = new TunableNumber("Shooter", "TargetRPM", 0.0, 0, 0, 2, 1);
+    private final TunableNumber kP = new TunableNumber("Shooter", "kP", 0.1, 0, 0, 1, 1);
+    private final TunableNumber kV = new TunableNumber("Shooter", "kV", 0.12, 0, 0, 1, 1);
+    private final TunableNumber kS = new TunableNumber("Shooter", "kS", 0.0, 0, 0, 1, 1);
+
+    // ====== TELEMETRY ======
+    private final NetworkTable elasticTable;
+
+    // ====== STATE ======
+    private boolean running = false;
+
+    public ShooterSubsystem() {
+        configureMotors();
+        configureFollowers();
+
+        // Cache status signals
+        velocityA = flywheelA.getRotorVelocity();
+        velocityB = flywheelB.getRotorVelocity();
+        velocityC = flywheelC.getRotorVelocity();
+        voltageA = flywheelA.getMotorVoltage();
+        currentA = flywheelA.getStatorCurrent();
+        currentB = flywheelB.getStatorCurrent();
+        currentC = flywheelC.getStatorCurrent();
+        tempA = flywheelA.getDeviceTemp();
+        tempB = flywheelB.getDeviceTemp();
+        tempC = flywheelC.getDeviceTemp();
+
+        // Set update frequencies
+        BaseStatusSignal.setUpdateFrequencyForAll(100, velocityA, velocityB, velocityC, voltageA);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, currentA, currentB, currentC);
+        BaseStatusSignal.setUpdateFrequencyForAll(4, tempA, tempB, tempC);
+
+        // Optimize CAN bus usage
+        flywheelA.optimizeBusUtilization();
+        flywheelB.optimizeBusUtilization();
+        flywheelC.optimizeBusUtilization();
+
+        // Elastic Dashboard table
+        elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("Shooter");
+    }
+
+    private void configureMotors() {
+        var config = new TalonFXConfiguration();
+
+        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        config.CurrentLimits.SupplyCurrentLimit = 60.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit = 80.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Velocity PID - Slot 0
+        config.Slot0.kP = kP.getDefault();
+        config.Slot0.kI = 0.0;
+        config.Slot0.kD = 0.0;
+        config.Slot0.kV = kV.getDefault();
+        config.Slot0.kS = kS.getDefault();
+
+        flywheelA.getConfigurator().apply(config);
+        flywheelB.getConfigurator().apply(config);
+        flywheelC.getConfigurator().apply(config);
+    }
+
+    private void configureFollowers() {
+        // B and C follow A, same direction
+        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false));
+        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
+    }
+
+    @Override
+    public void periodic() {
+        // Refresh all status signals in one batch
+        BaseStatusSignal.refreshAll(
+                velocityA, velocityB, velocityC,
+                voltageA, currentA, currentB, currentC,
+                tempA, tempB, tempC);
+
+        // Check for live PID changes from Elastic
+        if (kP.hasChanged() || kV.hasChanged() || kS.hasChanged()) {
+            applyPIDUpdates();
+        }
+
+        // If running, apply the current tunable target
+        if (running) {
+            double rps = rpmToMotorRPS(targetRPM.get());
+            flywheelA.setControl(velocityRequest.withVelocity(rps));
+        }
+
+        updateTelemetry();
+    }
+
+    // ====== PUBLIC API ======
+
+    /** Spin flywheels at the current dashboard target RPM. */
+    public void run() {
+        running = true;
+        double rps = rpmToMotorRPS(targetRPM.get());
+        flywheelA.setControl(velocityRequest.withVelocity(rps));
+    }
+
+    /** Spin flywheels at a specific RPM (also updates the dashboard value). */
+    public void runAtRPM(double rpm) {
+        targetRPM.set(rpm);
+        running = true;
+        double rps = rpmToMotorRPS(rpm);
+        flywheelA.setControl(velocityRequest.withVelocity(rps));
+    }
+
+    /** Stop all flywheels (coast). */
+    public void stop() {
+        running = false;
+        flywheelA.stopMotor();
+        // Followers will stop automatically, but be explicit
+        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false));
+        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
+    }
+
+    /** Get averaged flywheel RPM across all 3 motors. */
+    public double getAverageRPM() {
+        double avgRPS = (velocityA.getValueAsDouble()
+                + velocityB.getValueAsDouble()
+                + velocityC.getValueAsDouble()) / 3.0;
+        return motorRPSToRPM(avgRPS);
+    }
+
+    /** Get RPM for a specific motor (0=A, 1=B, 2=C). */
+    public double getMotorRPM(int index) {
+        return switch (index) {
+            case 0 -> motorRPSToRPM(velocityA.getValueAsDouble());
+            case 1 -> motorRPSToRPM(velocityB.getValueAsDouble());
+            case 2 -> motorRPSToRPM(velocityC.getValueAsDouble());
+            default -> 0.0;
+        };
+    }
+
+    /** Get total stator current draw across all 3 motors. */
+    public double getTotalCurrentAmps() {
+        return currentA.getValueAsDouble()
+                + currentB.getValueAsDouble()
+                + currentC.getValueAsDouble();
+    }
+
+    /** Get max temperature across all 3 motors. */
+    public double getMaxTempCelsius() {
+        return Math.max(tempA.getValueAsDouble(),
+                Math.max(tempB.getValueAsDouble(), tempC.getValueAsDouble()));
+    }
+
+    /** Get the maximum RPM spread between motors (useful for detecting follower issues). */
+    public double getVelocitySpread() {
+        double a = motorRPSToRPM(velocityA.getValueAsDouble());
+        double b = motorRPSToRPM(velocityB.getValueAsDouble());
+        double c = motorRPSToRPM(velocityC.getValueAsDouble());
+        double max = Math.max(a, Math.max(b, c));
+        double min = Math.min(a, Math.min(b, c));
+        return max - min;
+    }
+
+    /** Check if flywheels are within 5% of the target RPM. */
+    public boolean isAtTargetRPM() {
+        double target = targetRPM.get();
+        if (Math.abs(target) < 50) {
+            return Math.abs(getAverageRPM()) < 50;
+        }
+        return Math.abs(getAverageRPM() - target) < Math.abs(target) * 0.05;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public double getTargetRPM() {
+        return targetRPM.get();
+    }
+
+    // ====== PRIVATE HELPERS ======
+
+    private void applyPIDUpdates() {
+        var config = new TalonFXConfiguration();
+        // Re-read current config, then override PID
+        flywheelA.getConfigurator().refresh(config);
+        config.Slot0.kP = kP.get();
+        config.Slot0.kV = kV.get();
+        config.Slot0.kS = kS.get();
+        flywheelA.getConfigurator().apply(config);
+        flywheelB.getConfigurator().apply(config);
+        flywheelC.getConfigurator().apply(config);
+    }
+
+    /** Convert flywheel RPM to motor RPS (accounting for gear ratio). */
+    private double rpmToMotorRPS(double rpm) {
+        return (rpm / 60.0) * GEAR_RATIO;
+    }
+
+    /** Convert motor RPS to flywheel RPM (accounting for gear ratio). */
+    private double motorRPSToRPM(double rps) {
+        return (rps * 60.0) / GEAR_RATIO;
+    }
+
+    private void updateTelemetry() {
+        double avgRPM = getAverageRPM();
+        double target = targetRPM.get();
+
+        // AdvantageKit logging
+        Logger.recordOutput("Shooter/Running", running);
+        Logger.recordOutput("Shooter/TargetRPM", target);
+        Logger.recordOutput("Shooter/AverageRPM", avgRPM);
+        Logger.recordOutput("Shooter/RPMError", target - avgRPM);
+        Logger.recordOutput("Shooter/AtTarget", isAtTargetRPM());
+        Logger.recordOutput("Shooter/MotorA_RPM", getMotorRPM(0));
+        Logger.recordOutput("Shooter/MotorB_RPM", getMotorRPM(1));
+        Logger.recordOutput("Shooter/MotorC_RPM", getMotorRPM(2));
+        Logger.recordOutput("Shooter/VelocitySpread", getVelocitySpread());
+        Logger.recordOutput("Shooter/TotalCurrentAmps", getTotalCurrentAmps());
+        Logger.recordOutput("Shooter/MaxTempC", getMaxTempCelsius());
+        Logger.recordOutput("Shooter/AppliedVolts", voltageA.getValueAsDouble());
+
+        // Elastic Dashboard (live display)
+        elasticTable.getEntry("Running").setBoolean(running);
+        elasticTable.getEntry("TargetRPM").setDouble(target);
+        elasticTable.getEntry("AverageRPM").setDouble(avgRPM);
+        elasticTable.getEntry("RPMError").setDouble(target - avgRPM);
+        elasticTable.getEntry("AtTarget").setBoolean(isAtTargetRPM());
+        elasticTable.getEntry("MotorA_RPM").setDouble(getMotorRPM(0));
+        elasticTable.getEntry("MotorB_RPM").setDouble(getMotorRPM(1));
+        elasticTable.getEntry("MotorC_RPM").setDouble(getMotorRPM(2));
+        elasticTable.getEntry("VelocitySpread").setDouble(getVelocitySpread());
+        elasticTable.getEntry("TotalAmps").setDouble(getTotalCurrentAmps());
+        elasticTable.getEntry("MaxTempC").setDouble(getMaxTempCelsius());
+    }
+}
