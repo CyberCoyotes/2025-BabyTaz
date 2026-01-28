@@ -131,9 +131,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private void configureFollowers() {
         // B and C follow A, same direction
 
-        // FIXME Phoenix 6 (2026) changed the Follower constructor — it takes a MotorAlignmentValue enum instead of a boolean. 
-        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false)); 
-        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
+        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
+        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
     }
 
     @Override
@@ -180,10 +179,9 @@ public class ShooterSubsystem extends SubsystemBase {
         running = false;
         flywheelA.stopMotor();
         // Followers will stop automatically, but be explicit
-
-        // FIXME Phoenix 6 (2026) changed the Follower constructor — it takes a MotorAlignmentValue enum instead of a boolean.
-        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false));
-        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
+        // NOTE Be aware of this 2026 Follower constructor change!
+        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
+        flywheelC.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
     }
 
     /** Get averaged flywheel RPM across all 3 motors. */
