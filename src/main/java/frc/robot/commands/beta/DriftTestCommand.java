@@ -40,6 +40,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
  * 
  * @author CyberCoyotes - Educational Drift Testing
  */
+@ SuppressWarnings("unused")
+
 public class DriftTestCommand extends Command {
     
     // ============ CONFIGURATION ============
