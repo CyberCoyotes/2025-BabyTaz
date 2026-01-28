@@ -21,7 +21,10 @@
       "Bash(.gradlew.bat build)",
       "Bash(gradlew.bat build:*)",
       "Bash(cmd /c:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(gradlew build:*)",
+      "Bash(cmd.exe /c \"gradlew.bat build --warning-mode none\")",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\jvanscoyoc\\\\Git\\\\2025-BabyTaz && gradlew.bat build --warning-mode none 2>&1\":*)"
     ]
   }
 }

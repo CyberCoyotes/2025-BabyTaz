@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue; // Added for Phoenix 6 (2026) Follower constructor
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -38,18 +39,22 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final int FLYWHEEL_A_ID = 25;
     public static final int FLYWHEEL_B_ID = 26;
     public static final int FLYWHEEL_C_ID = 27;
+    public static final int INDEXER_ID = 99; // TODO: Assign actual CAN ID
 
     private static final double GEAR_RATIO = 1.5; // Motor rotations per flywheel rotation
+    private static final double INDEXER_DEFAULT_OUTPUT = 0.8; // Default duty cycle for indexer
 
     // ====== HARDWARE ======
     private final TalonFX flywheelA = new TalonFX(FLYWHEEL_A_ID);
     private final TalonFX flywheelB = new TalonFX(FLYWHEEL_B_ID);
     private final TalonFX flywheelC = new TalonFX(FLYWHEEL_C_ID);
+    private final TalonFX indexer = new TalonFX(INDEXER_ID);
 
     // ====== CONTROL REQUESTS ======
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0)
             .withEnableFOC(true)
             .withSlot(0);
+    private final DutyCycleOut indexerDutyCycle = new DutyCycleOut(0);
 
     // ====== STATUS SIGNALS ======
     private final StatusSignal<AngularVelocity> velocityA;
@@ -62,22 +67,28 @@ public class ShooterSubsystem extends SubsystemBase {
     private final StatusSignal<Temperature> tempA;
     private final StatusSignal<Temperature> tempB;
     private final StatusSignal<Temperature> tempC;
+    private final StatusSignal<Current> indexerCurrent;
+    private final StatusSignal<Temperature> indexerTemp;
 
     // ====== TUNABLE PARAMETERS (editable from Elastic Dashboard) ======
     private final TunableNumber targetRPM = new TunableNumber("Shooter", "TargetRPM", 0.0, 0, 0, 2, 1);
     private final TunableNumber kP = new TunableNumber("Shooter", "kP", 0.1, 0, 0, 1, 1);
     private final TunableNumber kV = new TunableNumber("Shooter", "kV", 0.12, 0, 0, 1, 1);
     private final TunableNumber kS = new TunableNumber("Shooter", "kS", 0.0, 0, 0, 1, 1);
+    private final TunableNumber indexerOutput = new TunableNumber("Shooter", "IndexerOutput", INDEXER_DEFAULT_OUTPUT, 0, 0, 2, 1);
+    private final TunableNumber spinUpTolerance = new TunableNumber("Shooter", "SpinUpTolerance", 0.05, 0, 0, 2, 1); // 5% default
 
     // ====== TELEMETRY ======
     private final NetworkTable elasticTable;
 
     // ====== STATE ======
     private boolean running = false;
+    private boolean indexerRunning = false;
 
     public ShooterSubsystem() {
         configureMotors();
         configureFollowers();
+        configureIndexer();
 
         // Cache status signals
         velocityA = flywheelA.getRotorVelocity();
@@ -90,16 +101,19 @@ public class ShooterSubsystem extends SubsystemBase {
         tempA = flywheelA.getDeviceTemp();
         tempB = flywheelB.getDeviceTemp();
         tempC = flywheelC.getDeviceTemp();
+        indexerCurrent = indexer.getStatorCurrent();
+        indexerTemp = indexer.getDeviceTemp();
 
         // Set update frequencies
         BaseStatusSignal.setUpdateFrequencyForAll(100, velocityA, velocityB, velocityC, voltageA);
-        BaseStatusSignal.setUpdateFrequencyForAll(50, currentA, currentB, currentC);
-        BaseStatusSignal.setUpdateFrequencyForAll(4, tempA, tempB, tempC);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, currentA, currentB, currentC, indexerCurrent);
+        BaseStatusSignal.setUpdateFrequencyForAll(4, tempA, tempB, tempC, indexerTemp);
 
         // Optimize CAN bus usage
         flywheelA.optimizeBusUtilization();
         flywheelB.optimizeBusUtilization();
         flywheelC.optimizeBusUtilization();
+        indexer.optimizeBusUtilization();
 
         // Elastic Dashboard table
         elasticTable = NetworkTableInstance.getDefault().getTable("Elastic").getSubTable("Shooter");
@@ -135,13 +149,29 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelC.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
     }
 
+    private void configureIndexer() {
+        var config = new TalonFXConfiguration();
+
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        // TODO: Verify indexer motor direction matches mechanical setup
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit = 60.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        indexer.getConfigurator().apply(config);
+    }
+
     @Override
     public void periodic() {
         // Refresh all status signals in one batch
         BaseStatusSignal.refreshAll(
                 velocityA, velocityB, velocityC,
                 voltageA, currentA, currentB, currentC,
-                tempA, tempB, tempC);
+                tempA, tempB, tempC,
+                indexerCurrent, indexerTemp);
 
         // Check for live PID changes from Elastic
         if (kP.hasChanged() || kV.hasChanged() || kS.hasChanged()) {
@@ -152,6 +182,11 @@ public class ShooterSubsystem extends SubsystemBase {
         if (running) {
             double rps = rpmToMotorRPS(targetRPM.get());
             flywheelA.setControl(velocityRequest.withVelocity(rps));
+        }
+
+        // If indexer running, apply the current tunable output
+        if (indexerRunning) {
+            indexer.setControl(indexerDutyCycle.withOutput(indexerOutput.get()));
         }
 
         updateTelemetry();
@@ -182,6 +217,40 @@ public class ShooterSubsystem extends SubsystemBase {
         // NOTE Be aware of this 2026 Follower constructor change!
         flywheelB.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
         flywheelC.setControl(new Follower(FLYWHEEL_A_ID, MotorAlignmentValue.Aligned));
+    }
+
+    // ====== INDEXER API ======
+
+    /** Run indexer at the current dashboard output (duty cycle). */
+    public void runIndexer() {
+        indexerRunning = true;
+        indexer.setControl(indexerDutyCycle.withOutput(indexerOutput.get()));
+    }
+
+    /** Run indexer at a specific duty cycle (-1.0 to 1.0). */
+    public void runIndexerAtOutput(double output) {
+        indexerRunning = true;
+        indexer.setControl(indexerDutyCycle.withOutput(output));
+    }
+
+    /** Stop the indexer. */
+    public void stopIndexer() {
+        indexerRunning = false;
+        indexer.stopMotor();
+    }
+
+    /** Get indexer current draw in amps. */
+    public double getIndexerCurrentAmps() {
+        return indexerCurrent.getValueAsDouble();
+    }
+
+    /** Get indexer temperature in Celsius. */
+    public double getIndexerTempCelsius() {
+        return indexerTemp.getValueAsDouble();
+    }
+
+    public boolean isIndexerRunning() {
+        return indexerRunning;
     }
 
     /** Get averaged flywheel RPM across all 3 motors. */
@@ -225,13 +294,14 @@ public class ShooterSubsystem extends SubsystemBase {
         return max - min;
     }
 
-    /** Check if flywheels are within 5% of the target RPM. */
+    /** Check if flywheels are within the tunable tolerance of the target RPM. */
     public boolean isAtTargetRPM() {
         double target = targetRPM.get();
+        double tolerance = spinUpTolerance.get();
         if (Math.abs(target) < 50) {
             return Math.abs(getAverageRPM()) < 50;
         }
-        return Math.abs(getAverageRPM() - target) < Math.abs(target) * 0.05;
+        return Math.abs(getAverageRPM() - target) < Math.abs(target) * tolerance;
     }
 
     public boolean isRunning() {
@@ -240,6 +310,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getTargetRPM() {
         return targetRPM.get();
+    }
+
+    /** Check if shooter is ready to fire (flywheels at speed and running). */
+    public boolean isReadyToFire() {
+        return running && isAtTargetRPM();
     }
 
     // ====== PRIVATE HELPERS ======
@@ -276,6 +351,8 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/AverageRPM", avgRPM);
         Logger.recordOutput("Shooter/RPMError", target - avgRPM);
         Logger.recordOutput("Shooter/AtTarget", isAtTargetRPM());
+        Logger.recordOutput("Shooter/ReadyToFire", isReadyToFire());
+        Logger.recordOutput("Shooter/SpinUpTolerance", spinUpTolerance.get());
         Logger.recordOutput("Shooter/MotorA_RPM", getMotorRPM(0));
         Logger.recordOutput("Shooter/MotorB_RPM", getMotorRPM(1));
         Logger.recordOutput("Shooter/MotorC_RPM", getMotorRPM(2));
@@ -283,6 +360,10 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/TotalCurrentAmps", getTotalCurrentAmps());
         Logger.recordOutput("Shooter/MaxTempC", getMaxTempCelsius());
         Logger.recordOutput("Shooter/AppliedVolts", voltageA.getValueAsDouble());
+        Logger.recordOutput("Shooter/IndexerRunning", indexerRunning);
+        Logger.recordOutput("Shooter/IndexerOutput", indexerOutput.get());
+        Logger.recordOutput("Shooter/IndexerCurrentAmps", getIndexerCurrentAmps());
+        Logger.recordOutput("Shooter/IndexerTempC", getIndexerTempCelsius());
 
         // Elastic Dashboard (live display)
         elasticTable.getEntry("Running").setBoolean(running);
@@ -290,11 +371,16 @@ public class ShooterSubsystem extends SubsystemBase {
         elasticTable.getEntry("AverageRPM").setDouble(avgRPM);
         elasticTable.getEntry("RPMError").setDouble(target - avgRPM);
         elasticTable.getEntry("AtTarget").setBoolean(isAtTargetRPM());
+        elasticTable.getEntry("ReadyToFire").setBoolean(isReadyToFire());
+        elasticTable.getEntry("SpinUpTolerance").setDouble(spinUpTolerance.get());
         elasticTable.getEntry("MotorA_RPM").setDouble(getMotorRPM(0));
         elasticTable.getEntry("MotorB_RPM").setDouble(getMotorRPM(1));
         elasticTable.getEntry("MotorC_RPM").setDouble(getMotorRPM(2));
         elasticTable.getEntry("VelocitySpread").setDouble(getVelocitySpread());
         elasticTable.getEntry("TotalAmps").setDouble(getTotalCurrentAmps());
         elasticTable.getEntry("MaxTempC").setDouble(getMaxTempCelsius());
+        elasticTable.getEntry("IndexerRunning").setBoolean(indexerRunning);
+        elasticTable.getEntry("IndexerOutput").setDouble(indexerOutput.get());
+        elasticTable.getEntry("IndexerAmps").setDouble(getIndexerCurrentAmps());
     }
 }

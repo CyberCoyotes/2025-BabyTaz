@@ -26,6 +26,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.controls.OperatorBindings;
 
 public class RobotContainer {
@@ -118,8 +119,10 @@ public class RobotContainer {
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
+        // joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.rightBumper().whileTrue(ShooterCommands.runWithIndexer(shooter));
+        joystick.leftBumper().whileTrue(ShooterCommands.runAtRPMWithIndexer(shooter, -2000));
+       
         // drivetrain.registerTelemetry(logger::telemeterize);
     }
 

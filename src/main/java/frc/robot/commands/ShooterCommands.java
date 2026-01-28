@@ -25,6 +25,26 @@ public class ShooterCommands {
     }
 
     /**
+     * Spin flywheels and indexer together.
+     * Flywheels spin up first, indexer waits until flywheels are within 5% of target.
+     * Runs until cancelled.
+     */
+    public static Command runWithIndexer(ShooterSubsystem shooter) {
+        return Commands.sequence(
+                // Start flywheels
+                Commands.runOnce(shooter::run, shooter),
+                // Wait until flywheels reach target (within 5%)
+                Commands.waitUntil(shooter::isAtTargetRPM),
+                // Run indexer while continuing to run flywheels
+                Commands.run(shooter::runIndexer, shooter))
+                .finallyDo(() -> {
+                    shooter.stop();
+                    shooter.stopIndexer();
+                })
+                .withName("Shooter: Run with Indexer");
+    }
+
+    /**
      * Spin flywheels at a specific RPM. Also updates the dashboard value.
      * Runs until cancelled.
      */
@@ -37,10 +57,45 @@ public class ShooterCommands {
     }
 
     /**
-     * Stop the shooter. Instant command.
+     * Spin flywheels at a specific RPM with indexer.
+     * Flywheels spin up first, indexer waits until flywheels are within 5% of target.
+     * Runs until cancelled.
+     */
+    public static Command runAtRPMWithIndexer(ShooterSubsystem shooter, double rpm) {
+        return Commands.sequence(
+                // Start flywheels at specified RPM
+                Commands.runOnce(() -> shooter.runAtRPM(rpm), shooter),
+                // Wait until flywheels reach target (within 5%)
+                Commands.waitUntil(shooter::isAtTargetRPM),
+                // Run indexer while continuing to run flywheels
+                Commands.run(shooter::runIndexer, shooter))
+                .finallyDo(() -> {
+                    shooter.stop();
+                    shooter.stopIndexer();
+                })
+                .withName("Shooter: Run @ " + (int) rpm + " RPM with Indexer");
+    }
+
+    /**
+     * Run only the indexer at dashboard duty cycle.
+     * Runs until cancelled.
+     */
+    public static Command runIndexerOnly(ShooterSubsystem shooter) {
+        return Commands.startEnd(
+                shooter::runIndexer,
+                shooter::stopIndexer,
+                shooter)
+                .withName("Shooter: Indexer Only");
+    }
+
+    /**
+     * Stop the shooter and indexer. Instant command.
      */
     public static Command stop(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::stop, shooter)
+        return Commands.runOnce(() -> {
+            shooter.stop();
+            shooter.stopIndexer();
+        }, shooter)
                 .withName("Shooter: Stop");
     }
 
@@ -54,5 +109,23 @@ public class ShooterCommands {
                 Commands.waitSeconds(seconds),
                 Commands.runOnce(shooter::stop, shooter))
                 .withName("Shooter: Eject");
+    }
+
+    /**
+     * Reverse the flywheels and indexer for clearing jams.
+     * Runs flywheels at -2000 RPM and indexer at -0.5 for the specified duration.
+     */
+    public static Command ejectWithIndexer(ShooterSubsystem shooter, double seconds) {
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                    shooter.runAtRPM(-2000);
+                    shooter.runIndexerAtOutput(-0.5);
+                }, shooter),
+                Commands.waitSeconds(seconds),
+                Commands.runOnce(() -> {
+                    shooter.stop();
+                    shooter.stopIndexer();
+                }, shooter))
+                .withName("Shooter: Eject with Indexer");
     }
 }
