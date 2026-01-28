@@ -863,6 +863,171 @@
         ],
         "containers": []
       }
+    },
+    {
+      "name": "Hopper",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Hopper Status",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Fill Level (%)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Number Bar",
+                "properties": {
+                  "topic": "/Elastic/Hopper/StatusPercent",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "min": 0.0,
+                  "max": 100.0,
+                  "orientation": "horizontal"
+                }
+              },
+              {
+                "title": "Hopper Full",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/Hopper/IsFull",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4286611584
+                }
+              },
+              {
+                "title": "Hopper Empty",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/Hopper/IsEmpty",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4278255360
+                }
+              },
+              {
+                "title": "Reading Stable",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Elastic/Hopper/IsStable",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000
+                }
+              }
+            ]
+          },
+          {
+            "title": "Sensor Distances",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Average Distance (cm)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Hopper/AverageDistanceCm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Sensor A (cm)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Hopper/SensorA_Cm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Sensor B (cm)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Hopper/SensorB_Cm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Sensor C (cm)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Elastic/Hopper/SensorC_Cm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "title": "Fill Level History",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 768.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Elastic/Hopper/StatusPercent",
+              "period": 0.06,
+              "visible_time": 60.0
+            }
+          }
+        ]
+      }
     }
   ]
 }
