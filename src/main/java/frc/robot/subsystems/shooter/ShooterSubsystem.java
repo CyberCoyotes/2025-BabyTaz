@@ -1,9 +1,12 @@
 package frc.robot.subsystems.shooter;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.signals.MotorAlignmentValue; // Added for Phoenix 6 (2026) Follower constructor
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -16,10 +19,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.util.TunableNumber;
-
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Minimal shooter subsystem for prototype testing on BabyTaz.
@@ -130,7 +130,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private void configureFollowers() {
         // B and C follow A, same direction
-        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false));
+
+        // FIXME Phoenix 6 (2026) changed the Follower constructor — it takes a MotorAlignmentValue enum instead of a boolean. 
+        flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false)); 
         flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
     }
 
@@ -178,6 +180,8 @@ public class ShooterSubsystem extends SubsystemBase {
         running = false;
         flywheelA.stopMotor();
         // Followers will stop automatically, but be explicit
+
+        // FIXME Phoenix 6 (2026) changed the Follower constructor — it takes a MotorAlignmentValue enum instead of a boolean.
         flywheelB.setControl(new Follower(FLYWHEEL_A_ID, false));
         flywheelC.setControl(new Follower(FLYWHEEL_A_ID, false));
     }
